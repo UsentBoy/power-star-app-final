@@ -6,6 +6,7 @@ const JobPostSchema = new mongoose.Schema({
   link: { type: String, required: true }, // The link for the work
   amount: { type: Number, required: true }, // Reward amount for completing the work
   isActive: { type: Boolean, default: true },
+  postedBy: { type: String, default: 'admin' }, // Telegram ID of the user who posted it
   createdAt: { type: Date, default: Date.now },
 });
 

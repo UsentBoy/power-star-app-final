@@ -25,6 +25,7 @@ const CoinRequest = require('./models/CoinRequest');
 const CoinConfig = require('./models/CoinConfig');
 const AddFundRequest = require('./models/AddFundRequest');
 const JobSubmission = require('./models/JobSubmission');
+const JobPost = require('./models/JobPost');
 const BotConfig = require('./models/BotConfig');
 const VerificationRequest = require('./models/VerificationRequest');
 const ContactConfig = require('./models/ContactConfig');
@@ -148,10 +149,96 @@ app.get('/api/jobs', async (req, res) => {
   }
 });
 
+app.post('/api/jobs/create', async (req, res) => {
+  const { title, description, link, amount, postedBy } = req.body;
+  try {
+    const job = new JobPost({ title, description, link, amount, postedBy: postedBy || 'admin' });
+    await job.save();
+    res.json({ success: true, job });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/jobs/user/:userId', async (req, res) => {
+  try {
+    const jobs = await JobPost.find({ postedBy: req.params.userId }).sort({ createdAt: -1 });
+    res.json(jobs);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/jobs/:id/toggle-active', async (req, res) => {
+  try {
+    const job = await JobPost.findById(req.params.id);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    job.isActive = !job.isActive;
+    await job.save();
+    res.json({ success: true, isActive: job.isActive });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/jobs/:id/delete', async (req, res) => {
+  try {
+    await JobPost.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.post('/api/jobs/submit', async (req, res) => {
   const { jobId, userTelegramId, submittedId } = req.body;
   try {
     const sub = new JobSubmission({ jobId, userTelegramId, submittedId });
+    await sub.save();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/admin/job-submissions', async (req, res) => {
+  try {
+    const submissions = await JobSubmission.find().populate('jobId').sort({ createdAt: -1 });
+    res.json(submissions);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/admin/jobs/approve', async (req, res) => {
+  const { submissionId } = req.body;
+  try {
+    const sub = await JobSubmission.findById(submissionId).populate('jobId');
+    if (!sub || sub.status !== 'pending') {
+      return res.status(400).json({ error: 'Invalid or processed submission' });
+    }
+    sub.status = 'approved';
+    await sub.save();
+    
+    const user = await User.findOne({ telegramId: sub.userTelegramId });
+    if (user && sub.jobId) {
+      user.balance += sub.jobId.amount;
+      await user.save();
+    }
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/admin/jobs/reject', async (req, res) => {
+  const { submissionId } = req.body;
+  try {
+    const sub = await JobSubmission.findById(submissionId);
+    if (!sub || sub.status !== 'pending') {
+      return res.status(400).json({ error: 'Invalid or processed submission' });
+    }
+    sub.status = 'rejected';
     await sub.save();
     res.json({ success: true });
   } catch (error) {
@@ -164,6 +251,41 @@ app.get('/api/bots', async (req, res) => {
   try {
     const bots = await BotConfig.find({ isActive: true }).limit(5);
     res.json(bots);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/admin/bots', async (req, res) => {
+  try {
+    const bots = await BotConfig.find().sort({ createdAt: -1 });
+    res.json(bots);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/admin/bots/save', async (req, res) => {
+  const { id, title, description, link, isActive } = req.body;
+  try {
+    if (id) {
+      const bot = await BotConfig.findByIdAndUpdate(id, { title, description, link, isActive }, { new: true });
+      res.json({ success: true, bot });
+    } else {
+      const bot = new BotConfig({ title, description, link, isActive: isActive !== false });
+      await bot.save();
+      res.json({ success: true, bot });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/admin/bots/delete', async (req, res) => {
+  const { id } = req.body;
+  try {
+    await BotConfig.findByIdAndDelete(id);
+    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -272,6 +394,24 @@ app.post('/api/coin/sell', async (req, res) => {
     res.json({ message: 'Coin sell request submitted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/coin/history/:userId', async (req, res) => {
+  try {
+    const history = await CoinRequest.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/jobs/history/:userId', async (req, res) => {
+  try {
+    const history = await JobSubmission.find({ userTelegramId: req.params.userId }).populate('jobId').sort({ createdAt: -1 });
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

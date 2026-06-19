@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, ChevronRight, MessageSquare, Download, User as UserIcon, Home as HomeIcon, Wallet, PlayCircle, ExternalLink, DollarSign, Users as UsersIcon, Copy, Gift, Settings, UserPlus, UserMinus, Share2, Search, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Menu, ChevronRight, MessageSquare, Download, User as UserIcon, Home as HomeIcon, Wallet, PlayCircle, ExternalLink, DollarSign, Users as UsersIcon, Copy, Gift, Settings, UserPlus, UserMinus, Share2, Search, CheckCircle, XCircle, AlertCircle, Briefcase, Sun, Moon, Palette } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { taskHtmlData } from './taskData';
 import './index.css';
@@ -76,7 +76,7 @@ const jobData = {
   }
 };
 
-const Header = () => {
+const Header = ({ theme, toggleTheme }) => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179";
@@ -101,23 +101,49 @@ const Header = () => {
         <span className="header-title" style={{fontWeight: '800'}}>Power Star Work</span>
       </div>
       <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-        {isAdmin && <Settings className="menu-icon" size={26} color="#4b5563" onClick={() => navigate('/admin')} style={{cursor: 'pointer'}} />}
+        {/* Theme Toggle Button */}
+        <button 
+          onClick={toggleTheme} 
+          style={{
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            cursor: 'pointer',
+            padding: '5px',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--text-primary)',
+            transition: 'transform 0.2s'
+          }}
+          onMouseOver={e => e.currentTarget.style.transform = 'scale(1.1)'}
+          onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+          title="Toggle Theme"
+        >
+          {theme === 'gradient' && <Palette size={24} />}
+          {theme === 'light' && <Sun size={24} />}
+          {theme === 'dark' && <Moon size={24} />}
+        </button>
+
+        {isAdmin && <Settings className="menu-icon" size={26} color="var(--text-primary)" onClick={() => navigate('/admin')} style={{cursor: 'pointer'}} />}
         <div style={{position: 'relative'}}>
           <Menu className="menu-icon" size={26} onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }} style={{cursor: 'pointer'}} />
           
           {menuOpen && (
             <div style={{
-              position: 'absolute', top: '100%', right: 0, marginTop: '10px', background: 'white',
-              borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', padding: '8px',
-              minWidth: '200px', zIndex: 100, border: '1px solid #f3f4f6'
+              position: 'absolute', top: '100%', right: 0, marginTop: '10px', background: 'var(--card-bg)',
+              backdropFilter: 'blur(20px)', webkitBackdropFilter: 'blur(20px)',
+              borderRadius: '16px', boxShadow: 'var(--shadow)', padding: '8px',
+              minWidth: '200px', zIndex: 100, border: '1px solid var(--border-color)'
             }} onClick={e => e.stopPropagation()}>
-              <div onClick={() => { navigate('/history?tab=coin'); setMenuOpen(false); }} style={{display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', transition: 'background 0.2s', background: '#f8fafc', marginBottom: '5px'}}>
+              <div onClick={() => { navigate('/history?tab=coin'); setMenuOpen(false); }} style={{display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', transition: 'background 0.2s', background: 'var(--input-bg)', marginBottom: '5px'}}>
                 <span style={{fontSize: '1.2rem'}}>💰</span>
-                <span style={{fontWeight: '700', color: '#1f2937', fontSize: '0.9rem'}}>Coin Sell History</span>
+                <span style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.9rem'}}>Coin Sell History</span>
               </div>
-              <div onClick={() => { navigate('/history?tab=work'); setMenuOpen(false); }} style={{display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', transition: 'background 0.2s', background: '#f8fafc'}}>
+              <div onClick={() => { navigate('/history?tab=work'); setMenuOpen(false); }} style={{display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', transition: 'background 0.2s', background: 'var(--input-bg)'}}>
                 <span style={{fontSize: '1.2rem'}}>💼</span>
-                <span style={{fontWeight: '700', color: '#1f2937', fontSize: '0.9rem'}}>Work History</span>
+                <span style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.9rem'}}>Work History</span>
               </div>
             </div>
           )}
@@ -137,6 +163,10 @@ const Footer = () => {
         <HomeIcon size={24} />
         <span>Home</span>
       </div>
+      <div className="nav-item" onClick={() => navigate('/jobs')} style={{ color: location.pathname === '/jobs' ? '#a855f7' : '#9ca3af' }}>
+        <Briefcase size={24} />
+        <span>Jobs</span>
+      </div>
       <div className="nav-item" onClick={() => navigate('/invite')} style={{ color: location.pathname === '/invite' ? '#a855f7' : '#9ca3af' }}>
         <UsersIcon size={24} />
         <span>Invite</span>
@@ -155,27 +185,117 @@ const Footer = () => {
 
 const Home = () => {
   const navigate = useNavigate();
+  const [bots, setBots] = useState([]);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/bots`)
+      .then(res => res.json())
+      .then(data => setBots(Array.isArray(data) ? data : []))
+      .catch(err => console.error('Fetch bots error:', err));
+  }, []);
 
   return (
-    <div className="home-container" style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       
       {/* Banner */}
       <div style={{
-        background: 'linear-gradient(135deg, #6366f1, #a855f7)', 
+        background: 'linear-gradient(135deg, #d60093, #8b00ff)', 
         borderRadius: '20px', 
         padding: '25px 20px', 
         color: 'white',
-        boxShadow: '0 10px 25px rgba(99, 102, 241, 0.4)',
+        boxShadow: '0 10px 25px rgba(139, 0, 255, 0.4)',
         marginBottom: '25px',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        border: '1px solid rgba(255,255,255,0.2)'
       }}>
         <h2 style={{fontSize: '1.8rem', fontWeight: '800', marginBottom: '5px'}}>Start Earning!</h2>
         <p style={{fontSize: '1.1rem', opacity: '0.9'}}>Complete tasks to earn real money daily.</p>
         <div style={{position: 'absolute', right: '-20px', top: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)'}}></div>
       </div>
 
-      <h3 style={{color: '#1f2937', marginBottom: '15px', fontWeight: '800', fontSize: '1.4rem'}}>🔥 Available Works</h3>
+      {/* হটাৎ ইনকাম (Extra Earning) Section */}
+      <div style={{ marginBottom: '25px' }}>
+        <h3 style={{ color: 'var(--text-primary)', marginBottom: '15px', fontWeight: '800', fontSize: '1.4rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>🎁 হটাৎ ইনকাম (Extra Earning)</span>
+        </h3>
+        {bots.length === 0 ? (
+          <div style={{
+            background: 'var(--card-bg)',
+            border: 'var(--card-border)',
+            borderRadius: '16px',
+            padding: '20px',
+            textAlign: 'center',
+            color: 'var(--text-secondary)',
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            backdropFilter: 'blur(10px)',
+            webkitBackdropFilter: 'blur(10px)'
+          }}>
+            বর্তমানে কোন বটের অফার খালি নেই। নতুন রিয়াল বটের খোঁজ পেলে এখানে শেয়ার করা হবে।
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {bots.map((bot, idx) => (
+              <div key={idx} style={{
+                background: 'var(--card-bg)',
+                border: 'var(--card-border)',
+                borderRadius: '16px',
+                padding: '20px',
+                boxShadow: 'var(--shadow)',
+                backdropFilter: 'blur(10px)',
+                webkitBackdropFilter: 'blur(10px)',
+                color: 'var(--text-primary)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <h4 style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>{bot.title}</h4>
+                  <span style={{
+                    background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)',
+                    color: 'white',
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    fontSize: '0.75rem',
+                    fontWeight: '800',
+                    boxShadow: '0 2px 10px rgba(214, 0, 147, 0.3)'
+                  }}>
+                    Real Bot ✅
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '15px', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
+                  {bot.description}
+                </p>
+                <a 
+                  href={bot.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)',
+                    color: 'white',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    fontWeight: '800',
+                    fontSize: '0.95rem',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 15px rgba(139, 0, 255, 0.3)',
+                    transition: 'transform 0.2s'
+                  }}
+                  onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                  onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <ExternalLink size={16} /> রেজিষ্ট্রেশন করুন (Registration Link)
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <h3 style={{color: 'var(--text-primary)', marginBottom: '15px', fontWeight: '800', fontSize: '1.4rem'}}>🔥 Available Works</h3>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '15px' }}>
         
@@ -185,13 +305,14 @@ const Home = () => {
           borderRadius: '16px',
           padding: '20px 15px',
           textAlign: 'center',
-          boxShadow: '0 4px 15px rgba(14,165,233,0.3)',
+          boxShadow: '0 8px 30px rgba(14,165,233,0.3)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           gap: '10px',
           cursor: 'pointer',
-          gridColumn: 'span 2'
+          gridColumn: 'span 2',
+          border: '1px solid rgba(255,255,255,0.1)'
         }}>
           <div style={{background: 'rgba(255,255,255,0.2)', padding: '14px', borderRadius: '18px', marginBottom: '5px'}}>
             <span style={{fontSize: '2.2rem'}}>💰</span>
@@ -214,7 +335,7 @@ const Home = () => {
               if (data && data.isVerified === false) {
                 Swal.fire({
                   title: 'ভেরিফিকেশন প্রয়োজন',
-                  text: 'আপনার অ্যাকাউন্টটি এখনো ভেরিফাই করা নেই!',
+                  text: 'আপনার অ্যাকাউন্টটি Cambodia/ভেরিফাই করা নেই!',
                   icon: 'warning',
                   showCancelButton: true,
                   confirmButtonColor: 'var(--positive-color)',
@@ -241,18 +362,19 @@ const Home = () => {
               navigate(`/task/${task.id}`);
             }
           }} style={{
-            background: 'white', borderRadius: '16px', padding: '20px 15px', textAlign: 'center',
-            boxShadow: '0 4px 10px rgba(0,0,0,0.03)', display: 'flex', flexDirection: 'column',
-            alignItems: 'center', gap: '10px', cursor: 'pointer', border: '1px solid #e5e7eb'
+            background: 'var(--card-bg)', borderRadius: '16px', padding: '20px 15px', textAlign: 'center',
+            boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column',
+            alignItems: 'center', gap: '10px', cursor: 'pointer', border: 'var(--card-border)',
+            backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', color: 'var(--text-primary)'
           }}>
-            <div style={{background: '#f8fafc', padding: '12px', borderRadius: '16px', marginBottom: '5px'}}>
+            <div style={{background: 'var(--input-bg)', padding: '12px', borderRadius: '16px', marginBottom: '5px'}}>
               <img src={task.iconUrl} alt={task.title} style={{width: '40px', height: '40px', objectFit: 'contain'}} />
             </div>
             <div style={{flex: 1}}>
-              <h3 style={{fontSize: '1rem', fontWeight: '800', color: '#1f2937', marginBottom: '4px'}}>{task.title}</h3>
-              <p style={{fontSize: '0.8rem', color: '#6b7280'}}>{task.subtitle}</p>
+              <h3 style={{fontSize: '1rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '4px'}}>{task.title}</h3>
+              <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>{task.subtitle}</p>
             </div>
-            <span style={{background: '#4f46e5', color: 'white', padding: '8px 16px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '800', width: '100%', marginTop: '5px'}}>
+            <span style={{background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)', color: 'white', padding: '8px 16px', borderRadius: '12px', fontSize: '0.85rem', fontWeight: '800', width: '100%', marginTop: '5px', boxShadow: '0 2px 10px rgba(139, 0, 255, 0.3)'}}>
               Start Work
             </span>
           </div>
@@ -281,23 +403,23 @@ const CoinMarketPage = () => {
   }, []);
 
   return (
-    <div style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       {/* Header */}
       <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px'}}>
-        <button onClick={() => navigate('/')} style={{background: 'white', border: 'none', padding: '8px', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', cursor: 'pointer'}}>
-          <ChevronRight size={24} color="#374151" style={{transform: 'rotate(180deg)'}} />
+        <button onClick={() => navigate('/')} style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '8px', borderRadius: '12px', boxShadow: 'var(--shadow)', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <ChevronRight size={24} color="var(--text-primary)" style={{transform: 'rotate(180deg)'}} />
         </button>
         <div>
-          <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: '#1f2937', margin: 0}}>💰 Coins Sell</h2>
-          <p style={{fontSize: '0.8rem', color: '#6b7280', margin: 0}}>কয়েন সিলেক্ট করুন এবং বিক্রি করুন</p>
+          <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--text-primary)', margin: 0}}>💰 Coins Sell</h2>
+          <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0}}>কয়েন সিলেক্ট করুন এবং বিক্রি করুন</p>
         </div>
       </div>
 
       {!marketConfig.marketIsVisible ? (
-        <div style={{background: 'white', borderRadius: '20px', padding: '40px 20px', textAlign: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.05)'}}>
+        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', borderRadius: '20px', padding: '40px 20px', textAlign: 'center', boxShadow: 'var(--shadow)'}}>
           <div style={{fontSize: '3rem', marginBottom: '15px'}}>🔒</div>
-          <h3 style={{fontWeight: '800', color: '#1f2937', marginBottom: '8px'}}>মার্কেট বন্ধ আছে</h3>
-          <p style={{color: '#6b7280', fontSize: '0.9rem'}}>এই মুহূর্তে কয়েন বিক্রি করা যাচ্ছে না। পরে আবার চেষ্টা করুন।</p>
+          <h3 style={{fontWeight: '800', color: 'var(--text-primary)', marginBottom: '8px'}}>মার্কেট বন্ধ আছে</h3>
+          <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>এই মুহূর্তে কয়েন বিক্রি করা যাচ্ছে না। পরে আবার চেষ্টা করুন।</p>
         </div>
       ) : (
         <>
@@ -315,7 +437,7 @@ const CoinMarketPage = () => {
             </div>
           </div>
 
-          <h3 style={{color: '#1f2937', fontWeight: '800', fontSize: '1.2rem', marginBottom: '15px'}}>📈 লাইভ মার্কেট রেট</h3>
+          <h3 style={{color: 'var(--text-primary)', fontWeight: '800', fontSize: '1.2rem', marginBottom: '15px'}}>📈 লাইভ মার্কেট রেট</h3>
 
           <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px'}}>
             {coins.filter(c => c.isVisible).map(coin => (
@@ -323,11 +445,12 @@ const CoinMarketPage = () => {
                 if (!coin.isActive) return alert('এই কয়েনের বিক্রি এখন বন্ধ আছে।');
                 navigate(`/sell-coin?type=${coin.coinId}&name=${coin.label}&color=${encodeURIComponent(coin.color)}`);
               }} style={{
-                background: 'white',
+                background: 'var(--card-bg)',
+                border: 'var(--card-border)',
+                borderTop: `4px solid ${coin.color}`,
                 padding: '16px',
                 borderRadius: '16px',
-                borderTop: `4px solid ${coin.color}`,
-                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)',
+                boxShadow: 'var(--shadow)',
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',
@@ -335,15 +458,15 @@ const CoinMarketPage = () => {
                 transition: 'transform 0.1s',
               }}>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
-                  <span style={{fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', textTransform: 'uppercase'}}>{coin.label}</span>
+                  <span style={{fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase'}}>{coin.label}</span>
                   {coin.isActive
                     ? <span style={{fontSize: '0.65rem', fontWeight: '800', color: 'white', background:  'var(--positive-color)', padding: '2px 6px', borderRadius: '4px'}}>Active</span>
                     : <span style={{fontSize: '0.65rem', fontWeight: '800', color: 'white', background:  'var(--negative-color)', padding: '2px 6px', borderRadius: '4px'}}>Stopped</span>
                   }
                 </div>
                 <div>
-                  <h3 style={{fontSize: '1.8rem', fontWeight: '900', color: '#1f2937', margin: 0, lineHeight: 1}}>{coin.price}<span style={{fontSize: '0.9rem', color: '#9ca3af', marginLeft: '2px'}}>৳</span></h3>
-                  <p style={{fontSize: '0.65rem', fontWeight: '600', color: '#9ca3af', margin: '4px 0 10px 0'}}>Per 1,000 Coins</p>
+                  <h3 style={{fontSize: '1.8rem', fontWeight: '900', color: 'var(--text-primary)', margin: 0, lineHeight: 1}}>{coin.price}<span style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '2px'}}>৳</span></h3>
+                  <p style={{fontSize: '0.65rem', fontWeight: '600', color: 'var(--text-secondary)', margin: '4px 0 10px 0'}}>Per 1,000 Coins</p>
                 </div>
                 <div style={{background: coin.color, color: 'white', padding: '7px', borderRadius: '10px', textAlign: 'center', fontWeight: '800', fontSize: '0.8rem'}}>
                   Sell Now →
@@ -362,6 +485,113 @@ const Profile = () => {
   const [links, setLinks] = useState({ bkashNumber: '...', nagadNumber: '...', rocketNumber: '...', activationFee: 20 });
   const [user, setUser] = useState({ username: 'Md Mahmud', telegramId: window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179", balance: 0, isVerified: false });
   const [trxId, setTrxId] = useState('');
+  
+  // Job posting states
+  const [jobTitle, setJobTitle] = useState('');
+  const [jobDesc, setJobDesc] = useState('');
+  const [jobLink, setJobLink] = useState('');
+  const [jobAmount, setJobAmount] = useState('');
+  const [isPosting, setIsPosting] = useState(false);
+
+  // Microjob management states
+  const [showManageJobs, setShowManageJobs] = useState(false);
+  const [myJobs, setMyJobs] = useState([]);
+  const [loadingJobs, setLoadingJobs] = useState(false);
+
+  const fetchMyJobs = () => {
+    if (!user.telegramId) return;
+    setLoadingJobs(true);
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/user/${user.telegramId}`)
+      .then(res => res.json())
+      .then(data => {
+        setMyJobs(Array.isArray(data) ? data : []);
+        setLoadingJobs(false);
+      })
+      .catch(err => {
+        console.error('Fetch my jobs error:', err);
+        setLoadingJobs(false);
+      });
+  };
+
+  useEffect(() => {
+    if (showManageJobs) {
+      fetchMyJobs();
+    }
+  }, [showManageJobs, user.telegramId]);
+
+  const handlePostJob = (e) => {
+    e.preventDefault();
+    if(!jobTitle || !jobDesc || !jobLink || !jobAmount) {
+      return alert("সবগুলো তথ্য পূরণ করুন!");
+    }
+    if (Number(jobAmount) <= 0) {
+      return alert("কাজের মূল্য সঠিক দিন!");
+    }
+    
+    setIsPosting(true);
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: jobTitle,
+        description: jobDesc,
+        link: jobLink,
+        amount: Number(jobAmount),
+        postedBy: user.telegramId
+      })
+    }).then(res => res.json())
+      .then(data => {
+        setIsPosting(false);
+        if(data.success) {
+          alert("🎉 Microjob টি সফলভাবে পোস্ট করা হয়েছে!");
+          setJobTitle('');
+          setJobDesc('');
+          setJobLink('');
+          setJobAmount('');
+          fetchMyJobs();
+        } else {
+          alert("পাবলিশ করতে ব্যর্থ হয়েছে।");
+        }
+      }).catch(err => {
+        console.error(err);
+        setIsPosting(false);
+        alert("সার্ভার এরর!");
+      });
+  };
+
+  const toggleJobStatus = (jobId) => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/${jobId}/toggle-active`, {
+      method: 'POST'
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert(`Job is now ${data.isActive ? 'Active' : 'Offline'}!`);
+        fetchMyJobs();
+      } else {
+        alert('Failed to change job status.');
+      }
+    })
+    .catch(err => console.error(err));
+  };
+
+  const deleteJob = (jobId) => {
+    if (window.confirm("আপনি কি নিশ্চিতভাবে এই জবটি ডিলেট করতে চান?")) {
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/${jobId}/delete`, {
+        method: 'POST'
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("Job successfully deleted!");
+          fetchMyJobs();
+        } else {
+          alert("Failed to delete job.");
+        }
+      })
+      .catch(err => console.error(err));
+    }
+  };
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/contact`)
@@ -391,14 +621,14 @@ const Profile = () => {
   };
 
   return (
-    <div className="home-container" style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       
       {/* Profile Header Card */}
       {user.isVerified ? (
         <div style={{
-          background: 'linear-gradient(135deg, #10b981, #059669)', padding: '30px 20px', borderRadius: '24px',
-          color: 'white', boxShadow: '0 10px 25px rgba(16, 185, 129, 0.4)', position: 'relative', overflow: 'hidden',
-          marginBottom: '25px', textAlign: 'center'
+          background: 'linear-gradient(135deg, #d60093, #8b00ff)', padding: '30px 20px', borderRadius: '24px',
+          color: 'white', boxShadow: '0 10px 25px rgba(139, 0, 255, 0.3)', position: 'relative', overflow: 'hidden',
+          marginBottom: '25px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)'
         }}>
           <div style={{position: 'absolute', top: 12, right: 15, background: 'rgba(255,255,255,0.25)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '5px'}}>
             <CheckCircle size={16} /> Verified
@@ -419,7 +649,7 @@ const Profile = () => {
         <div style={{
           background: 'linear-gradient(135deg, #f97316, #ea580c)', padding: '30px 20px', borderRadius: '24px',
           color: 'white', boxShadow: '0 10px 25px rgba(234, 88, 12, 0.4)', position: 'relative', overflow: 'hidden',
-          marginBottom: '25px', textAlign: 'center'
+          marginBottom: '25px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.2)'
         }}>
           <div style={{position: 'absolute', top: 12, right: 15, background: 'rgba(255,255,255,0.25)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '5px'}}>
             <AlertCircle size={16} /> Not Verified
@@ -440,24 +670,27 @@ const Profile = () => {
 
       {/* Balance Card */}
       <div style={{
-        background: 'white', borderRadius: '20px', padding: '20px',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)', marginBottom: '25px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+        background: 'var(--card-bg)', borderRadius: '20px', padding: '20px',
+        boxShadow: 'var(--shadow)', marginBottom: '25px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        border: 'var(--card-border)', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)'
       }}>
         <div>
-          <p style={{color: '#6b7280', fontSize: '1.1rem', marginBottom: '5px', fontWeight: '600'}}>Total Balance</p>
-          <h2 style={{color: '#1f2937', fontSize: '2.2rem', fontWeight: '900'}}>{user.balance.toFixed(2)} ৳</h2>
+          <p style={{color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '5px', fontWeight: '600'}}>Total Balance</p>
+          <h2 style={{color: 'var(--text-primary)', fontSize: '2.2rem', fontWeight: '900'}}>{user.balance.toFixed(2)} ৳</h2>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button onClick={() => navigate('/withdraw')} style={{
-            background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', 
-            padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer'
+            background: 'linear-gradient(135deg, #00e676, #00b0ff)', color: 'white', border: 'none', 
+            padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer',
+            boxShadow: '0 4px 10px rgba(0,230,118,0.2)'
           }}>
             <Wallet size={16} /> Withdraw
           </button>
           <button onClick={() => navigate('/add-fund')} style={{
             background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white', border: 'none', 
-            padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer'
+            padding: '8px 12px', borderRadius: '10px', fontWeight: '700', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer',
+            boxShadow: '0 4px 10px rgba(37,99,235,0.2)'
           }}>
             <span style={{fontSize: '16px', fontWeight: 'bold'}}>+</span> Add Fund
           </button>
@@ -467,22 +700,23 @@ const Profile = () => {
       {/* Account Verification Section (Only if not verified) */}
       {!user.isVerified && (
         <div style={{
-          background: 'linear-gradient(135deg, #fef3c7, #fde68a)', borderRadius: '20px', padding: '20px',
-          boxShadow: '0 4px 10px rgba(245, 158, 11, 0.15)', marginBottom: '25px', border: '1px solid #fcd34d'
+          background: 'rgba(251, 191, 36, 0.15)', borderRadius: '20px', padding: '20px',
+          boxShadow: 'var(--shadow)', marginBottom: '25px', border: '1px solid rgba(253, 211, 77, 0.3)',
+          backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)'
         }}>
-          <h3 style={{fontSize: '1.2rem', fontWeight: '800', color: '#d97706', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '5px'}}>
+          <h3 style={{fontSize: '1.2rem', fontWeight: '800', color: '#fcd34d', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '5px'}}>
             <AlertCircle size={20} /> Account Not Verified
           </h3>
-          <p style={{color: '#92400e', fontSize: '0.95rem', marginBottom: '15px', fontWeight: '600'}}>
+          <p style={{color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '15px', fontWeight: '600'}}>
             একাউন্ট ভেরিফাই করার জন্য {links.activationFee || 20} টাকা ফি প্রদান করুন। ভেরিফাই করলে আপনি ৪ জেনারেশন (৫+২+১+১) পর্যন্ত রেফার কমিশন পাবেন!
           </p>
           
-          <div style={{background: 'white', padding: '15px', borderRadius: '12px', marginBottom: '15px'}}>
-            <p style={{fontWeight: '700', marginBottom: '5px', color: '#374151'}}>Send {links.activationFee || 20} ৳ to any number:</p>
-            <ul style={{listStyle: 'none', padding: 0, margin: 0, color: '#4b5563', fontSize: '0.95rem'}}>
-              <li style={{marginBottom: '5px'}}><strong style={{color: '#e2136e'}}>bKash:</strong> {links.bkashNumber}</li>
-              <li style={{marginBottom: '5px'}}><strong style={{color: '#ea580c'}}>Nagad:</strong> {links.nagadNumber}</li>
-              <li><strong style={{color: '#8b5cf6'}}>Rocket:</strong> {links.rocketNumber}</li>
+          <div style={{background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid var(--border-color)'}}>
+            <p style={{fontWeight: '700', marginBottom: '5px', color: 'var(--text-primary)'}}>Send {links.activationFee || 20} ৳ to any number:</p>
+            <ul style={{listStyle: 'none', padding: 0, margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem'}}>
+              <li style={{marginBottom: '5px'}}><strong style={{color: '#ff4081'}}>bKash:</strong> {links.bkashNumber}</li>
+              <li style={{marginBottom: '5px'}}><strong style={{color: '#ff6d00'}}>Nagad:</strong> {links.nagadNumber}</li>
+              <li><strong style={{color: '#b388ff'}}>Rocket:</strong> {links.rocketNumber}</li>
             </ul>
           </div>
 
@@ -492,17 +726,161 @@ const Profile = () => {
             onChange={(e) => setTrxId(e.target.value)}
             placeholder="Enter Transaction ID (TrxID)" 
             style={{
-              width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #fbbf24',
-              marginBottom: '10px', fontSize: '1rem', outline: 'none'
+              width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--input-border)',
+              background: 'var(--input-bg)', color: 'var(--text-primary)', marginBottom: '10px', fontSize: '1rem', outline: 'none'
             }} 
           />
           <button onClick={submitVerification} style={{
-            background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', 
+            background: 'linear-gradient(135deg, #d60093, #8b00ff)', color: 'white', 
             padding: '14px', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '800', 
-            width: '100%', border: 'none', boxShadow: '0 4px 10px rgba(217, 119, 6, 0.3)'
+            width: '100%', border: 'none', boxShadow: '0 4px 15px rgba(139, 0, 255, 0.3)'
           }}>
             Submit Verification
           </button>
+        </div>
+      )}
+
+      {/* Post & Manage Microjobs Expand Toggle */}
+      <button 
+        onClick={() => setShowManageJobs(!showManageJobs)} 
+        style={{
+          width: '100%',
+          background: 'linear-gradient(135deg, #d60093, #8b00ff)',
+          color: 'white',
+          padding: '15px',
+          borderRadius: '16px',
+          fontWeight: '800',
+          fontSize: '1.1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          cursor: 'pointer',
+          boxShadow: '0 8px 25px rgba(139, 0, 255, 0.3)',
+          border: '1px solid rgba(255,255,255,0.1)'
+        }}
+      >
+        <Briefcase size={20} />
+        {showManageJobs ? 'Close Job Manager' : 'Post & Manage Microjobs 💼'}
+      </button>
+
+      {showManageJobs && (
+        <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* Post a Microjob Card */}
+          <div style={{
+            background: 'var(--card-bg)', borderRadius: '20px', padding: '20px',
+            boxShadow: 'var(--shadow)', border: 'var(--card-border)',
+            backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', color: 'var(--text-primary)'
+          }}>
+            <h3 style={{fontSize: '1.2rem', fontWeight: '900', color: 'var(--text-primary)', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px'}}>
+              💼 Create a Campaign
+            </h3>
+            <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '15px'}}>আপনার যেকোনো কাজের জন্য ক্যাম্পেইন তৈরি করুন এবং অন্যদের দিয়ে কাজ করিয়ে নিন।</p>
+            
+            <form onSubmit={handlePostJob}>
+              <div style={{marginBottom: '12px'}}>
+                <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '5px'}}>কাজের শিরোনাম (Job Title)</label>
+                <input type="text" placeholder="e.g. Follow my TikTok handle" value={jobTitle} onChange={e => setJobTitle(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem'}} />
+              </div>
+              <div style={{marginBottom: '12px'}}>
+                <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '5px'}}>কাজের বিবরণ ও নিয়ম (Instructions)</label>
+                <textarea rows={3} placeholder="e.g. Go to the link, follow my profile, and submit your username as proof." value={jobDesc} onChange={e => setJobDesc(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem', resize: 'vertical', fontFamily: 'inherit'}} />
+              </div>
+              <div style={{marginBottom: '12px'}}>
+                <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '5px'}}>লিংক (Target Link)</label>
+                <input type="url" placeholder="e.g. https://tiktok.com/@yourusername" value={jobLink} onChange={e => setJobLink(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem'}} />
+              </div>
+              <div style={{marginBottom: '15px'}}>
+                <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '5px'}}>কাজের মূল্য (Reward per complete in ৳)</label>
+                <input type="number" placeholder="e.g. 5" value={jobAmount} onChange={e => setJobAmount(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem'}} />
+              </div>
+              
+              <button type="submit" disabled={isPosting} style={{
+                background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)', color: 'white', border: 'none',
+                padding: '12px', borderRadius: '10px', fontWeight: '800', width: '100%',
+                cursor: 'pointer', transition: 'opacity 0.2s', opacity: isPosting ? 0.7 : 1,
+                boxShadow: '0 4px 15px rgba(139, 0, 255, 0.3)'
+              }}>
+                {isPosting ? 'Posting...' : 'Post Job 🚀'}
+              </button>
+            </form>
+          </div>
+
+          {/* User's Posted Jobs History List */}
+          <div style={{
+            background: 'var(--card-bg)', borderRadius: '20px', padding: '20px',
+            boxShadow: 'var(--shadow)', border: 'var(--card-border)',
+            backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', color: 'var(--text-primary)'
+          }}>
+            <h3 style={{fontSize: '1.2rem', fontWeight: '900', color: 'var(--text-primary)', marginBottom: '15px'}}>
+              📋 My Posted Campaigns
+            </h3>
+            {loadingJobs ? (
+              <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>Loading campaigns...</p>
+            ) : myJobs.length === 0 ? (
+              <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>আপনার কোন পোস্ট করা জব ক্যাম্পেইন নেই।</p>
+            ) : (
+              <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                {myJobs.map((job) => (
+                  <div key={job._id} style={{
+                    padding: '15px', 
+                    borderRadius: '12px', 
+                    border: '1px solid var(--border-color)', 
+                    background: 'var(--input-bg)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <div style={{flex: 1, marginRight: '10px'}}>
+                      <h4 style={{fontSize: '1rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '3px'}}>{job.title}</h4>
+                      <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '5px'}}>Pay: {job.amount} ৳</p>
+                      <span style={{
+                        fontSize: '0.75rem', 
+                        fontWeight: '800', 
+                        color: job.isActive ? 'var(--positive-color)' : 'var(--negative-color)'
+                      }}>
+                        {job.isActive ? '● Active (চলমান)' : '● Offline (বন্ধ)'}
+                      </span>
+                    </div>
+                    <div style={{display: 'flex', gap: '8px'}}>
+                      <button 
+                        onClick={() => toggleJobStatus(job._id)} 
+                        style={{
+                          background: job.isActive ? '#e53935' : '#31b545',
+                          color: 'white', 
+                          border: 'none', 
+                          padding: '6px 12px', 
+                          borderRadius: '8px', 
+                          fontSize: '0.8rem', 
+                          fontWeight: '700',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {job.isActive ? 'Offline' : 'Active'}
+                      </button>
+                      <button 
+                        onClick={() => deleteJob(job._id)} 
+                        style={{
+                          background: 'rgba(255,255,255,0.15)', 
+                          color: 'var(--negative-color)', 
+                          border: '1px solid var(--negative-color)', 
+                          padding: '6px 12px', 
+                          borderRadius: '8px', 
+                          fontSize: '0.8rem', 
+                          fontWeight: '700',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
       )}
     </div>
@@ -516,7 +894,7 @@ const WithdrawPage = () => {
   const [withdrawNumber, setWithdrawNumber] = useState('');
 
   return (
-    <div className="home-container" style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       <div style={{display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '10px'}}>
         <button onClick={() => navigate('/profile')} style={{background: 'white', border: 'none', padding: '8px', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)'}}>
           <ChevronRight size={24} color="#374151" style={{transform: 'rotate(180deg)'}} />
@@ -623,7 +1001,7 @@ const AddFundPage = () => {
   };
 
   return (
-    <div className="home-container" style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       <div style={{display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '10px'}}>
         <button onClick={() => navigate('/profile')} style={{background: 'white', border: 'none', padding: '8px', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)'}}>
           <ChevronRight size={24} color="#374151" style={{transform: 'rotate(180deg)'}} />
@@ -715,12 +1093,15 @@ const SellCoinPage = () => {
 
   const handleSell = () => {
     if (!senderDetails) return alert("Please enter your App ID or Sender Username.");
+    
+    const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '6323700179';
+    const myUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';
 
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/coin/sell`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId: window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User', username: window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User',
+        userId: myTelegramId, username: myUsername,
         coinType, amount: Number(amount), paymentMethod, paymentNumber, senderDetails, couponCode
       })
     })
@@ -735,50 +1116,50 @@ const SellCoinPage = () => {
   const totalTaka = (Number(amount) / 1000) * coinPrice;
 
   return (
-    <div className="home-container" style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px'}}>
         <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-          <button onClick={() => { if(step === 2) setStep(1); else navigate('/market'); }} style={{background: 'white', border: 'none', padding: '8px', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', cursor: 'pointer'}}>
-            <ChevronRight size={24} color="#374151" style={{transform: 'rotate(180deg)'}} />
+          <button onClick={() => { if(step === 2) setStep(1); else navigate('/market'); }} style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '8px', borderRadius: '12px', boxShadow: 'var(--shadow)', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+            <ChevronRight size={24} color="var(--text-primary)" style={{transform: 'rotate(180deg)'}} />
           </button>
-          <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: '#1f2937'}}>Sell {coinName}</h2>
+          <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--text-primary)'}}>Sell {coinName}</h2>
         </div>
         {tutorialVideo && (
-          <a href={tutorialVideo} target="_blank" rel="noopener noreferrer" style={{fontSize:'0.8rem', fontWeight:'700', color:'#ec4899', textDecoration:'none', display:'flex', alignItems:'center', gap:'5px', background:'white', padding:'6px 12px', borderRadius:'20px', boxShadow:'0 2px 5px rgba(0,0,0,0.05)'}}>
+          <a href={tutorialVideo} target="_blank" rel="noopener noreferrer" style={{fontSize:'0.8rem', fontWeight:'700', color:'#ec4899', textDecoration:'none', display:'flex', alignItems:'center', gap:'5px', background:'var(--card-bg)', border: 'var(--card-border)', padding:'6px 12px', borderRadius:'20px', boxShadow:'var(--shadow)'}}>
             <PlayCircle size={16} /> ভিডিও দেখুন
           </a>
         )}
       </div>
 
-      <div style={{background: 'white', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', borderTop: `6px solid ${coinColor}`}}>
+      <div style={{background: 'var(--card-bg)', borderRadius: '20px', padding: '20px', boxShadow: 'var(--shadow)', border: 'var(--card-border)', borderTop: `6px solid ${coinColor}`}}>
         
         {step === 1 ? (
           <>
             <div style={{textAlign: 'center', marginBottom: '20px'}}>
               <h3 style={{fontSize: '2rem', fontWeight: '900', color: coinColor}}>{coinPrice} ৳</h3>
-              <p style={{fontSize: '0.9rem', color: '#6b7280', fontWeight: '600'}}>Rate per 1,000 Coins</p>
+              <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '600'}}>Rate per 1,000 Coins</p>
             </div>
 
             <div style={{marginBottom: '15px'}}>
-              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: '#374151', marginBottom: '5px'}}>Coin Amount</label>
-              <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder={`Min ${minAmount}`} style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #d1d5db', fontSize: '1rem', outline: 'none'}} />
+              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '5px'}}>Coin Amount</label>
+              <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder={`Min ${minAmount}`} style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '1rem', outline: 'none'}} />
             </div>
 
             <div style={{marginBottom: '15px'}}>
-              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: '#374151', marginBottom: '5px'}}>Payment Method</label>
+              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '5px'}}>Payment Method</label>
               <div style={{display: 'flex', gap: '10px'}}>
                 {/* bKash */}
-                <div onClick={() => setPaymentMethod('bkash')} style={{flex: 1, cursor: 'pointer', textAlign: 'center', padding: '10px', borderRadius: '12px', border: paymentMethod === 'bkash' ? `2px solid ${coinColor}` : '1px solid #e5e7eb', background: paymentMethod === 'bkash' ? '#f8fafc' : 'white'}}>
+                <div onClick={() => setPaymentMethod('bkash')} style={{flex: 1, cursor: 'pointer', textAlign: 'center', padding: '10px', borderRadius: '12px', border: paymentMethod === 'bkash' ? `2px solid ${coinColor}` : '1px solid var(--border-color)', background: paymentMethod === 'bkash' ? 'var(--input-bg)' : 'var(--card-bg)'}}>
                   <img src="https://play-lh.googleusercontent.com/ncgi2sk_NS5u8TfsEVmdaqQhRlv6D0c9JIQ-GmHvazUbp9GDU8gxNZxaq98ysy34juOmSA15KlPLjoAgquZ0nQ" alt="bKash" style={{width: '36px', height: '36px', borderRadius: '8px', margin: '0 auto 8px auto', objectFit: 'cover'}} />
                   <span style={{fontSize: '0.8rem', fontWeight: '700', color: paymentMethod === 'bkash' ? coinColor : '#e2136e', display: 'block'}}>bKash</span>
                 </div>
                 {/* Nagad */}
-                <div onClick={() => setPaymentMethod('nagad')} style={{flex: 1, cursor: 'pointer', textAlign: 'center', padding: '10px', borderRadius: '12px', border: paymentMethod === 'nagad' ? `2px solid ${coinColor}` : '1px solid #e5e7eb', background: paymentMethod === 'nagad' ? '#f8fafc' : 'white'}}>
+                <div onClick={() => setPaymentMethod('nagad')} style={{flex: 1, cursor: 'pointer', textAlign: 'center', padding: '10px', borderRadius: '12px', border: paymentMethod === 'nagad' ? `2px solid ${coinColor}` : '1px solid var(--border-color)', background: paymentMethod === 'nagad' ? 'var(--input-bg)' : 'var(--card-bg)'}}>
                   <img src="https://play-lh.googleusercontent.com/tFk8R3Fkav7fZEY8e7VJtMwtRCowaWU2Us-AmWaKnTOWBer427fPjWetoOnhrUM4nWeZb0AOEJ6lnlwJ9HRu" alt="Nagad" style={{width: '36px', height: '36px', borderRadius: '8px', margin: '0 auto 8px auto', objectFit: 'cover'}} />
                   <span style={{fontSize: '0.8rem', fontWeight: '700', color: paymentMethod === 'nagad' ? coinColor : '#ea580c', display: 'block'}}>Nagad</span>
                 </div>
                 {/* Rocket */}
-                <div onClick={() => setPaymentMethod('rocket')} style={{flex: 1, cursor: 'pointer', textAlign: 'center', padding: '10px', borderRadius: '12px', border: paymentMethod === 'rocket' ? `2px solid ${coinColor}` : '1px solid #e5e7eb', background: paymentMethod === 'rocket' ? '#f8fafc' : 'white'}}>
+                <div onClick={() => setPaymentMethod('rocket')} style={{flex: 1, cursor: 'pointer', textAlign: 'center', padding: '10px', borderRadius: '12px', border: paymentMethod === 'rocket' ? `2px solid ${coinColor}` : '1px solid var(--border-color)', background: paymentMethod === 'rocket' ? 'var(--input-bg)' : 'var(--card-bg)'}}>
                   <img src="https://play-lh.googleusercontent.com/hcRpk0BWUTNPwr1bRWzNVKGZd2lbtdtNS9d__2w6glKwAUE_xvTh8FjkipEnzrlbEVCGsQ-75UwA5HRAYzHEdw" alt="Rocket" style={{width: '36px', height: '36px', borderRadius: '8px', margin: '0 auto 8px auto', objectFit: 'cover'}} />
                   <span style={{fontSize: '0.8rem', fontWeight: '700', color: paymentMethod === 'rocket' ? coinColor : '#8b5cf6', display: 'block'}}>Rocket</span>
                 </div>
@@ -786,28 +1167,28 @@ const SellCoinPage = () => {
             </div>
 
             <div style={{marginBottom: '20px'}}>
-              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: '#374151', marginBottom: '5px'}}>Account Number</label>
-              <input type="text" value={paymentNumber} onChange={e => setPaymentNumber(e.target.value)} placeholder="01XXXXXXXXX" style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #d1d5db', fontSize: '1rem', outline: 'none'}} />
+              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '5px'}}>Account Number</label>
+              <input type="text" value={paymentNumber} onChange={e => setPaymentNumber(e.target.value)} placeholder="01XXXXXXXXX" style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '1rem', outline: 'none'}} />
             </div>
 
             {/* Admin ID to send coins to */}
             {targetUser && (
-              <div style={{background: 'linear-gradient(135deg, #eff6ff, #dbeafe)', padding: '15px', borderRadius: '14px', marginBottom: '15px', border: `2px solid ${coinColor}`}}>
-                <p style={{fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em'}}>📤 এই ID তে কয়েন পাঠান</p>
+              <div style={{background: 'rgba(59, 130, 246, 0.1)', padding: '15px', borderRadius: '14px', marginBottom: '15px', border: `2px solid ${coinColor}`}}>
+                <p style={{fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em'}}>📤 এই ID তে কয়েন পাঠান</p>
                 <span style={{fontWeight: '900', fontSize: '1.3rem', color: coinColor, userSelect: 'all', wordBreak: 'break-all', display: 'block'}}>{targetUser}</span>
-                <p style={{fontSize: '0.75rem', color: '#6b7280', marginTop: '4px'}}>উপরের ID তে কয়েন পাঠিয়ে নিচে আপনার ID দিন</p>
+                <p style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px'}}>উপরের ID তে কয়েন পাঠিয়ে নিচে আপনার ID দিন</p>
               </div>
             )}
 
             {/* Sender ID field */}
             <div style={{marginBottom: '15px'}}>
-              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: '#374151', marginBottom: '5px'}}>আপনার যে {coinName} ID থেকে পাঠিয়েছেন</label>
-              <input type="text" value={senderDetails} onChange={e => setSenderDetails(e.target.value)} placeholder={`আপনার ${coinName} Username / ID`} style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #d1d5db', fontSize: '1rem', outline: 'none'}} />
-              <p style={{fontSize: '0.75rem', color: '#6b7280', marginTop: '4px'}}>কোন ID থেকে কয়েন পাঠিয়েছেন সেটা লিখুন</p>
+              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '5px'}}>আপনার যে {coinName} ID থেকে পাঠিয়েছেন</label>
+              <input type="text" value={senderDetails} onChange={e => setSenderDetails(e.target.value)} placeholder={`আপনার ${coinName} Username / ID`} style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '1rem', outline: 'none'}} />
+              <p style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px'}}>কোন ID থেকে কয়েন পাঠিয়েছেন সেটা লিখুন</p>
             </div>
 
-            <div style={{background: '#f3f4f6', padding: '15px', borderRadius: '12px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              <span style={{fontWeight: '700', color: '#4b5563'}}>You will receive:</span>
+            <div style={{background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+              <span style={{fontWeight: '700', color: 'var(--text-secondary)'}}>You will receive:</span>
               <span style={{fontWeight: '900', color:  'var(--positive-color)', fontSize: '1.2rem'}}>{totalTaka > 0 ? totalTaka.toFixed(2) : '0.00'} ৳</span>
             </div>
 
@@ -820,27 +1201,27 @@ const SellCoinPage = () => {
         ) : (
           <>
             {/* Summary box */}
-            <div style={{background: '#f0fdf4', borderRadius: '14px', padding: '16px', marginBottom: '18px', border: '1px solid #86efac'}}>
-              <h3 style={{fontWeight: '800', color: '#15803d', marginBottom: '12px', fontSize: '1rem'}}>✅ রিকোয়েস্ট সারাংশ</h3>
+            <div style={{background: 'rgba(16, 185, 129, 0.1)', borderRadius: '14px', padding: '16px', marginBottom: '18px', border: '1px solid rgba(16, 185, 129, 0.2)'}}>
+              <h3 style={{fontWeight: '800', color: 'var(--positive-color)', marginBottom: '12px', fontSize: '1rem'}}>✅ রিকোয়েস্ট সারাংশ</h3>
               <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                  <span style={{color: '#6b7280', fontSize: '0.85rem'}}>কয়েন পরিমাণ</span>
-                  <span style={{fontWeight: '800', color: '#1f2937'}}>{amount} Coins</span>
+                  <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>কয়েন পরিমাণ</span>
+                  <span style={{fontWeight: '800', color: 'var(--text-primary)'}}>{amount} Coins</span>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                  <span style={{color: '#6b7280', fontSize: '0.85rem'}}>পাবেন</span>
+                  <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>পাবেন</span>
                   <span style={{fontWeight: '800', color:  'var(--positive-color)'}}>{totalTaka.toFixed(2)} ৳</span>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                  <span style={{color: '#6b7280', fontSize: '0.85rem'}}>Payment Method</span>
-                  <span style={{fontWeight: '800', color: '#1f2937', textTransform: 'capitalize'}}>{paymentMethod}</span>
+                  <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>Payment Method</span>
+                  <span style={{fontWeight: '800', color: 'var(--text-primary)', textTransform: 'capitalize'}}>{paymentMethod}</span>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                  <span style={{color: '#6b7280', fontSize: '0.85rem'}}>Account No.</span>
-                  <span style={{fontWeight: '800', color: '#1f2937'}}>{paymentNumber}</span>
+                  <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>Account No.</span>
+                  <span style={{fontWeight: '800', color: 'var(--text-primary)'}}>{paymentNumber}</span>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                  <span style={{color: '#6b7280', fontSize: '0.85rem'}}>পাঠানো ID</span>
+                  <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>পাঠানো ID</span>
                   <span style={{fontWeight: '800', color: '#2563eb'}}>{senderDetails}</span>
                 </div>
               </div>
@@ -879,35 +1260,104 @@ const HistoryPage = () => {
   const searchParams = new URLSearchParams(location.search);
   const initialTab = searchParams.get('tab') || 'coin';
   const [activeTab, setActiveTab] = useState(initialTab);
+  
+  const [coinHistory, setCoinHistory] = useState([]);
+  const [workHistory, setWorkHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179";
+
+  useEffect(() => {
+    setLoading(true);
+    // Fetch coin selling history
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/coin/history/${myTelegramId}`)
+      .then(res => res.json())
+      .then(data => setCoinHistory(Array.isArray(data) ? data : []))
+      .catch(console.error);
+
+    // Fetch work history
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/history/${myTelegramId}`)
+      .then(res => res.json())
+      .then(data => {
+        setWorkHistory(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [myTelegramId]);
 
   return (
-    <div style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px'}}>
-        <button onClick={() => navigate(-1)} style={{background: 'white', border: 'none', padding: '8px', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)', cursor: 'pointer'}}>
-          <ChevronRight size={24} color="#374151" style={{transform: 'rotate(180deg)'}} />
+        <button onClick={() => navigate(-1)} style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '8px', borderRadius: '12px', boxShadow: 'var(--shadow)', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <ChevronRight size={24} color="var(--text-primary)" style={{transform: 'rotate(180deg)'}} />
         </button>
-        <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: '#1f2937', margin: 0}}>History</h2>
+        <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--text-primary)', margin: 0}}>History</h2>
       </div>
 
-      <div style={{display: 'flex', gap: '10px', marginBottom: '20px', background: 'white', padding: '5px', borderRadius: '14px', boxShadow: '0 2px 10px rgba(0,0,0,0.02)'}}>
-        <button onClick={() => setActiveTab('coin')} style={{flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: activeTab === 'coin' ? '#eff6ff' : 'transparent', color: activeTab === 'coin' ? '#2563eb' : '#6b7280', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'}}>💰 Coin Sell</button>
-        <button onClick={() => setActiveTab('work')} style={{flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: activeTab === 'work' ? '#f5f3ff' : 'transparent', color: activeTab === 'work' ? '#8b5cf6' : '#6b7280', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'}}>💼 Work History</button>
+      <div style={{display: 'flex', gap: '10px', marginBottom: '20px', background: 'var(--card-bg)', border: 'var(--card-border)', padding: '5px', borderRadius: '14px', boxShadow: 'var(--shadow)'}}>
+        <button onClick={() => setActiveTab('coin')} style={{flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: activeTab === 'coin' ? 'var(--input-bg)' : 'transparent', color: activeTab === 'coin' ? '#2563eb' : 'var(--text-secondary)', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'}}>💰 Coin Sell</button>
+        <button onClick={() => setActiveTab('work')} style={{flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: activeTab === 'work' ? 'var(--input-bg)' : 'transparent', color: activeTab === 'work' ? '#8b5cf6' : 'var(--text-secondary)', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'}}>💼 Work History</button>
       </div>
 
-      {activeTab === 'coin' && (
-        <div style={{textAlign: 'center', padding: '40px 20px', background: 'white', borderRadius: '16px'}}>
-          <div style={{fontSize: '3rem', marginBottom: '10px'}}>📄</div>
-          <h3 style={{color: '#374151', fontWeight: '800'}}>No Coin Sell History</h3>
-          <p style={{color: '#9ca3af', fontSize: '0.9rem'}}>You haven't sold any coins yet.</p>
-        </div>
-      )}
+      {loading ? (
+        <p style={{textAlign: 'center', color: 'var(--text-secondary)'}}>Loading history...</p>
+      ) : (
+        <>
+          {activeTab === 'coin' && (
+            <div>
+              {coinHistory.length === 0 ? (
+                <div style={{textAlign: 'center', padding: '40px 20px', background: 'var(--card-bg)', border: 'var(--card-border)', borderRadius: '16px', boxShadow: 'var(--shadow)'}}>
+                  <div style={{fontSize: '3rem', marginBottom: '10px'}}>📄</div>
+                  <h3 style={{color: 'var(--text-primary)', fontWeight: '800'}}>No Coin Sell History</h3>
+                  <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>You haven't sold any coins yet.</p>
+                </div>
+              ) : (
+                coinHistory.map((item, idx) => (
+                  <div key={idx} style={{background: 'var(--card-bg)', padding: '15px', borderRadius: '16px', marginBottom: '10px', boxShadow: 'var(--shadow)', border: 'var(--card-border)'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                      <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin: 0, textTransform: 'capitalize'}}>{item.coinType}</h4>
+                      <span style={{
+                        background: item.status === 'Pending' ? '#fef3c7' : item.status === 'Accepted' ? '#dcfce7' : '#fee2e2',
+                        color: item.status === 'Pending' ? '#d97706' : item.status === 'Accepted' ? 'var(--positive-color)' : 'var(--negative-color)',
+                        padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'
+                      }}>{item.status}</span>
+                    </div>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Amount: <strong style={{color: 'var(--text-primary)'}}>{item.amount}</strong></p>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Method: <strong style={{color: 'var(--text-primary)'}}>{item.paymentMethod}</strong> ({item.paymentNumber})</p>
+                    <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.8, margin: 0}}>{new Date(item.createdAt).toLocaleString()}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
 
-      {activeTab === 'work' && (
-        <div style={{textAlign: 'center', padding: '40px 20px', background: 'white', borderRadius: '16px'}}>
-          <div style={{fontSize: '3rem', marginBottom: '10px'}}>🛠️</div>
-          <h3 style={{color: '#374151', fontWeight: '800'}}>No Work History</h3>
-          <p style={{color: '#9ca3af', fontSize: '0.9rem'}}>You haven't completed any tasks yet.</p>
-        </div>
+          {activeTab === 'work' && (
+            <div>
+              {workHistory.length === 0 ? (
+                <div style={{textAlign: 'center', padding: '40px 20px', background: 'var(--card-bg)', border: 'var(--card-border)', borderRadius: '16px', boxShadow: 'var(--shadow)'}}>
+                  <div style={{fontSize: '3rem', marginBottom: '10px'}}>🛠️</div>
+                  <h3 style={{color: 'var(--text-primary)', fontWeight: '800'}}>No Work History</h3>
+                  <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>You haven't completed any tasks yet.</p>
+                </div>
+              ) : (
+                workHistory.map((item, idx) => (
+                  <div key={idx} style={{background: 'var(--card-bg)', padding: '15px', borderRadius: '16px', marginBottom: '10px', boxShadow: 'var(--shadow)', border: 'var(--card-border)'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                      <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin: 0}}>{item.jobId?.title || 'Microjob'}</h4>
+                      <span style={{
+                        background: item.status === 'pending' ? '#fef3c7' : item.status === 'approved' ? '#dcfce7' : '#fee2e2',
+                        color: item.status === 'pending' ? '#d97706' : item.status === 'approved' ? 'var(--positive-color)' : 'var(--negative-color)',
+                        padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'
+                      }}>{item.status.toUpperCase()}</span>
+                    </div>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Proof Submitted: <strong style={{color: 'var(--text-primary)'}}>{item.submittedId}</strong></p>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Reward: <strong style={{color: 'var(--text-primary)'}}>{item.jobId?.amount || 0} ৳</strong></p>
+                    <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.8, margin: 0}}>{new Date(item.createdAt).toLocaleString()}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -921,7 +1371,7 @@ const Invite = () => {
   const [stats, setStats] = React.useState({ totalReferrals: 0, totalEarned: 0, referrals: [] });
 
   React.useEffect(() => {
-    fetch(`http://localhost:5000/api/referrals/${myTelegramId}`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/referrals/${myTelegramId}`)
       .then(res => res.json())
       .then(data => {
         if (!data.error) setStats(data);
@@ -935,7 +1385,7 @@ const Invite = () => {
   };
 
   return (
-    <div className="home-container" style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       
       {/* Banner */}
       <div style={{
@@ -959,19 +1409,23 @@ const Invite = () => {
       </div>
 
       {/* Invite Link Box */}
-      <div style={{background: 'white', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', marginBottom: '25px'}}>
-        <h3 style={{fontSize: '1.1rem', fontWeight: '700', color: '#374151', marginBottom: '10px'}}>Your Referral Link</h3>
+      <div style={{
+        background: 'var(--card-bg)', borderRadius: '20px', padding: '20px',
+        boxShadow: 'var(--shadow)', border: 'var(--card-border)',
+        backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', color: 'var(--text-primary)', marginBottom: '25px'
+      }}>
+        <h3 style={{fontSize: '1.1rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '10px'}}>Your Referral Link</h3>
         <div style={{
-          display: 'flex', alignItems: 'center', background: '#f3f4f6', padding: '12px', 
-          borderRadius: '12px', border: '1px dashed #d1d5db', marginBottom: '15px'
+          display: 'flex', alignItems: 'center', background: 'var(--input-bg)', padding: '12px', 
+          borderRadius: '12px', border: '1px dashed var(--input-border)', marginBottom: '15px'
         }}>
           <input 
             type="text" 
             value={referralLink} 
             readOnly 
-            style={{flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#4b5563', fontSize: '0.9rem'}} 
+            style={{flex: 1, background: 'transparent', border: 'none', outline: 'none', color: 'var(--text-secondary)', fontSize: '0.9rem'}} 
           />
-          <button onClick={copyToClipboard} style={{background: '#a855f7', color: 'white', padding: '8px 12px', borderRadius: '8px', marginLeft: '10px', display: 'flex', alignItems: 'center', gap: '5px'}}>
+          <button onClick={copyToClipboard} style={{background: '#a855f7', color: 'white', padding: '8px 12px', borderRadius: '8px', marginLeft: '10px', display: 'flex', alignItems: 'center', gap: '5px', border: 'none'}}>
             <Copy size={16} /> Copy
           </button>
         </div>
@@ -981,8 +1435,8 @@ const Invite = () => {
           rel="noreferrer"
           style={{
             display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
-            background:  'var(--primary-color)', color: 'white', padding: '12px', borderRadius: '12px', 
-            fontWeight: '700', textDecoration: 'none'
+            background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)', color: 'white', padding: '12px', borderRadius: '12px', 
+            fontWeight: '800', textDecoration: 'none', boxShadow: '0 4px 15px rgba(139, 0, 255, 0.3)'
           }}
         >
           <Share2 size={20}/> Share to Telegram
@@ -991,38 +1445,46 @@ const Invite = () => {
 
       {/* Stats Box */}
       <div style={{display: 'flex', gap: '15px', marginBottom: '25px'}}>
-        <div style={{flex: 1, background: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', textAlign: 'center'}}>
-          <p style={{color: '#6b7280', fontSize: '0.9rem', fontWeight: '600'}}>Total Invites</p>
-          <h2 style={{color:  'var(--primary-color)', fontSize: '2rem', fontWeight: '900'}}>{stats.totalReferrals}</h2>
+        <div style={{flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', textAlign: 'center'}}>
+          <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: '600'}}>Total Invites</p>
+          <h2 style={{color:  'var(--text-primary)', fontSize: '2.2rem', fontWeight: '900'}}>{stats.totalReferrals}</h2>
         </div>
-        <div style={{flex: 1, background: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', textAlign: 'center'}}>
-          <p style={{color: '#6b7280', fontSize: '0.9rem', fontWeight: '600'}}>Total Earned</p>
-          <h2 style={{color:  'var(--positive-color)', fontSize: '2rem', fontWeight: '900'}}>{stats.totalEarned} ৳</h2>
+        <div style={{flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', textAlign: 'center'}}>
+          <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: '600'}}>Total Earned</p>
+          <h2 style={{color:  'var(--positive-color)', fontSize: '2.2rem', fontWeight: '900'}}>{stats.totalEarned} ৳</h2>
         </div>
       </div>
 
       {/* Referrals List */}
-      <h3 style={{color: '#1f2937', marginBottom: '15px', fontWeight: '800', fontSize: '1.3rem'}}>👥 My Referrals</h3>
+      <h3 style={{color: 'var(--text-primary)', marginBottom: '15px', fontWeight: '800', fontSize: '1.3rem'}}>👥 My Referrals</h3>
       
       {stats.referrals.length === 0 ? (
-        <div style={{background: 'white', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', textAlign: 'center', color: '#6b7280'}}>
+        <div style={{
+          background: 'var(--card-bg)', borderRadius: '20px', padding: '30px', 
+          boxShadow: 'var(--shadow)', border: 'var(--card-border)',
+          backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', textAlign: 'center', color: 'var(--text-secondary)'
+        }}>
           <UsersIcon size={40} style={{margin: '0 auto 10px auto', opacity: 0.5}} />
           <p>No referrals yet. Share your link to start earning!</p>
         </div>
       ) : (
-        <div style={{background: 'white', borderRadius: '20px', padding: '10px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)'}}>
+        <div style={{
+          background: 'var(--card-bg)', borderRadius: '20px', padding: '10px',
+          boxShadow: 'var(--shadow)', border: 'var(--card-border)',
+          backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', color: 'var(--text-primary)'
+        }}>
           {stats.referrals.map((ref, idx) => (
             <div key={idx} style={{
               display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
-              padding: '15px', borderBottom: idx !== stats.referrals.length - 1 ? '1px solid #f3f4f6' : 'none'
+              padding: '15px', borderBottom: idx !== stats.referrals.length - 1 ? '1px solid var(--border-color)' : 'none'
             }}>
               <div>
-                <p style={{fontWeight: '700', color: '#1f2937', fontSize: '1.05rem'}}>@{ref.username || 'User'}</p>
+                <p style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '1.05rem'}}>@{ref.username || 'User'}</p>
                 <span style={{fontSize: '0.8rem', color: ref.isVerified ?  'var(--positive-color)' : '#f59e0b', fontWeight: '600'}}>
                   {ref.isVerified ? '✅ Verified (Earned 5৳)' : '⏳ Pending'}
                 </span>
               </div>
-              <div style={{color: '#6b7280', fontSize: '0.85rem'}}>
+              <div style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>
                 {new Date(ref.createdAt).toLocaleDateString()}
               </div>
             </div>
@@ -1192,7 +1654,7 @@ const ContactPage = () => {
   ];
 
   return (
-    <div className="home-container" style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       
       {/* Contact Banner */}
       <div style={{
@@ -1211,45 +1673,45 @@ const ContactPage = () => {
       
       {/* Contact Links */}
       <div style={{display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px'}}>
-        <a href={links.supportLink || '#'} target="_blank" rel="noreferrer" style={{background: 'white', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', color: '#4f46e5', fontWeight: '700', textDecoration: 'none'}}>
+        <a href={links.supportLink || '#'} target="_blank" rel="noreferrer" style={{background: 'var(--card-bg)', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', color: 'var(--text-primary)', fontWeight: '700', textDecoration: 'none'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-            <div style={{background: '#e0e7ff', padding: '10px', borderRadius: '12px'}}><MessageSquare size={24} /></div>
-            <span style={{fontSize: '1.1rem', color: '#1f2937'}}>Admin Support</span>
+            <div style={{background: 'var(--input-bg)', padding: '10px', borderRadius: '12px'}}><MessageSquare size={24} style={{color: 'var(--text-primary)'}} /></div>
+            <span style={{fontSize: '1.1rem', color: 'var(--text-primary)'}}>Admin Support</span>
           </div>
-          <ChevronRight size={20} color="#9ca3af" />
+          <ChevronRight size={20} color="var(--text-secondary)" />
         </a>
-        <a href={links.telegramChannel || '#'} target="_blank" rel="noreferrer" style={{background: 'white', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', color: '#0ea5e9', fontWeight: '700', textDecoration: 'none'}}>
+        <a href={links.telegramChannel || '#'} target="_blank" rel="noreferrer" style={{background: 'var(--card-bg)', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', color: 'var(--text-primary)', fontWeight: '700', textDecoration: 'none'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-            <div style={{background: '#e0f2fe', padding: '10px', borderRadius: '12px'}}><UsersIcon size={24} /></div>
-            <span style={{fontSize: '1.1rem', color: '#1f2937'}}>Join Telegram Channel</span>
+            <div style={{background: 'var(--input-bg)', padding: '10px', borderRadius: '12px'}}><UsersIcon size={24} style={{color: 'var(--text-primary)'}} /></div>
+            <span style={{fontSize: '1.1rem', color: 'var(--text-primary)'}}>Join Telegram Channel</span>
           </div>
-          <ChevronRight size={20} color="#9ca3af" />
+          <ChevronRight size={20} color="var(--text-secondary)" />
         </a>
-        <a href={links.youtubeChannel || '#'} target="_blank" rel="noreferrer" style={{background: 'white', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', color:  'var(--negative-color)', fontWeight: '700', textDecoration: 'none'}}>
+        <a href={links.youtubeChannel || '#'} target="_blank" rel="noreferrer" style={{background: 'var(--card-bg)', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', color: 'var(--text-primary)', fontWeight: '700', textDecoration: 'none'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
-            <div style={{background: '#fee2e2', padding: '10px', borderRadius: '12px'}}><PlayCircle size={24} /></div>
-            <span style={{fontSize: '1.1rem', color: '#1f2937'}}>Subscribe YouTube</span>
+            <div style={{background: 'var(--input-bg)', padding: '10px', borderRadius: '12px'}}><PlayCircle size={24} style={{color: 'var(--text-primary)'}} /></div>
+            <span style={{fontSize: '1.1rem', color: 'var(--text-primary)'}}>Subscribe YouTube</span>
           </div>
-          <ChevronRight size={20} color="#9ca3af" />
+          <ChevronRight size={20} color="var(--text-secondary)" />
         </a>
       </div>
 
       {/* FAQ Section */}
-      <h3 style={{color: '#1f2937', marginBottom: '15px', fontWeight: '800', fontSize: '1.3rem'}}>🤔 Frequently Asked Questions</h3>
+      <h3 style={{color: 'var(--text-primary)', marginBottom: '15px', fontWeight: '800', fontSize: '1.3rem'}}>🤔 Frequently Asked Questions</h3>
       <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
         {faqs.map((faq, idx) => (
-          <div key={idx} style={{background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.03)'}}>
+          <div key={idx} style={{background: 'var(--card-bg)', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)'}}>
             <div 
               onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-              style={{padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: openFaq === idx ? '#f8fafc' : 'white'}}
+              style={{padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: 'transparent'}}
             >
-              <h4 style={{fontWeight: '700', color: '#374151', fontSize: '1rem', margin: 0}}>{faq.q}</h4>
-              <span style={{color: '#6b7280', transform: openFaq === idx ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s'}}>
+              <h4 style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem', margin: 0}}>{faq.q}</h4>
+              <span style={{color: 'var(--text-secondary)', transform: openFaq === idx ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s'}}>
                 <ChevronRight size={20} />
               </span>
             </div>
             {openFaq === idx && (
-              <div style={{padding: '15px 20px', color: '#4b5563', fontSize: '0.95rem', borderTop: '1px solid #f3f4f6', background: '#f8fafc', lineHeight: '1.5'}}>
+              <div style={{padding: '15px 20px', color: 'var(--text-secondary)', fontSize: '0.95rem', borderTop: '1px solid var(--border-color)', background: 'var(--input-bg)', lineHeight: '1.5'}}>
                 {faq.a}
               </div>
             )}
@@ -1270,6 +1732,59 @@ const AdminPanel = () => {
   const [fundRequests, setFundRequests] = useState([]);
   const [coins, setCoins] = useState([]);
   const [marketConfig, setMarketConfig] = useState({ marketIsVisible: true });
+  
+  // Job submissions state
+  const [jobSubmissions, setJobSubmissions] = useState([]);
+
+  // Bot states and functions
+  const [bots, setBots] = useState([]);
+  const [editingBot, setEditingBot] = useState(null);
+
+  const fetchBots = () => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/bots`)
+      .then(res => res.json())
+      .then(data => setBots(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const saveBot = (botData) => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/bots/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(botData)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('Bot saved successfully!');
+        setEditingBot(null);
+        fetchBots();
+      } else {
+        alert('Failed to save bot: ' + data.error);
+      }
+    })
+    .catch(err => console.error(err));
+  };
+
+  const deleteBot = (id) => {
+    if (window.confirm('Are you sure you want to delete this bot?')) {
+      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/bots/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Bot deleted successfully!');
+          fetchBots();
+        } else {
+          alert('Failed to delete bot: ' + data.error);
+        }
+      })
+      .catch(err => console.error(err));
+    }
+  };
   
   const [searchId, setSearchId] = useState('');
   const [searchedUser, setSearchedUser] = useState(null);
@@ -1318,6 +1833,44 @@ const AdminPanel = () => {
       });
   };
 
+  const fetchJobSubmissions = () => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/job-submissions`)
+      .then(res => res.json())
+      .then(data => setJobSubmissions(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const approveJobSubmission = (submissionId) => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/jobs/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId })
+    }).then(res => res.json())
+      .then(data => {
+        if(data.error) alert(data.error);
+        else {
+          alert('Job submission approved!');
+          fetchJobSubmissions();
+          fetchStats();
+        }
+      });
+  };
+
+  const rejectJobSubmission = (submissionId) => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/jobs/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId })
+    }).then(res => res.json())
+      .then(data => {
+        if(data.error) alert(data.error);
+        else {
+          alert('Job submission rejected!');
+          fetchJobSubmissions();
+        }
+      });
+  };
+
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/contact`).then(res => res.json()).then(data => setLinks(data)).catch(() => {});
     fetchStats();
@@ -1326,6 +1879,8 @@ const AdminPanel = () => {
     fetchFundRequests();
     fetchCoins();
     fetchConfig();
+    fetchJobSubmissions();
+    fetchBots();
   }, []);
 
   const saveContact = () => {
@@ -1343,7 +1898,7 @@ const AdminPanel = () => {
   };
 
   const searchUser = () => {
-    fetch(`http://localhost:5000/api/admin/user/${searchId}`)
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) alert(data.error);
@@ -1352,14 +1907,14 @@ const AdminPanel = () => {
   };
 
   const toggleBan = () => {
-    fetch(`http://localhost:5000/api/admin/user/${searchId}/ban`, { method: 'POST' })
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/ban`, { method: 'POST' })
       .then(res => res.json())
       .then(data => setSearchedUser({...searchedUser, isBanned: data.isBanned}));
   };
 
   const manualVerify = () => {
     if(window.confirm(`Are you sure you want to manually verify @${searchedUser.username || searchedUser.telegramId}?`)) {
-      fetch(`http://localhost:5000/api/admin/user/${searchId}/manual-verify`, { method: 'POST' })
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/manual-verify`, { method: 'POST' })
         .then(res => res.json())
         .then(data => {
           if (data.error) alert(data.error);
@@ -1372,7 +1927,7 @@ const AdminPanel = () => {
   };
 
   const editBalance = (action) => {
-    fetch(`http://localhost:5000/api/admin/user/${searchId}/balance`, {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/balance`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount: balanceInput, action })
     }).then(res => res.json()).then(data => {
@@ -1400,7 +1955,7 @@ const AdminPanel = () => {
   };
 
   const updateCoinRequestStatus = (id, status) => {
-    fetch(`http://localhost:5000/api/admin/coin-requests/${id}/status`, {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/coin-requests/${id}/status`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
     }).then(() => {
@@ -1435,30 +1990,37 @@ const AdminPanel = () => {
   const pendingAddFunds = fundRequests.filter(r => r.status === 'Pending').length;
 
   return (
-    <div className="home-container" style={{background: '#f3f4f6', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
-      <h2 style={{textAlign: 'center', fontWeight: '900', fontSize: '1.8rem', marginBottom: '15px', color: '#1f2937'}}>Admin Dashboard</h2>
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+      <h2 style={{textAlign: 'center', fontWeight: '900', fontSize: '1.8rem', marginBottom: '15px', color: 'var(--text-primary)'}}>Admin Dashboard</h2>
       
       <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px', paddingBottom: '10px', justifyContent: 'center'}}>
-        <button onClick={()=>setActiveTab('dashboard')} style={{background: activeTab==='dashboard'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='dashboard'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('dashboard')} style={{background: activeTab==='dashboard'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='dashboard'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
           Dashboard
         </button>
-        <button onClick={()=>setActiveTab('users')} style={{position: 'relative', background: activeTab==='users'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='users'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('users')} style={{position: 'relative', background: activeTab==='users'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='users'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
           Users
           {pendingVerifications > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingVerifications}</span>}
         </button>
-        <button onClick={()=>setActiveTab('tasks')} style={{background: activeTab==='tasks'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='tasks'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('tasks')} style={{background: activeTab==='tasks'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='tasks'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
           Tasks
         </button>
 
-        <button onClick={()=>setActiveTab('coinSells')} style={{position: 'relative', background: activeTab==='coinSells'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='coinSells'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('coinSells')} style={{position: 'relative', background: activeTab==='coinSells'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='coinSells'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
           Coin Sells
           {pendingCoinSells > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingCoinSells}</span>}
         </button>
-        <button onClick={()=>setActiveTab('addFunds')} style={{position: 'relative', background: activeTab==='addFunds'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='addFunds'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('addFunds')} style={{position: 'relative', background: activeTab==='addFunds'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='addFunds'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
           Add Funds
           {pendingAddFunds > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingAddFunds}</span>}
         </button>
-        <button onClick={()=>setActiveTab('contact')} style={{background: activeTab==='contact'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='contact'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('jobProofs')} style={{position: 'relative', background: activeTab==='jobProofs'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='jobProofs'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
+          Job Proofs
+          {jobSubmissions.filter(s => s.status === 'pending').length > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{jobSubmissions.filter(s => s.status === 'pending').length}</span>}
+        </button>
+        <button onClick={()=>setActiveTab('bots')} style={{background: activeTab==='bots'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='bots'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
+          Manage Bots
+        </button>
+        <button onClick={()=>setActiveTab('contact')} style={{background: activeTab==='contact'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='contact'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
           Settings
         </button>
       </div>
@@ -1466,28 +2028,28 @@ const AdminPanel = () => {
       {activeTab === 'dashboard' && (
         <>
           <div style={{display: 'flex', gap: '15px', marginBottom: '20px'}}>
-            <div style={{flex: 1, background: 'white', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'}}>
-              <p style={{color: '#6b7280', fontSize:'0.85rem', fontWeight:'700'}}>Total Users</p>
-              <h3 style={{color: '#1f2937', fontSize:'1.5rem'}}>{stats.totalUsers}</h3>
+            <div style={{flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)'}}>
+              <p style={{color: 'var(--text-secondary)', fontSize:'0.85rem', fontWeight:'700'}}>Total Users</p>
+              <h3 style={{color: 'var(--text-primary)', fontSize:'1.5rem'}}>{stats.totalUsers}</h3>
             </div>
-            <div style={{flex: 1, background: 'white', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'}}>
-              <p style={{color: '#6b7280', fontSize:'0.85rem', fontWeight:'700'}}>Pending Verify</p>
+            <div style={{flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)'}}>
+              <p style={{color: 'var(--text-secondary)', fontSize:'0.85rem', fontWeight:'700'}}>Pending Verify</p>
               <h3 style={{color: '#f59e0b', fontSize:'1.5rem'}}>{stats.pendingVerifications}</h3>
             </div>
-            <div style={{flex: 1, background: 'white', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'}}>
-              <p style={{color: '#6b7280', fontSize:'0.85rem', fontWeight:'700'}}>Pending Withdraw</p>
+            <div style={{flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)'}}>
+              <p style={{color: 'var(--text-secondary)', fontSize:'0.85rem', fontWeight:'700'}}>Pending Withdraw</p>
               <h3 style={{color:  'var(--negative-color)', fontSize:'1.5rem'}}>{stats.pendingWithdraws}</h3>
             </div>
           </div>
 
-          <div style={{background: 'white', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
-            <h3 style={{marginBottom: '15px', fontSize: '1.1rem', color: '#374151'}}>Pending Verifications</h3>
-            {stats.verifications.length === 0 ? <p style={{color:'#9ca3af', fontSize:'0.9rem'}}>No pending requests</p> : 
+          <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
+            <h3 style={{marginBottom: '15px', fontSize: '1.1rem', color: 'var(--text-primary)'}}>Pending Verifications</h3>
+            {stats.verifications.length === 0 ? <p style={{color:'var(--text-secondary)', fontSize:'0.9rem'}}>No pending requests</p> : 
               stats.verifications.map((v, i) => (
-                <div key={i} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid #f3f4f6'}}>
+                <div key={i} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid var(--border-color)'}}>
                   <div>
-                    <p style={{fontWeight:'700', fontSize:'0.95rem'}}>UID: {v.telegramId}</p>
-                    <p style={{color:'#6b7280', fontSize:'0.8rem'}}>TrxID: {v.transactionId}</p>
+                    <p style={{fontWeight:'700', fontSize:'0.95rem', color: 'var(--text-primary)'}}>UID: {v.telegramId}</p>
+                    <p style={{color:'var(--text-secondary)', fontSize:'0.8rem'}}>TrxID: {v.transactionId}</p>
                   </div>
                   <button onClick={() => approveVerify(v.telegramId)} style={{background: 'var(--positive-color)', color:'white', padding:'6px 12px', borderRadius:'8px', border:'none', fontSize:'0.85rem', fontWeight:'700'}}>Approve</button>
                 </div>
@@ -1498,33 +2060,33 @@ const AdminPanel = () => {
       )}
 
       {activeTab === 'users' && (
-        <div style={{background: 'white', padding: '20px', borderRadius: '16px'}}>
-          <h3 style={{marginBottom: '15px', fontSize: '1.1rem', color: '#374151'}}>Search User</h3>
+        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
+          <h3 style={{marginBottom: '15px', fontSize: '1.1rem', color: 'var(--text-primary)'}}>Search User</h3>
           <div style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
-            <input type="text" placeholder="UID or @username" value={searchId} onChange={(e) => setSearchId(e.target.value)} style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
+            <input type="text" placeholder="UID or @username" value={searchId} onChange={(e) => setSearchId(e.target.value)} style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
             <button onClick={searchUser} style={{background:  'var(--primary-color)', color: 'white', padding: '10px 15px', borderRadius: '8px', border:'none'}}><Search size={20}/></button>
           </div>
 
           {searchedUser && (
-            <div style={{background: '#f9fafb', padding: '15px', borderRadius: '12px'}}>
+            <div style={{background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '15px', borderRadius: '12px'}}>
               <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'15px'}}>
-                <h4 style={{fontSize:'1.2rem', fontWeight:'800', color:'#1f2937'}}>@{searchedUser.username || 'NoUsername'}</h4>
-                <span style={{background: searchedUser.isBanned ? '#fee2e2' : '#dcfce7', color: searchedUser.isBanned ?  'var(--negative-color)' :  'var(--positive-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
+                <h4 style={{fontSize:'1.2rem', fontWeight:'800', color:'var(--text-primary)'}}>@{searchedUser.username || 'NoUsername'}</h4>
+                <span style={{background: searchedUser.isBanned ? 'rgba(239, 68, 68, 0.15)' : 'rgba(0, 230, 118, 0.15)', color: searchedUser.isBanned ?  'var(--negative-color)' :  'var(--positive-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
                   {searchedUser.isBanned ? 'BANNED' : 'ACTIVE'}
                 </span>
               </div>
-              <p style={{color:'#4b5563', fontSize:'0.9rem', marginBottom:'5px'}}><strong>UID:</strong> {searchedUser.telegramId}</p>
-              <p style={{color:'#4b5563', fontSize:'0.9rem', marginBottom:'5px'}}><strong>Joined:</strong> {new Date(searchedUser.createdAt).toLocaleDateString()}</p>
+              <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', marginBottom:'5px'}}><strong>UID:</strong> {searchedUser.telegramId}</p>
+              <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', marginBottom:'5px'}}><strong>Joined:</strong> {new Date(searchedUser.createdAt).toLocaleDateString()}</p>
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom:'5px'}}>
-                <p style={{color:'#4b5563', fontSize:'0.9rem', margin: 0}}><strong>Verified:</strong> {searchedUser.isVerified ? 'Yes' : 'No'}</p>
+                <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', margin: 0}}><strong>Verified:</strong> {searchedUser.isVerified ? 'Yes' : 'No'}</p>
                 {!searchedUser.isVerified && (
                   <button onClick={manualVerify} style={{background:  'var(--positive-color)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'}}>Verify Now</button>
                 )}
               </div>
-              <p style={{color:'#4b5563', fontSize:'0.9rem', marginBottom:'15px'}}><strong>Balance:</strong> <span style={{color: 'var(--positive-color)', fontWeight:'800', fontSize:'1.1rem'}}>{searchedUser.balance} ৳</span></p>
+              <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', marginBottom:'15px'}}><strong>Balance:</strong> <span style={{color: 'var(--positive-color)', fontWeight:'800', fontSize:'1.1rem'}}>{searchedUser.balance} ৳</span></p>
               
               <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
-                <input type="number" placeholder="Amount" value={balanceInput} onChange={(e)=>setBalanceInput(e.target.value)} style={{flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
+                <input type="number" placeholder="Amount" value={balanceInput} onChange={(e)=>setBalanceInput(e.target.value)} style={{flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
                 <button onClick={()=>editBalance('add')} style={{background: 'var(--positive-color)', color:'white', border:'none', padding:'8px 12px', borderRadius:'8px', fontWeight:'700'}}>+</button>
                 <button onClick={()=>editBalance('cut')} style={{background: 'var(--negative-color)', color:'white', border:'none', padding:'8px 12px', borderRadius:'8px', fontWeight:'700'}}>-</button>
               </div>
@@ -1538,15 +2100,15 @@ const AdminPanel = () => {
       )}
 
       {activeTab === 'tasks' && (
-        <div style={{background: 'white', padding: '20px', borderRadius: '16px'}}>
-          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: '#374151'}}>Manage Task Links</h3>
+        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
+          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Manage Task Links</h3>
           {tasksConfig.map((t, idx) => (
-            <div key={idx} style={{marginBottom: '20px', padding: '15px', border: '1px solid #e5e7eb', borderRadius: '12px'}}>
-              <h4 style={{marginBottom: '10px', color: '#1f2937', fontWeight: '800'}}>{t.title}</h4>
-              <input type="text" placeholder="YouTube Account Video ID (e.g. EF_pBnwW9h0)" value={t.accountVideo || ''} onChange={e => updateTaskField(idx, 'accountVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-              <input type="text" placeholder="YouTube Work Video ID" value={t.workVideo || ''} onChange={e => updateTaskField(idx, 'workVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-              <input type="text" placeholder="YouTube Withdraw Video ID" value={t.withdrawVideo || ''} onChange={e => updateTaskField(idx, 'withdrawVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-              <input type="text" placeholder="Registration Link" value={t.regLink || ''} onChange={e => updateTaskField(idx, 'regLink', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
+            <div key={idx} style={{marginBottom: '20px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
+              <h4 style={{marginBottom: '10px', color: 'var(--text-primary)', fontWeight: '800'}}>{t.title}</h4>
+              <input type="text" placeholder="YouTube Account Video ID (e.g. EF_pBnwW9h0)" value={t.accountVideo || ''} onChange={e => updateTaskField(idx, 'accountVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
+              <input type="text" placeholder="YouTube Work Video ID" value={t.workVideo || ''} onChange={e => updateTaskField(idx, 'workVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
+              <input type="text" placeholder="YouTube Withdraw Video ID" value={t.withdrawVideo || ''} onChange={e => updateTaskField(idx, 'withdrawVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
+              <input type="text" placeholder="Registration Link" value={t.regLink || ''} onChange={e => updateTaskField(idx, 'regLink', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
               <button onClick={() => saveTask(t)} style={{background:  'var(--positive-color)', color: 'white', padding: '8px 15px', borderRadius: '8px', fontWeight: '700', width: '100%', border: 'none'}}>Save {t.title}</button>
             </div>
           ))}
@@ -1555,25 +2117,25 @@ const AdminPanel = () => {
 
       {activeTab === 'contact' && (
         <>
-          <div style={{background: 'white', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
-            <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: '#374151'}}>Update Contact Links</h3>
-            <input type="text" placeholder="Admin Support Link" value={links.supportLink} onChange={(e) => setLinks({...links, supportLink: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-            <input type="text" placeholder="Telegram Channel" value={links.telegramChannel} onChange={(e) => setLinks({...links, telegramChannel: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-            <input type="text" placeholder="YouTube Channel" value={links.youtubeChannel} onChange={(e) => setLinks({...links, youtubeChannel: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
+          <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
+            <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Update Contact Links</h3>
+            <input type="text" placeholder="Admin Support Link" value={links.supportLink} onChange={(e) => setLinks({...links, supportLink: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
+            <input type="text" placeholder="Telegram Channel" value={links.telegramChannel} onChange={(e) => setLinks({...links, telegramChannel: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
+            <input type="text" placeholder="YouTube Channel" value={links.youtubeChannel} onChange={(e) => setLinks({...links, youtubeChannel: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
             
-            <h4 style={{marginTop:'10px', marginBottom:'10px', color:'#374151'}}>System Settings</h4>
-            <input type="number" placeholder="Activation Fee (৳)" value={links.activationFee || ''} onChange={(e) => setLinks({...links, activationFee: Number(e.target.value)})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-            <input type="text" placeholder="Bkash Number" value={links.bkashNumber || ''} onChange={(e) => setLinks({...links, bkashNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-            <input type="text" placeholder="Nagad Number" value={links.nagadNumber || ''} onChange={(e) => setLinks({...links, nagadNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-            <input type="text" placeholder="Rocket Number" value={links.rocketNumber || ''} onChange={(e) => setLinks({...links, rocketNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
+            <h4 style={{marginTop:'10px', marginBottom:'10px', color:'var(--text-primary)'}}>System Settings</h4>
+            <input type="number" placeholder="Activation Fee (৳)" value={links.activationFee || ''} onChange={(e) => setLinks({...links, activationFee: Number(e.target.value)})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
+            <input type="text" placeholder="Bkash Number" value={links.bkashNumber || ''} onChange={(e) => setLinks({...links, bkashNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
+            <input type="text" placeholder="Nagad Number" value={links.nagadNumber || ''} onChange={(e) => setLinks({...links, nagadNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
+            <input type="text" placeholder="Rocket Number" value={links.rocketNumber || ''} onChange={(e) => setLinks({...links, rocketNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
             
             <button onClick={saveContact} style={{background:  'var(--positive-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width:'100%'}}>Save Settings</button>
           </div>
 
-          <div style={{background: 'white', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
-            <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: '#374151'}}>Manage Admins</h3>
+          <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
+            <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Manage Admins</h3>
             <div style={{display: 'flex', gap: '10px'}}>
-              <input type="text" placeholder="Telegram UID" value={newAdmin} onChange={(e) => setNewAdmin(e.target.value)} style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
+              <input type="text" placeholder="Telegram UID" value={newAdmin} onChange={(e) => setNewAdmin(e.target.value)} style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
               <button onClick={addAdmin} style={{background:  'var(--primary-color)', color: 'white', padding: '10px 15px', borderRadius: '8px', border:'none', display: 'flex', alignItems: 'center', gap: '5px'}}>
                 <UserPlus size={18}/> Add
               </button>
@@ -1583,30 +2145,30 @@ const AdminPanel = () => {
       )}
 
       {activeTab === 'coinSells' && (
-        <div style={{background: 'white', padding: '20px', borderRadius: '16px'}}>
-          <div style={{display: 'flex', gap: '10px', marginBottom: '15px', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px'}}>
-            <button onClick={() => setCoinTab('requests')} style={{background: coinTab === 'requests' ?  'var(--primary-color)' : 'transparent', color: coinTab === 'requests' ? 'white' : '#4b5563', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
+        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
+          <div style={{display: 'flex', gap: '10px', marginBottom: '15px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px'}}>
+            <button onClick={() => setCoinTab('requests')} style={{background: coinTab === 'requests' ?  'var(--primary-color)' : 'transparent', color: coinTab === 'requests' ? '#ffffff' : 'var(--text-secondary)', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
               Requests {pendingCoinSells > 0 && <span style={{marginLeft:'5px', background: 'var(--negative-color)', color:'white', padding:'2px 6px', borderRadius:'10px', fontSize:'0.7rem'}}>{pendingCoinSells}</span>}
             </button>
-            <button onClick={() => setCoinTab('settings')} style={{background: coinTab === 'settings' ?  'var(--primary-color)' : 'transparent', color: coinTab === 'settings' ? 'white' : '#4b5563', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
+            <button onClick={() => setCoinTab('settings')} style={{background: coinTab === 'settings' ?  'var(--primary-color)' : 'transparent', color: coinTab === 'settings' ? '#ffffff' : 'var(--text-secondary)', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
               Coin Settings
             </button>
           </div>
 
           {coinTab === 'requests' && (
             <div>
-              {coinRequests.length === 0 ? <p style={{color:'#9ca3af'}}>No coin sell requests.</p> : 
+              {coinRequests.length === 0 ? <p style={{color:'var(--text-secondary)'}}>No coin sell requests.</p> : 
                 coinRequests.map((req, i) => (
-                  <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid #e5e7eb', borderRadius: '12px'}}>
+                  <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
                     <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
-                      <h4 style={{fontWeight: '800', color: '#1f2937', margin:0, textTransform:'uppercase'}}>{req.coinType}</h4>
-                      <span style={{background: req.status==='Pending'?'#fef3c7':req.status==='Accepted'?'#dcfce7':'#fee2e2', color: req.status==='Pending'?'#d97706':req.status==='Accepted'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
+                      <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin:0, textTransform:'uppercase'}}>{req.coinType}</h4>
+                      <span style={{background: req.status==='Pending'?'rgba(217, 119, 6, 0.15)':req.status==='Accepted'?'rgba(0, 230, 118, 0.15)':'rgba(255, 23, 68, 0.15)', color: req.status==='Pending'?'#d97706':req.status==='Accepted'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
                         {req.status}
                       </span>
                     </div>
-                    <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 5px 0'}}><strong>UID:</strong> {req.userId}</p>
-                    <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 5px 0'}}><strong>Amount:</strong> {req.amount}</p>
-                    <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 10px 0'}}><strong>Method:</strong> {req.paymentMethod} ({req.paymentNumber})</p>
+                    <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>UID:</strong> {req.userId}</p>
+                    <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>Amount:</strong> {req.amount}</p>
+                    <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 10px 0'}}><strong>Method:</strong> {req.paymentMethod} ({req.paymentNumber})</p>
                     <p style={{fontSize:'0.9rem', color:'#8b5cf6', margin:'0 0 10px 0', fontWeight:'700'}}><strong>Sender App ID:</strong> {req.senderDetails}</p>
                     {req.couponCode && (
                       <p style={{fontSize:'0.9rem', color:'#f59e0b', margin:'0 0 10px 0', fontWeight:'700'}}><strong>Coupon:</strong> {req.couponCode}</p>
@@ -1626,44 +2188,44 @@ const AdminPanel = () => {
 
           {coinTab === 'settings' && (
             <div>
-              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', background:'#f8fafc', padding:'15px', borderRadius:'12px', marginBottom:'20px', border:'1px solid #e5e7eb'}}>
-                <span style={{fontWeight:'800', color:'#1f2937'}}>Show Full Market Section (Home Page)</span>
+              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', background:'var(--input-bg)', padding:'15px', borderRadius:'12px', marginBottom:'20px', border:'1px solid var(--border-color)'}}>
+                <span style={{fontWeight:'800', color:'var(--text-primary)'}}>Show Full Market Section (Home Page)</span>
                 <label style={{display:'flex', alignItems:'center', cursor:'pointer'}}>
                   <input type="checkbox" checked={marketConfig.marketIsVisible} onChange={e => toggleMarketVisibility(e.target.checked)} style={{transform:'scale(1.2)'}} />
                 </label>
               </div>
               
               {coins.map((coin, idx) => (
-                <div key={idx} style={{marginBottom: '15px', padding: '15px', border: '1px solid #e5e7eb', borderRadius: '12px'}}>
+                <div key={idx} style={{marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:'10px'}}>
-                    <span style={{fontWeight:'800', color:'#1f2937'}}>{coin.label}</span>
+                    <span style={{fontWeight:'800', color:'var(--text-primary)'}}>{coin.label}</span>
                     <div style={{display:'flex', gap:'15px'}}>
-                      <label style={{display:'flex', alignItems:'center', gap:'5px', fontSize:'0.9rem', cursor:'pointer'}}>
+                      <label style={{display:'flex', alignItems:'center', gap:'5px', fontSize:'0.9rem', cursor:'pointer', color:'var(--text-secondary)'}}>
                         <input type="checkbox" checked={coin.isVisible !== false} onChange={e => handleCoinChange(idx, 'isVisible', e.target.checked)} /> Visible
                       </label>
-                      <label style={{display:'flex', alignItems:'center', gap:'5px', fontSize:'0.9rem', cursor:'pointer'}}>
+                      <label style={{display:'flex', alignItems:'center', gap:'5px', fontSize:'0.9rem', cursor:'pointer', color:'var(--text-secondary)'}}>
                         <input type="checkbox" checked={coin.isActive} onChange={e => handleCoinChange(idx, 'isActive', e.target.checked)} /> Active
                       </label>
                     </div>
                   </div>
                   <div style={{display:'flex', gap:'10px', marginBottom:'10px'}}>
                     <div style={{flex: 1}}>
-                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'#6b7280'}}>Price (৳ / 1000)</label>
-                      <input type="number" value={coin.price} onChange={e => handleCoinChange(idx, 'price', Number(e.target.value))} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid #d1d5db'}} />
+                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'var(--text-secondary)'}}>Price (৳ / 1000)</label>
+                      <input type="number" value={coin.price} onChange={e => handleCoinChange(idx, 'price', Number(e.target.value))} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid var(--input-border)', background:'var(--input-bg)', color:'var(--text-primary)'}} />
                     </div>
                     <div style={{flex: 1}}>
-                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'#6b7280'}}>Min Amount</label>
-                      <input type="number" value={coin.minAmount || 1000} onChange={e => handleCoinChange(idx, 'minAmount', Number(e.target.value))} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid #d1d5db'}} />
+                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'var(--text-secondary)'}}>Min Amount</label>
+                      <input type="number" value={coin.minAmount || 1000} onChange={e => handleCoinChange(idx, 'minAmount', Number(e.target.value))} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid var(--input-border)', background:'var(--input-bg)', color:'var(--text-primary)'}} />
                     </div>
                     <div style={{flex: 2}}>
-                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'#6b7280'}}>Target Username / ID</label>
-                      <input type="text" value={coin.targetUser} onChange={e => handleCoinChange(idx, 'targetUser', e.target.value)} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid #d1d5db'}} />
+                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'var(--text-secondary)'}}>Target Username / ID</label>
+                      <input type="text" value={coin.targetUser} onChange={e => handleCoinChange(idx, 'targetUser', e.target.value)} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid var(--input-border)', background:'var(--input-bg)', color:'var(--text-primary)'}} />
                     </div>
                   </div>
                   <div style={{display:'flex', gap:'10px', marginTop:'10px'}}>
                     <div style={{flex: 1}}>
-                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'#6b7280'}}>Tutorial Video (Optional)</label>
-                      <input type="text" value={coin.tutorialVideo || ''} onChange={e => handleCoinChange(idx, 'tutorialVideo', e.target.value)} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid #d1d5db'}} placeholder="Link e.g. https://youtu.be/..." />
+                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'var(--text-secondary)'}}>Tutorial Video (Optional)</label>
+                      <input type="text" value={coin.tutorialVideo || ''} onChange={e => handleCoinChange(idx, 'tutorialVideo', e.target.value)} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid var(--input-border)', background:'var(--input-bg)', color:'var(--text-primary)'}} placeholder="Link e.g. https://youtu.be/..." />
                     </div>
                   </div>
                   <div style={{display:'flex', justifyContent:'flex-end', marginTop:'15px'}}>
@@ -1679,31 +2241,31 @@ const AdminPanel = () => {
       )}
 
       {activeTab === 'addFunds' && (
-        <div style={{background: 'white', padding: '20px', borderRadius: '16px'}}>
-          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: '#374151'}}>Add Fund Requests</h3>
-          {fundRequests.length === 0 ? <p style={{color:'#9ca3af'}}>No add fund requests.</p> : 
+        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
+          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Add Fund Requests</h3>
+          {fundRequests.length === 0 ? <p style={{color:'var(--text-secondary)'}}>No add fund requests.</p> : 
             fundRequests.map((req, i) => (
-              <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid #e5e7eb', borderRadius: '12px'}}>
+              <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
                 <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
-                  <h4 style={{fontWeight: '800', color: '#1f2937', margin:0}}>+{req.amount} ৳</h4>
-                  <span style={{background: req.status==='Pending'?'#fef3c7':req.status==='Accepted'?'#dcfce7':'#fee2e2', color: req.status==='Pending'?'#d97706':req.status==='Accepted'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
+                  <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin:0}}>+{req.amount} ৳</h4>
+                  <span style={{background: req.status==='Pending'?'rgba(217, 119, 6, 0.15)':req.status==='Accepted'?'rgba(0, 230, 118, 0.15)':'rgba(255, 23, 68, 0.15)', color: req.status==='Pending'?'#d97706':req.status==='Accepted'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
                     {req.status}
                   </span>
                 </div>
-                <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 5px 0'}}><strong>UID:</strong> {req.userId}</p>
-                <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 5px 0'}}><strong>Method:</strong> <span style={{textTransform:'capitalize'}}>{req.paymentMethod}</span></p>
-                <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 5px 0'}}><strong>Sender Number:</strong> {req.senderNumber}</p>
+                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>UID:</strong> {req.userId}</p>
+                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>Method:</strong> <span style={{textTransform:'capitalize'}}>{req.paymentMethod}</span></p>
+                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>Sender Number:</strong> {req.senderNumber}</p>
                 <p style={{fontSize:'0.9rem', color: 'var(--primary-color)', margin:'0 0 10px 0', fontWeight:'700'}}><strong>TrxID:</strong> {req.transactionId}</p>
                 
                 {req.status === 'Pending' && (
                   <div style={{display:'flex', gap:'10px'}}>
                     <button onClick={() => {
-                      fetch(`http://localhost:5000/api/admin/fund-requests/${req._id}/status`, {
+                      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/fund-requests/${req._id}/status`, {
                         method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status: 'Accepted'})
                       }).then(() => fetchFundRequests());
                     }} style={{flex:1, background: 'var(--positive-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Approve</button>
                     <button onClick={() => {
-                      fetch(`http://localhost:5000/api/admin/fund-requests/${req._id}/status`, {
+                      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/fund-requests/${req._id}/status`, {
                         method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status: 'Rejected'})
                       }).then(() => fetchFundRequests());
                     }} style={{flex:1, background: 'var(--negative-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
@@ -1712,6 +2274,128 @@ const AdminPanel = () => {
               </div>
             ))
           }
+        </div>
+      )}
+
+      {activeTab === 'jobProofs' && (
+        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
+          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Job Proof Submissions</h3>
+          {jobSubmissions.length === 0 ? <p style={{color:'var(--text-secondary)'}}>No job submissions.</p> : 
+            jobSubmissions.map((sub, i) => (
+              <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
+                  <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin:0}}>{sub.jobId?.title || 'Unknown Job'}</h4>
+                  <span style={{background: sub.status==='pending'?'rgba(217, 119, 6, 0.15)':sub.status==='approved'?'rgba(0, 230, 118, 0.15)':'rgba(255, 23, 68, 0.15)', color: sub.status==='pending'?'#d97706':sub.status==='approved'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
+                    {sub.status.toUpperCase()}
+                  </span>
+                </div>
+                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>User UID:</strong> {sub.userTelegramId}</p>
+                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>Job Pay:</strong> {sub.jobId?.amount || 0} ৳</p>
+                <p style={{fontSize:'0.9rem', color:'var(--primary-color)', margin:'0 0 10px 0', fontWeight:'700'}}><strong>Submitted Proof:</strong> {sub.submittedId}</p>
+                
+                {sub.status === 'pending' && (
+                  <div style={{display:'flex', gap:'10px'}}>
+                    <button onClick={() => approveJobSubmission(sub._id)} style={{flex:1, background: 'var(--positive-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Approve</button>
+                    <button onClick={() => rejectJobSubmission(sub._id)} style={{flex:1, background: 'var(--negative-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
+                  </div>
+                )}
+              </div>
+            ))
+          }
+        </div>
+      )}
+
+      {activeTab === 'bots' && (
+        <div style={{background: 'var(--card-bg)', padding: '20px', borderRadius: '16px', border: 'var(--card-border)', color: 'var(--text-primary)'}}>
+          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Manage Telegram Bots (হটাৎ ইনকাম)</h3>
+          
+          <div style={{background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px solid var(--input-border)'}}>
+            <h4 style={{marginBottom: '12px', fontWeight: '800', color: 'var(--text-primary)'}}>{editingBot?.id ? 'Edit Bot' : 'Add New Bot'}</h4>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+              <input 
+                type="text" 
+                placeholder="Bot Title (বটের নাম)" 
+                value={editingBot?.title || ''} 
+                onChange={e => setEditingBot({...editingBot, title: e.target.value})} 
+                style={{padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none'}} 
+              />
+              <textarea 
+                placeholder="Bot Description (বটের কাজ ও বিস্তারিত)" 
+                value={editingBot?.description || ''} 
+                onChange={e => setEditingBot({...editingBot, description: e.target.value})} 
+                style={{padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', minHeight: '80px', fontFamily: 'inherit'}} 
+              />
+              <input 
+                type="text" 
+                placeholder="Registration Link (রেজিষ্ট্রেশন লিংক)" 
+                value={editingBot?.link || ''} 
+                onChange={e => setEditingBot({...editingBot, link: e.target.value})} 
+                style={{padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none'}} 
+              />
+              <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-secondary)'}}>
+                <input 
+                  type="checkbox" 
+                  checked={editingBot?.isActive !== false} 
+                  onChange={e => setEditingBot({...editingBot, isActive: e.target.checked})} 
+                />
+                Active (সক্রিয়)
+              </label>
+              
+              <div style={{display: 'flex', gap: '10px', marginTop: '5px'}}>
+                <button 
+                  onClick={() => {
+                    if (!editingBot?.title || !editingBot?.description || !editingBot?.link) {
+                      return alert('সবগুলো ঘর পূরণ করুন!');
+                    }
+                    saveBot(editingBot);
+                  }} 
+                  style={{flex: 1, background: 'var(--positive-color)', color: 'white', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700'}}
+                >
+                  Save Bot
+                </button>
+                {editingBot && (
+                  <button 
+                    onClick={() => setEditingBot(null)} 
+                    style={{background: '#6b7280', color: 'white', padding: '10px 15px', borderRadius: '8px', border: 'none', fontWeight: '700'}}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <h4 style={{marginBottom: '12px', fontWeight: '800', color: 'var(--text-primary)'}}>Current Bots ({bots.length}/5)</h4>
+          {bots.length === 0 ? <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>কোন বট এড করা নেই।</p> : (
+            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+              {bots.map((bot, idx) => (
+                <div key={idx} style={{padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: bot.isActive ? 'var(--input-bg)' : 'rgba(239, 68, 68, 0.08)'}}>
+                  <div style={{flex: 1, marginRight: '10px'}}>
+                    <h5 style={{fontWeight: '800', color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '4px'}}>{bot.title}</h5>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px', whiteSpace: 'pre-wrap'}}>{bot.description}</p>
+                    <a href={bot.link} target="_blank" rel="noopener noreferrer" style={{fontSize: '0.85rem', color: 'var(--positive-color)', fontWeight: '700', textDecoration: 'underline'}}>Link: {bot.link}</a>
+                    <span style={{display: 'block', fontSize: '0.75rem', color: bot.isActive ? 'var(--positive-color)' : 'var(--negative-color)', fontWeight: '700', marginTop: '5px'}}>
+                      {bot.isActive ? '● Active' : '● Inactive'}
+                    </span>
+                  </div>
+                  <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                    <button 
+                      onClick={() => setEditingBot({ id: bot._id, title: bot.title, description: bot.description, link: bot.link, isActive: bot.isActive })} 
+                      style={{background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)', color: 'white', padding: '6px 12px', borderRadius: '6px', border: 'none', fontSize: '0.8rem', fontWeight: '700'}}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => deleteBot(bot._id)} 
+                      style={{background: 'transparent', color: 'var(--negative-color)', border: '1px solid var(--negative-color)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'}}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
       
@@ -1749,12 +2433,6 @@ const TaskRenderer = () => {
   }
 
   const rawHtml = taskHtmlData[taskMeta.dataKey];
-  
-  if (taskMeta.type === 'template') {
-    if (!dynamicJob) return <div style={{padding:'20px', textAlign:'center'}}>Loading...</div>;
-    return <JobDetailTemplate job={{...jobData[id], ...dynamicJob}} />;
-  }
-
   return (
     <div style={{ backgroundColor: '#fff', minHeight: '100vh', paddingBottom: '100px' }}>
       <div className="imported-html-content" dangerouslySetInnerHTML={{ __html: rawHtml }} />
@@ -1762,13 +2440,195 @@ const TaskRenderer = () => {
   );
 };
 
+// ---- Microjobs Center Page (Normal Users) ----
+const JobsPage = () => {
+  const navigate = useNavigate();
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [proofInput, setProofInput] = useState('');
+  const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179";
+
+  const fetchJobs = () => {
+    setLoading(true);
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs`)
+      .then(res => res.json())
+      .then(data => {
+        setJobs(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const handleSubmitProof = (e) => {
+    e.preventDefault();
+    if(!proofInput) return alert("প্রমাণ হিসেবে আপনার Username/ID দিন!");
+
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jobId: selectedJob._id,
+        userTelegramId: myTelegramId,
+        submittedId: proofInput
+      })
+    }).then(res => res.json())
+      .then(data => {
+        alert("প্রমাণ জমা দেওয়া হয়েছে! অ্যাডমিন যাচাই করে ব্যালেন্স যোগ করে দিবে।");
+        setSelectedJob(null);
+        setProofInput('');
+      }).catch(err => {
+        console.error(err);
+        alert("জমা দিতে ব্যর্থ হয়েছে।");
+      });
+  };
+
+  return (
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+      
+      {/* Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #10b981, #0ea5e9)', 
+        borderRadius: '20px', 
+        padding: '25px 20px', 
+        color: 'white', 
+        marginBottom: '25px',
+        boxShadow: '0 8px 20px rgba(16, 185, 129, 0.2)',
+        border: '1px solid rgba(255,255,255,0.1)'
+      }}>
+        <h2 style={{fontSize: '1.6rem', fontWeight: '900', marginBottom: '5px'}}>Microjobs Center 💼</h2>
+        <p style={{fontSize: '0.95rem', opacity: '0.9', fontWeight: '600'}}>সহজ কাজ সম্পন্ন করে সরাসরি পেমেন্ট নিন! প্রতি কাজের জন্য নির্দিষ্ট পরিমাণ টাকা বোনাস দেওয়া হবে।</p>
+      </div>
+
+      <h3 style={{fontSize: '1.25rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '15px'}}>Available Jobs</h3>
+
+      {loading ? (
+        <p style={{textAlign: 'center', color: 'var(--text-secondary)'}}>Loading jobs...</p>
+      ) : jobs.length === 0 ? (
+        <div style={{
+          textAlign: 'center', padding: '40px 20px', 
+          background: 'var(--card-bg)', 
+          border: 'var(--card-border)',
+          borderRadius: '16px', color: 'var(--text-secondary)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <p>No active jobs available at the moment.</p>
+        </div>
+      ) : (
+        <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
+          {jobs.map((job) => (
+            <div key={job._id} style={{
+              background: 'var(--card-bg)', borderRadius: '16px', padding: '15px',
+              boxShadow: 'var(--shadow)', 
+              border: 'var(--card-border)',
+              backdropFilter: 'blur(10px)',
+              color: 'var(--text-primary)'
+            }}>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px'}}>
+                <h4 style={{fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)'}}>{job.title}</h4>
+                <span style={{background: 'var(--input-bg)', color: 'var(--positive-color)', padding: '4px 10px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: '800', border: '1px solid var(--border-color)'}}>
+                  +{job.amount} ৳
+                </span>
+              </div>
+              <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '15px', whiteSpace: 'pre-line'}}>{job.description}</p>
+              
+              <div style={{display: 'flex', gap: '10px'}}>
+                <a href={job.link} target="_blank" rel="noreferrer" style={{
+                  flex: 1, background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)', color: 'white', textDecoration: 'none',
+                  padding: '10px', borderRadius: '10px', textAlign: 'center', fontSize: '0.85rem', fontWeight: '700',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                  boxShadow: '0 4px 12px rgba(139, 0, 255, 0.2)'
+                }}>
+                  <ExternalLink size={16}/> Go to Link
+                </a>
+                <button onClick={() => setSelectedJob(job)} style={{
+                  flex: 1, background: '#00e676', color: 'white', border: 'none',
+                  padding: '10px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(0,230,118,0.2)'
+                }}>
+                  Submit Proof
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Proof Submission Dialog / Modal */}
+      {selectedJob && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex',
+          alignItems: 'center', justifyContent: 'center', padding: '20px',
+          backdropFilter: 'blur(5px)', webkitBackdropFilter: 'blur(5px)'
+        }}>
+          <div style={{
+            background: 'var(--card-bg)', borderRadius: '24px', padding: '25px',
+            width: '100%', maxWidth: '400px', boxShadow: 'var(--shadow)', border: 'var(--card-border)',
+            backdropFilter: 'blur(30px)', webkitBackdropFilter: 'blur(30px)', color: 'var(--text-primary)'
+          }}>
+            <h3 style={{fontSize: '1.25rem', fontWeight: '900', color: 'var(--text-primary)', marginBottom: '10px'}}>Submit Job Proof</h3>
+            <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '20px'}}>
+              <strong>Job:</strong> {selectedJob.title}<br/>
+              <strong>Reward:</strong> {selectedJob.amount} ৳
+            </p>
+            
+            <form onSubmit={handleSubmitProof}>
+              <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '8px'}}>
+                Proof (e.g. Username / Channel ID / Email used):
+              </label>
+              <input type="text" placeholder="Enter proof text" value={proofInput} onChange={e => setProofInput(e.target.value)} style={{
+                width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid var(--input-border)',
+                background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '0.9rem', marginBottom: '20px', outline: 'none'
+              }} />
+              
+              <div style={{display: 'flex', gap: '10px'}}>
+                <button type="button" onClick={() => setSelectedJob(null)} style={{
+                  flex: 1, background: 'var(--input-bg)', color: 'var(--text-secondary)', border: '1px solid var(--border-color)',
+                  padding: '12px', borderRadius: '10px', fontWeight: '700', cursor: 'pointer'
+                }}>
+                  Cancel
+                </button>
+                <button type="submit" style={{
+                  flex: 1, background: 'var(--positive-color)', color: 'white', border: 'none',
+                  padding: '12px', borderRadius: '10px', fontWeight: '700', cursor: 'pointer'
+                }}>
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
 function App() {
+  const [theme, setTheme] = useState(localStorage.getItem('app-theme') || 'gradient');
+
+  useEffect(() => {
+    document.body.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'gradient' ? 'light' : theme === 'light' ? 'dark' : 'gradient';
+    setTheme(nextTheme);
+    localStorage.setItem('app-theme', nextTheme);
+  };
+
   return (
     <Router>
-      <div style={{minHeight: '100vh', position: 'relative', paddingBottom: '80px', backgroundColor: '#f3f4f6'}}>
-        <Header />
+      <div style={{minHeight: '100vh', position: 'relative', paddingBottom: '80px', backgroundColor: 'transparent'}}>
+        <Header theme={theme} toggleTheme={toggleTheme} />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/jobs" element={<JobsPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/withdraw" element={<WithdrawPage />} />
           <Route path="/add-fund" element={<AddFundPage />} />
