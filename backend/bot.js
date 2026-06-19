@@ -67,14 +67,14 @@ bot.start(async (ctx) => {
 
 👇 *নিচের বাটনটিতে ক্লিক করে এখনই অ্যাপটি ওপেন করুন এবং ইনকাম শুরু করুন!*`;
     
-    ctx.reply(welcomeMsg, {
+    await ctx.reply(welcomeMsg, {
       parse_mode: 'Markdown',
       reply_markup: {
         inline_keyboard: [
           [
             {
               text: "🚀 Open App (Mini App)",
-              web_app: { url: "https://power-star-work.onrender.com" } // Replace with your Render URL
+              web_app: { url: "https://power-star-workfront.onrender.com" }
             }
           ],
           [
@@ -82,6 +82,21 @@ bot.start(async (ctx) => {
             { text: "📞 Support", url: "https://t.me/your_support" } // Optional
           ]
         ]
+      }
+    });
+
+    // Send persistent reply keyboard button
+    await ctx.reply("⚡ আপনি চাইলে নিচের বাটনটি ব্যবহার করে যেকোনো সময় সরাসরি অ্যাপটি ওপেন করতে পারবেন:", {
+      reply_markup: {
+        keyboard: [
+          [
+            {
+              text: "🚀 Open Mini App",
+              web_app: { url: "https://power-star-workfront.onrender.com" }
+            }
+          ]
+        ],
+        resize_keyboard: true
       }
     });
 

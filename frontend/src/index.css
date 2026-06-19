@@ -1,9 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800;900&display=swap');
 
 :root {
-  --header-bg: #4a234f;
-  --bg-color: #f3f4f6;
-  --text-dark: #1f2937;
+  /* Telegram Theme Integration */
+  --header-bg: var(--tg-theme-header-bg-color, #4a234f);
+  --bg-color: var(--tg-theme-bg-color, #f3f4f6);
+  --text-dark: var(--tg-theme-text-color, #1f2937);
+  --hint-color: var(--tg-theme-hint-color, #9ca3af);
+  
+  /* Primary, Positive, and Negative CSS variables (Telegram style) */
+  --primary-color: var(--tg-theme-button-color, #2481cc);
+  --primary-text: var(--tg-theme-button-text-color, #ffffff);
+  --positive-color: #31b545; /* Telegram green success */
+  --negative-color: var(--tg-theme-destructive-text-color, #e53935); /* Telegram red destructive */
   
   --pink-bg: #ff6f89;
   --pink-title: #0044ff;

@@ -14,7 +14,7 @@ window.alert = (message) => {
     title: isSuccess ? 'Success!' : isWarning ? 'Attention' : 'Notification',
     text: message,
     icon: isSuccess ? 'success' : isWarning ? 'warning' : 'info',
-    confirmButtonColor: '#10b981',
+    confirmButtonColor:  'var(--positive-color)',
     confirmButtonText: 'OK',
     background: '#ffffff',
     color: '#374151',
@@ -318,8 +318,8 @@ const CoinMarketPage = () => {
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
                   <span style={{fontSize: '0.75rem', fontWeight: '800', color: '#6b7280', textTransform: 'uppercase'}}>{coin.label}</span>
                   {coin.isActive
-                    ? <span style={{fontSize: '0.65rem', fontWeight: '800', color: 'white', background: '#10b981', padding: '2px 6px', borderRadius: '4px'}}>Active</span>
-                    : <span style={{fontSize: '0.65rem', fontWeight: '800', color: 'white', background: '#ef4444', padding: '2px 6px', borderRadius: '4px'}}>Stopped</span>
+                    ? <span style={{fontSize: '0.65rem', fontWeight: '800', color: 'white', background:  'var(--positive-color)', padding: '2px 6px', borderRadius: '4px'}}>Active</span>
+                    : <span style={{fontSize: '0.65rem', fontWeight: '800', color: 'white', background:  'var(--negative-color)', padding: '2px 6px', borderRadius: '4px'}}>Stopped</span>
                   }
                 </div>
                 <div>
@@ -496,7 +496,7 @@ const WithdrawPage = () => {
       <div style={{background: 'white', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', marginBottom: '25px'}}>
         <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px'}}>
           <h3 style={{fontSize: '1.2rem', fontWeight: '800', color: '#1f2937'}}>💸 Method</h3>
-          <span style={{background: '#fee2e2', color: '#ef4444', padding: '4px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700'}}>Min: 50 ৳</span>
+          <span style={{background: '#fee2e2', color:  'var(--negative-color)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '700'}}>Min: 50 ৳</span>
         </div>
 
         <p style={{color: '#6b7280', fontSize: '0.9rem', marginBottom: '15px'}}>Select Payment Method:</p>
@@ -621,7 +621,7 @@ const AddFundPage = () => {
           <div style={{animation: 'fadeIn 0.3s'}}>
             <div style={{background: '#eff6ff', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px dashed #3b82f6'}}>
               <p style={{fontSize: '0.9rem', color: '#1f2937', marginBottom: '5px'}}>Send money to this {method} number:</p>
-              <h3 style={{fontSize: '1.4rem', fontWeight: '900', color: '#3b82f6', letterSpacing: '1px'}}>
+              <h3 style={{fontSize: '1.4rem', fontWeight: '900', color:  'var(--primary-color)', letterSpacing: '1px'}}>
                 {method === 'bkash' ? links.bkashNumber : method === 'nagad' ? links.nagadNumber : links.rocketNumber}
               </h3>
             </div>
@@ -631,7 +631,7 @@ const AddFundPage = () => {
             <input type="text" placeholder="Sender Number" value={senderNumber} onChange={e => setSenderNumber(e.target.value)} style={{width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', marginBottom: '10px'}} />
             <input type="text" placeholder="Transaction ID (TrxID)" value={transactionId} onChange={e => setTransactionId(e.target.value)} style={{width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #d1d5db', marginBottom: '20px'}} />
             
-            <button onClick={handleAddFund} style={{background: '#3b82f6', color: 'white', padding: '14px', borderRadius: '10px', fontWeight: '800', width: '100%', border: 'none'}}>Submit Request</button>
+            <button onClick={handleAddFund} style={{background:  'var(--primary-color)', color: 'white', padding: '14px', borderRadius: '10px', fontWeight: '800', width: '100%', border: 'none'}}>Submit Request</button>
           </div>
         )}
       </div>
@@ -654,7 +654,7 @@ const SellCoinPage = () => {
   const [senderDetails, setSenderDetails] = useState('');
   const [couponCode, setCouponCode] = useState('');
   const [step, setStep] = useState(1);
-  const coinColor = params.get('color') || '#3b82f6';
+  const coinColor = params.get('color') ||  'var(--primary-color)';
   const [tutorialVideo, setTutorialVideo] = useState('');
   
   useEffect(() => {
@@ -777,7 +777,7 @@ const SellCoinPage = () => {
 
             <div style={{background: '#f3f4f6', padding: '15px', borderRadius: '12px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
               <span style={{fontWeight: '700', color: '#4b5563'}}>You will receive:</span>
-              <span style={{fontWeight: '900', color: '#10b981', fontSize: '1.2rem'}}>{totalTaka > 0 ? totalTaka.toFixed(2) : '0.00'} ৳</span>
+              <span style={{fontWeight: '900', color:  'var(--positive-color)', fontSize: '1.2rem'}}>{totalTaka > 0 ? totalTaka.toFixed(2) : '0.00'} ৳</span>
             </div>
 
             <button onClick={handleNext} style={{
@@ -798,7 +798,7 @@ const SellCoinPage = () => {
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
                   <span style={{color: '#6b7280', fontSize: '0.85rem'}}>পাবেন</span>
-                  <span style={{fontWeight: '800', color: '#10b981'}}>{totalTaka.toFixed(2)} ৳</span>
+                  <span style={{fontWeight: '800', color:  'var(--positive-color)'}}>{totalTaka.toFixed(2)} ৳</span>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
                   <span style={{color: '#6b7280', fontSize: '0.85rem'}}>Payment Method</span>
@@ -819,7 +819,7 @@ const SellCoinPage = () => {
             <div style={{background: '#eff6ff', padding: '14px', borderRadius: '12px', border: `2px solid ${coinColor}`, marginBottom: '18px', textAlign: 'center'}}>
               <p style={{fontSize: '0.8rem', color: '#6b7280', marginBottom: '4px', fontWeight: '700'}}>📤 আপনি কি এই ID তে কয়েন পাঠিয়েছেন?</p>
               <span style={{fontWeight: '900', fontSize: '1.2rem', color: coinColor, userSelect: 'all'}}>
-                {targetUser || <span style={{color:'#ef4444'}}>⚠️ Admin ID নেই</span>}
+                {targetUser || <span style={{color: 'var(--negative-color)'}}>⚠️ Admin ID নেই</span>}
               </span>
             </div>
 
@@ -831,7 +831,7 @@ const SellCoinPage = () => {
             )}
 
             <button onClick={handleSell} style={{
-              background: '#10b981', color: 'white', padding: '16px', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '800', width: '100%', border: 'none', boxShadow: '0 4px 10px rgba(16,185,129,0.2)'
+              background:  'var(--positive-color)', color: 'white', padding: '16px', borderRadius: '12px', fontSize: '1.1rem', fontWeight: '800', width: '100%', border: 'none', boxShadow: '0 4px 10px rgba(16,185,129,0.2)'
             }}>
               ✅ Submit Request
             </button>
@@ -950,7 +950,7 @@ const Invite = () => {
           rel="noreferrer"
           style={{
             display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
-            background: '#3b82f6', color: 'white', padding: '12px', borderRadius: '12px', 
+            background:  'var(--primary-color)', color: 'white', padding: '12px', borderRadius: '12px', 
             fontWeight: '700', textDecoration: 'none'
           }}
         >
@@ -962,11 +962,11 @@ const Invite = () => {
       <div style={{display: 'flex', gap: '15px', marginBottom: '25px'}}>
         <div style={{flex: 1, background: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', textAlign: 'center'}}>
           <p style={{color: '#6b7280', fontSize: '0.9rem', fontWeight: '600'}}>Total Invites</p>
-          <h2 style={{color: '#3b82f6', fontSize: '2rem', fontWeight: '900'}}>{stats.totalReferrals}</h2>
+          <h2 style={{color:  'var(--primary-color)', fontSize: '2rem', fontWeight: '900'}}>{stats.totalReferrals}</h2>
         </div>
         <div style={{flex: 1, background: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', textAlign: 'center'}}>
           <p style={{color: '#6b7280', fontSize: '0.9rem', fontWeight: '600'}}>Total Earned</p>
-          <h2 style={{color: '#10b981', fontSize: '2rem', fontWeight: '900'}}>{stats.totalEarned} ৳</h2>
+          <h2 style={{color:  'var(--positive-color)', fontSize: '2rem', fontWeight: '900'}}>{stats.totalEarned} ৳</h2>
         </div>
       </div>
 
@@ -987,7 +987,7 @@ const Invite = () => {
             }}>
               <div>
                 <p style={{fontWeight: '700', color: '#1f2937', fontSize: '1.05rem'}}>@{ref.username || 'User'}</p>
-                <span style={{fontSize: '0.8rem', color: ref.isVerified ? '#10b981' : '#f59e0b', fontWeight: '600'}}>
+                <span style={{fontSize: '0.8rem', color: ref.isVerified ?  'var(--positive-color)' : '#f59e0b', fontWeight: '600'}}>
                   {ref.isVerified ? '✅ Verified (Earned 5৳)' : '⏳ Pending'}
                 </span>
               </div>
@@ -1089,7 +1089,7 @@ const JobDetailTemplate = ({ job }) => {
 
       {/* Withdraw Section */}
       <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color:  'var(--positive-color)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
           <DollarSign size={24} /> কিভাবে উইথড্র করবেন
         </h3>
         <div className="video-wrapper" style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
@@ -1194,7 +1194,7 @@ const ContactPage = () => {
           </div>
           <ChevronRight size={20} color="#9ca3af" />
         </a>
-        <a href={links.youtubeChannel || '#'} target="_blank" rel="noreferrer" style={{background: 'white', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', color: '#ef4444', fontWeight: '700', textDecoration: 'none'}}>
+        <a href={links.youtubeChannel || '#'} target="_blank" rel="noreferrer" style={{background: 'white', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', color:  'var(--negative-color)', fontWeight: '700', textDecoration: 'none'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
             <div style={{background: '#fee2e2', padding: '10px', borderRadius: '12px'}}><PlayCircle size={24} /></div>
             <span style={{fontSize: '1.1rem', color: '#1f2937'}}>Subscribe YouTube</span>
@@ -1408,26 +1408,26 @@ const AdminPanel = () => {
       <h2 style={{textAlign: 'center', fontWeight: '900', fontSize: '1.8rem', marginBottom: '15px', color: '#1f2937'}}>Admin Dashboard</h2>
       
       <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px', paddingBottom: '10px', justifyContent: 'center'}}>
-        <button onClick={()=>setActiveTab('dashboard')} style={{background: activeTab==='dashboard'?'#3b82f6':'#e5e7eb', color: activeTab==='dashboard'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('dashboard')} style={{background: activeTab==='dashboard'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='dashboard'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
           Dashboard
         </button>
-        <button onClick={()=>setActiveTab('users')} style={{position: 'relative', background: activeTab==='users'?'#3b82f6':'#e5e7eb', color: activeTab==='users'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('users')} style={{position: 'relative', background: activeTab==='users'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='users'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
           Users
-          {pendingVerifications > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background:'#ef4444', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingVerifications}</span>}
+          {pendingVerifications > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingVerifications}</span>}
         </button>
-        <button onClick={()=>setActiveTab('tasks')} style={{background: activeTab==='tasks'?'#3b82f6':'#e5e7eb', color: activeTab==='tasks'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('tasks')} style={{background: activeTab==='tasks'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='tasks'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
           Tasks
         </button>
 
-        <button onClick={()=>setActiveTab('coinSells')} style={{position: 'relative', background: activeTab==='coinSells'?'#3b82f6':'#e5e7eb', color: activeTab==='coinSells'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('coinSells')} style={{position: 'relative', background: activeTab==='coinSells'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='coinSells'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
           Coin Sells
-          {pendingCoinSells > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background:'#ef4444', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingCoinSells}</span>}
+          {pendingCoinSells > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingCoinSells}</span>}
         </button>
-        <button onClick={()=>setActiveTab('addFunds')} style={{position: 'relative', background: activeTab==='addFunds'?'#3b82f6':'#e5e7eb', color: activeTab==='addFunds'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('addFunds')} style={{position: 'relative', background: activeTab==='addFunds'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='addFunds'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
           Add Funds
-          {pendingAddFunds > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background:'#ef4444', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingAddFunds}</span>}
+          {pendingAddFunds > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingAddFunds}</span>}
         </button>
-        <button onClick={()=>setActiveTab('contact')} style={{background: activeTab==='contact'?'#3b82f6':'#e5e7eb', color: activeTab==='contact'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
+        <button onClick={()=>setActiveTab('contact')} style={{background: activeTab==='contact'? 'var(--primary-color)':'#e5e7eb', color: activeTab==='contact'?'white':'#374151', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', border:'none', whiteSpace:'nowrap'}}>
           Settings
         </button>
       </div>
@@ -1445,7 +1445,7 @@ const AdminPanel = () => {
             </div>
             <div style={{flex: 1, background: 'white', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'}}>
               <p style={{color: '#6b7280', fontSize:'0.85rem', fontWeight:'700'}}>Pending Withdraw</p>
-              <h3 style={{color: '#ef4444', fontSize:'1.5rem'}}>{stats.pendingWithdraws}</h3>
+              <h3 style={{color:  'var(--negative-color)', fontSize:'1.5rem'}}>{stats.pendingWithdraws}</h3>
             </div>
           </div>
 
@@ -1458,7 +1458,7 @@ const AdminPanel = () => {
                     <p style={{fontWeight:'700', fontSize:'0.95rem'}}>UID: {v.telegramId}</p>
                     <p style={{color:'#6b7280', fontSize:'0.8rem'}}>TrxID: {v.transactionId}</p>
                   </div>
-                  <button onClick={() => approveVerify(v.telegramId)} style={{background:'#10b981', color:'white', padding:'6px 12px', borderRadius:'8px', border:'none', fontSize:'0.85rem', fontWeight:'700'}}>Approve</button>
+                  <button onClick={() => approveVerify(v.telegramId)} style={{background: 'var(--positive-color)', color:'white', padding:'6px 12px', borderRadius:'8px', border:'none', fontSize:'0.85rem', fontWeight:'700'}}>Approve</button>
                 </div>
               ))
             }
@@ -1471,14 +1471,14 @@ const AdminPanel = () => {
           <h3 style={{marginBottom: '15px', fontSize: '1.1rem', color: '#374151'}}>Search User</h3>
           <div style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
             <input type="text" placeholder="UID or @username" value={searchId} onChange={(e) => setSearchId(e.target.value)} style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-            <button onClick={searchUser} style={{background: '#3b82f6', color: 'white', padding: '10px 15px', borderRadius: '8px', border:'none'}}><Search size={20}/></button>
+            <button onClick={searchUser} style={{background:  'var(--primary-color)', color: 'white', padding: '10px 15px', borderRadius: '8px', border:'none'}}><Search size={20}/></button>
           </div>
 
           {searchedUser && (
             <div style={{background: '#f9fafb', padding: '15px', borderRadius: '12px'}}>
               <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'15px'}}>
                 <h4 style={{fontSize:'1.2rem', fontWeight:'800', color:'#1f2937'}}>@{searchedUser.username || 'NoUsername'}</h4>
-                <span style={{background: searchedUser.isBanned ? '#fee2e2' : '#dcfce7', color: searchedUser.isBanned ? '#ef4444' : '#10b981', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
+                <span style={{background: searchedUser.isBanned ? '#fee2e2' : '#dcfce7', color: searchedUser.isBanned ?  'var(--negative-color)' :  'var(--positive-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
                   {searchedUser.isBanned ? 'BANNED' : 'ACTIVE'}
                 </span>
               </div>
@@ -1487,18 +1487,18 @@ const AdminPanel = () => {
               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom:'5px'}}>
                 <p style={{color:'#4b5563', fontSize:'0.9rem', margin: 0}}><strong>Verified:</strong> {searchedUser.isVerified ? 'Yes' : 'No'}</p>
                 {!searchedUser.isVerified && (
-                  <button onClick={manualVerify} style={{background: '#10b981', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'}}>Verify Now</button>
+                  <button onClick={manualVerify} style={{background:  'var(--positive-color)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'}}>Verify Now</button>
                 )}
               </div>
-              <p style={{color:'#4b5563', fontSize:'0.9rem', marginBottom:'15px'}}><strong>Balance:</strong> <span style={{color:'#10b981', fontWeight:'800', fontSize:'1.1rem'}}>{searchedUser.balance} ৳</span></p>
+              <p style={{color:'#4b5563', fontSize:'0.9rem', marginBottom:'15px'}}><strong>Balance:</strong> <span style={{color: 'var(--positive-color)', fontWeight:'800', fontSize:'1.1rem'}}>{searchedUser.balance} ৳</span></p>
               
               <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
                 <input type="number" placeholder="Amount" value={balanceInput} onChange={(e)=>setBalanceInput(e.target.value)} style={{flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-                <button onClick={()=>editBalance('add')} style={{background:'#10b981', color:'white', border:'none', padding:'8px 12px', borderRadius:'8px', fontWeight:'700'}}>+</button>
-                <button onClick={()=>editBalance('cut')} style={{background:'#ef4444', color:'white', border:'none', padding:'8px 12px', borderRadius:'8px', fontWeight:'700'}}>-</button>
+                <button onClick={()=>editBalance('add')} style={{background: 'var(--positive-color)', color:'white', border:'none', padding:'8px 12px', borderRadius:'8px', fontWeight:'700'}}>+</button>
+                <button onClick={()=>editBalance('cut')} style={{background: 'var(--negative-color)', color:'white', border:'none', padding:'8px 12px', borderRadius:'8px', fontWeight:'700'}}>-</button>
               </div>
 
-              <button onClick={toggleBan} style={{width:'100%', background: searchedUser.isBanned ? '#3b82f6' : '#ef4444', color:'white', padding:'10px', borderRadius:'8px', border:'none', fontWeight:'700'}}>
+              <button onClick={toggleBan} style={{width:'100%', background: searchedUser.isBanned ?  'var(--primary-color)' :  'var(--negative-color)', color:'white', padding:'10px', borderRadius:'8px', border:'none', fontWeight:'700'}}>
                 {searchedUser.isBanned ? 'Unban User' : 'Ban User'}
               </button>
             </div>
@@ -1516,7 +1516,7 @@ const AdminPanel = () => {
               <input type="text" placeholder="YouTube Work Video ID" value={t.workVideo || ''} onChange={e => updateTaskField(idx, 'workVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
               <input type="text" placeholder="YouTube Withdraw Video ID" value={t.withdrawVideo || ''} onChange={e => updateTaskField(idx, 'withdrawVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
               <input type="text" placeholder="Registration Link" value={t.regLink || ''} onChange={e => updateTaskField(idx, 'regLink', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-              <button onClick={() => saveTask(t)} style={{background: '#10b981', color: 'white', padding: '8px 15px', borderRadius: '8px', fontWeight: '700', width: '100%', border: 'none'}}>Save {t.title}</button>
+              <button onClick={() => saveTask(t)} style={{background:  'var(--positive-color)', color: 'white', padding: '8px 15px', borderRadius: '8px', fontWeight: '700', width: '100%', border: 'none'}}>Save {t.title}</button>
             </div>
           ))}
         </div>
@@ -1536,14 +1536,14 @@ const AdminPanel = () => {
             <input type="text" placeholder="Nagad Number" value={links.nagadNumber || ''} onChange={(e) => setLinks({...links, nagadNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
             <input type="text" placeholder="Rocket Number" value={links.rocketNumber || ''} onChange={(e) => setLinks({...links, rocketNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
             
-            <button onClick={saveContact} style={{background: '#10b981', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width:'100%'}}>Save Settings</button>
+            <button onClick={saveContact} style={{background:  'var(--positive-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width:'100%'}}>Save Settings</button>
           </div>
 
           <div style={{background: 'white', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
             <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: '#374151'}}>Manage Admins</h3>
             <div style={{display: 'flex', gap: '10px'}}>
               <input type="text" placeholder="Telegram UID" value={newAdmin} onChange={(e) => setNewAdmin(e.target.value)} style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #d1d5db'}} />
-              <button onClick={addAdmin} style={{background: '#3b82f6', color: 'white', padding: '10px 15px', borderRadius: '8px', border:'none', display: 'flex', alignItems: 'center', gap: '5px'}}>
+              <button onClick={addAdmin} style={{background:  'var(--primary-color)', color: 'white', padding: '10px 15px', borderRadius: '8px', border:'none', display: 'flex', alignItems: 'center', gap: '5px'}}>
                 <UserPlus size={18}/> Add
               </button>
             </div>
@@ -1554,10 +1554,10 @@ const AdminPanel = () => {
       {activeTab === 'coinSells' && (
         <div style={{background: 'white', padding: '20px', borderRadius: '16px'}}>
           <div style={{display: 'flex', gap: '10px', marginBottom: '15px', borderBottom: '1px solid #e5e7eb', paddingBottom: '10px'}}>
-            <button onClick={() => setCoinTab('requests')} style={{background: coinTab === 'requests' ? '#3b82f6' : 'transparent', color: coinTab === 'requests' ? 'white' : '#4b5563', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
-              Requests {pendingCoinSells > 0 && <span style={{marginLeft:'5px', background:'#ef4444', color:'white', padding:'2px 6px', borderRadius:'10px', fontSize:'0.7rem'}}>{pendingCoinSells}</span>}
+            <button onClick={() => setCoinTab('requests')} style={{background: coinTab === 'requests' ?  'var(--primary-color)' : 'transparent', color: coinTab === 'requests' ? 'white' : '#4b5563', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
+              Requests {pendingCoinSells > 0 && <span style={{marginLeft:'5px', background: 'var(--negative-color)', color:'white', padding:'2px 6px', borderRadius:'10px', fontSize:'0.7rem'}}>{pendingCoinSells}</span>}
             </button>
-            <button onClick={() => setCoinTab('settings')} style={{background: coinTab === 'settings' ? '#3b82f6' : 'transparent', color: coinTab === 'settings' ? 'white' : '#4b5563', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
+            <button onClick={() => setCoinTab('settings')} style={{background: coinTab === 'settings' ?  'var(--primary-color)' : 'transparent', color: coinTab === 'settings' ? 'white' : '#4b5563', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
               Coin Settings
             </button>
           </div>
@@ -1569,7 +1569,7 @@ const AdminPanel = () => {
                   <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid #e5e7eb', borderRadius: '12px'}}>
                     <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
                       <h4 style={{fontWeight: '800', color: '#1f2937', margin:0, textTransform:'uppercase'}}>{req.coinType}</h4>
-                      <span style={{background: req.status==='Pending'?'#fef3c7':req.status==='Accepted'?'#dcfce7':'#fee2e2', color: req.status==='Pending'?'#d97706':req.status==='Accepted'?'#10b981':'#ef4444', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
+                      <span style={{background: req.status==='Pending'?'#fef3c7':req.status==='Accepted'?'#dcfce7':'#fee2e2', color: req.status==='Pending'?'#d97706':req.status==='Accepted'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
                         {req.status}
                       </span>
                     </div>
@@ -1583,8 +1583,8 @@ const AdminPanel = () => {
                     
                     {req.status === 'Pending' && (
                       <div style={{display:'flex', gap:'10px'}}>
-                        <button onClick={() => updateCoinRequestStatus(req._id, 'Accepted')} style={{flex:1, background:'#10b981', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Accept</button>
-                        <button onClick={() => updateCoinRequestStatus(req._id, 'Rejected')} style={{flex:1, background:'#ef4444', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
+                        <button onClick={() => updateCoinRequestStatus(req._id, 'Accepted')} style={{flex:1, background: 'var(--positive-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Accept</button>
+                        <button onClick={() => updateCoinRequestStatus(req._id, 'Rejected')} style={{flex:1, background: 'var(--negative-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
                       </div>
                     )}
                   </div>
@@ -1636,7 +1636,7 @@ const AdminPanel = () => {
                     </div>
                   </div>
                   <div style={{display:'flex', justifyContent:'flex-end', marginTop:'15px'}}>
-                    <button onClick={() => saveSingleCoin(idx)} style={{background: '#10b981', color: 'white', padding: '8px 16px', borderRadius: '8px', fontWeight: '700', border:'none', cursor:'pointer'}}>
+                    <button onClick={() => saveSingleCoin(idx)} style={{background:  'var(--positive-color)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontWeight: '700', border:'none', cursor:'pointer'}}>
                       Save {coin.label}
                     </button>
                   </div>
@@ -1655,14 +1655,14 @@ const AdminPanel = () => {
               <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid #e5e7eb', borderRadius: '12px'}}>
                 <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
                   <h4 style={{fontWeight: '800', color: '#1f2937', margin:0}}>+{req.amount} ৳</h4>
-                  <span style={{background: req.status==='Pending'?'#fef3c7':req.status==='Accepted'?'#dcfce7':'#fee2e2', color: req.status==='Pending'?'#d97706':req.status==='Accepted'?'#10b981':'#ef4444', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
+                  <span style={{background: req.status==='Pending'?'#fef3c7':req.status==='Accepted'?'#dcfce7':'#fee2e2', color: req.status==='Pending'?'#d97706':req.status==='Accepted'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
                     {req.status}
                   </span>
                 </div>
                 <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 5px 0'}}><strong>UID:</strong> {req.userId}</p>
                 <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 5px 0'}}><strong>Method:</strong> <span style={{textTransform:'capitalize'}}>{req.paymentMethod}</span></p>
                 <p style={{fontSize:'0.9rem', color:'#4b5563', margin:'0 0 5px 0'}}><strong>Sender Number:</strong> {req.senderNumber}</p>
-                <p style={{fontSize:'0.9rem', color:'#3b82f6', margin:'0 0 10px 0', fontWeight:'700'}}><strong>TrxID:</strong> {req.transactionId}</p>
+                <p style={{fontSize:'0.9rem', color: 'var(--primary-color)', margin:'0 0 10px 0', fontWeight:'700'}}><strong>TrxID:</strong> {req.transactionId}</p>
                 
                 {req.status === 'Pending' && (
                   <div style={{display:'flex', gap:'10px'}}>
@@ -1670,12 +1670,12 @@ const AdminPanel = () => {
                       fetch(`http://localhost:5000/api/admin/fund-requests/${req._id}/status`, {
                         method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status: 'Accepted'})
                       }).then(() => fetchFundRequests());
-                    }} style={{flex:1, background:'#10b981', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Approve</button>
+                    }} style={{flex:1, background: 'var(--positive-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Approve</button>
                     <button onClick={() => {
                       fetch(`http://localhost:5000/api/admin/fund-requests/${req._id}/status`, {
                         method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status: 'Rejected'})
                       }).then(() => fetchFundRequests());
-                    }} style={{flex:1, background:'#ef4444', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
+                    }} style={{flex:1, background: 'var(--negative-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
                   </div>
                 )}
               </div>
