@@ -424,9 +424,16 @@ app.get('/api/admin/user/:identifier', async (req, res) => {
     // Remove @ if admin typed @username
     const cleanId = id.startsWith('@') ? id.slice(1) : id;
     
-    const user = await User.findOne({ 
+    let user = await User.findOne({ 
       $or: [{ telegramId: cleanId }, { username: cleanId }] 
     });
+    
+    // Auto-promote master admin if they fetch their own profile
+    const masterAdminId = process.env.MASTER_ADMIN_UID || '6323700179';
+    if (user && user.telegramId === masterAdminId && !user.isAdmin) {
+      user.isAdmin = true;
+      await user.save();
+    }
     
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);

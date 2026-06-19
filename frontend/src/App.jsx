@@ -212,9 +212,28 @@ const Home = () => {
               const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/user/${window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '6323700179'}`);
               const data = await res.json();
               if (data && data.isVerified === false) {
-                if (window.confirm('আপনার একাউন্টটি এখনো ভেরিফাই করা নেই! (Profile এ যান)')) {
-                  navigate('/profile');
-                }
+                Swal.fire({
+                  title: 'ভেরিফিকেশন প্রয়োজন',
+                  text: 'আপনার অ্যাকাউন্টটি এখনো ভেরিফাই করা নেই!',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: 'var(--positive-color)',
+                  cancelButtonColor: 'var(--negative-color)',
+                  confirmButtonText: 'Profile এ যান',
+                  cancelButtonText: 'Cancel',
+                  background: '#ffffff',
+                  color: '#374151',
+                  customClass: {
+                    popup: 'swal2-custom-popup',
+                    title: 'swal2-custom-title',
+                    confirmButton: 'swal2-custom-button',
+                    cancelButton: 'swal2-custom-button'
+                  }
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate('/profile');
+                  }
+                });
               } else {
                 navigate(`/task/${task.id}`);
               }
@@ -384,8 +403,14 @@ const Profile = () => {
           <div style={{position: 'absolute', top: 12, right: 15, background: 'rgba(255,255,255,0.25)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '5px'}}>
             <CheckCircle size={16} /> Verified
           </div>
-          <div style={{width: '90px', height: '90px', borderRadius: '50%', background: 'white', margin: '0 auto 15px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', border: '4px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)'}}>
-            😎
+          <div style={{margin: '0 auto 15px auto', display: 'flex', justifyContent: 'center'}}>
+            {window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url ? (
+              <img src={window.Telegram.WebApp.initDataUnsafe.user.photo_url} alt="Profile" style={{width: '90px', height: '90px', borderRadius: '50%', border: '4px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', objectFit: 'cover'}} />
+            ) : (
+              <div style={{width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #a855f7, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: '900', color: 'white', border: '4px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)'}}>
+                {(user.username || 'U').charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
           <h2 style={{fontWeight: '900', fontSize: '1.8rem', margin: '0 0 5px 0'}}>{user.username || 'User'}</h2>
           <p style={{opacity: '0.9', margin: 0, fontWeight: '600', fontSize: '0.9rem'}}>UID: {user.telegramId}</p>
@@ -399,8 +424,14 @@ const Profile = () => {
           <div style={{position: 'absolute', top: 12, right: 15, background: 'rgba(255,255,255,0.25)', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '5px'}}>
             <AlertCircle size={16} /> Not Verified
           </div>
-          <div style={{width: '90px', height: '90px', borderRadius: '50%', background: 'white', margin: '0 auto 15px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', border: '4px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)'}}>
-            👤
+          <div style={{margin: '0 auto 15px auto', display: 'flex', justifyContent: 'center'}}>
+            {window.Telegram?.WebApp?.initDataUnsafe?.user?.photo_url ? (
+              <img src={window.Telegram.WebApp.initDataUnsafe.user.photo_url} alt="Profile" style={{width: '90px', height: '90px', borderRadius: '50%', border: '4px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', objectFit: 'cover'}} />
+            ) : (
+              <div style={{width: '90px', height: '90px', borderRadius: '50%', background: 'linear-gradient(135deg, #f97316, #ea580c)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', fontWeight: '900', color: 'white', border: '4px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 15px rgba(0,0,0,0.1)'}}>
+                {(user.username || 'U').charAt(0).toUpperCase()}
+              </div>
+            )}
           </div>
           <h2 style={{fontWeight: '900', fontSize: '1.8rem', margin: '0 0 5px 0'}}>{user.username || 'User'}</h2>
           <p style={{opacity: '0.9', margin: 0, fontWeight: '600', fontSize: '0.9rem'}}>UID: {user.telegramId}</p>

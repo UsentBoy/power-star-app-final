@@ -85,21 +85,6 @@ bot.start(async (ctx) => {
       }
     });
 
-    // Send persistent reply keyboard button
-    await ctx.reply("⚡ আপনি চাইলে নিচের বাটনটি ব্যবহার করে যেকোনো সময় সরাসরি অ্যাপটি ওপেন করতে পারবেন:", {
-      reply_markup: {
-        keyboard: [
-          [
-            {
-              text: "🚀 Open Mini App",
-              web_app: { url: "https://power-star-workfront.onrender.com" }
-            }
-          ]
-        ],
-        resize_keyboard: true
-      }
-    });
-
   } catch (err) {
     console.error(err);
     ctx.reply("Sorry, an error occurred while registering your account.");
