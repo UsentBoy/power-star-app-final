@@ -6,7 +6,9 @@ const TaskConfigSchema = new mongoose.Schema({
   accountVideo: { type: String, default: '' },
   workVideo: { type: String, default: '' },
   withdrawVideo: { type: String, default: '' },
-  regLink: { type: String, default: '' }
+  regLink: { type: String, default: '' },
+  walletAddress: { type: String, default: '' },
+  walletType: { type: String, default: '' }
 });
 
 module.exports = mongoose.model('TaskConfig', TaskConfigSchema);

@@ -42,7 +42,8 @@ try {
     bot.telegram.setWebhook(`${domain}/telegraf-webhook`)
       .then(() => console.log(`Telegram Webhook set up successfully at ${domain}`));
   } else {
-    bot.launch({ dropPendingUpdates: true })
+    bot.telegram.deleteWebhook()
+      .then(() => bot.launch({ dropPendingUpdates: true }))
       .then(() => console.log('Telegram Bot running via Long Polling (Local)...'));
   }
 } catch(e) { 
@@ -58,11 +59,13 @@ app.post('/api/user/login', async (req, res) => {
       user = new User({ 
         telegramId, 
         referredBy,
-        isAdmin: telegramId === (process.env.MASTER_ADMIN_UID || '6323700179') // Force master admin
+        isAdmin: telegramId === (process.env.MASTER_ADMIN_UID || '6323700179'),
+        isMasterAdmin: telegramId === (process.env.MASTER_ADMIN_UID || '6323700179')
       });
       await user.save();
-    } else if (telegramId === (process.env.MASTER_ADMIN_UID || '6323700179') && !user.isAdmin) {
+    } else if (telegramId === (process.env.MASTER_ADMIN_UID || '6323700179') && (!user.isAdmin || !user.isMasterAdmin)) {
       user.isAdmin = true;
+      user.isMasterAdmin = true;
       await user.save();
     }
     res.json({ success: true, user });
@@ -119,6 +122,21 @@ app.post('/api/admin/verify/approve', async (req, res) => {
   }
 });
 
+app.post('/api/admin/verify/reject', async (req, res) => {
+  const { requestId } = req.body;
+  try {
+    const request = await VerificationRequest.findById(requestId);
+    if (!request || request.status !== 'pending') return res.status(400).json({ error: 'Invalid request' });
+
+    request.status = 'rejected';
+    await request.save();
+
+    res.json({ success: true, message: 'Verification request rejected' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Get User's Referral Stats
 app.get('/api/referrals/:telegramId', async (req, res) => {
   try {
@@ -150,9 +168,16 @@ app.get('/api/jobs', async (req, res) => {
 });
 
 app.post('/api/jobs/create', async (req, res) => {
-  const { title, description, link, amount, postedBy } = req.body;
+  const { title, description, link, amount, postedBy, workerLimit } = req.body;
   try {
-    const job = new JobPost({ title, description, link, amount, postedBy: postedBy || 'admin' });
+    const job = new JobPost({ 
+      title, 
+      description, 
+      link, 
+      amount, 
+      postedBy: postedBy || 'admin',
+      workerLimit: Number(workerLimit) || 0
+    });
     await job.save();
     res.json({ success: true, job });
   } catch (error) {
@@ -183,7 +208,9 @@ app.post('/api/jobs/:id/toggle-active', async (req, res) => {
 
 app.post('/api/jobs/:id/delete', async (req, res) => {
   try {
-    await JobPost.findByIdAndDelete(req.params.id);
+    const jobId = req.params.id;
+    await JobPost.findByIdAndDelete(jobId);
+    await JobSubmission.deleteMany({ jobId });
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
@@ -203,8 +230,31 @@ app.post('/api/jobs/submit', async (req, res) => {
 
 app.get('/api/admin/job-submissions', async (req, res) => {
   try {
-    const submissions = await JobSubmission.find().populate('jobId').sort({ createdAt: -1 });
-    res.json(submissions);
+    const submissions = await JobSubmission.find().populate('jobId').sort({ createdAt: -1 }).lean();
+    const submissionsWithPoster = await Promise.all(submissions.map(async (sub) => {
+      if (sub.jobId && sub.jobId.postedBy && sub.jobId.postedBy !== 'admin') {
+        const poster = await User.findOne({ telegramId: sub.jobId.postedBy }, 'username firstName');
+        return { ...sub, jobPoster: poster };
+      }
+      return { ...sub, jobPoster: null };
+    }));
+    res.json(submissionsWithPoster);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/admin/jobs', async (req, res) => {
+  try {
+    const jobs = await JobPost.find().sort({ createdAt: -1 }).lean();
+    const jobsWithUser = await Promise.all(jobs.map(async (job) => {
+      if (job.postedBy && job.postedBy !== 'admin') {
+        const user = await User.findOne({ telegramId: job.postedBy }, 'username firstName');
+        return { ...job, user };
+      }
+      return { ...job, user: null };
+    }));
+    res.json(jobsWithUser);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -224,6 +274,16 @@ app.post('/api/admin/jobs/approve', async (req, res) => {
     if (user && sub.jobId) {
       user.balance += sub.jobId.amount;
       await user.save();
+
+      // Update job completed count and check limit
+      const job = await JobPost.findById(sub.jobId._id);
+      if (job) {
+        job.completedCount = (job.completedCount || 0) + 1;
+        if (job.workerLimit > 0 && job.completedCount >= job.workerLimit) {
+          job.isActive = false; // Turn off the job if it reaches the limit
+        }
+        await job.save();
+      }
     }
     res.json({ success: true });
   } catch (error) {
@@ -266,13 +326,13 @@ app.get('/api/admin/bots', async (req, res) => {
 });
 
 app.post('/api/admin/bots/save', async (req, res) => {
-  const { id, title, description, link, isActive } = req.body;
+  const { id, title, description, link, isActive, reward } = req.body;
   try {
     if (id) {
-      const bot = await BotConfig.findByIdAndUpdate(id, { title, description, link, isActive }, { new: true });
+      const bot = await BotConfig.findByIdAndUpdate(id, { title, description, link, isActive, reward: reward || 0 }, { new: true });
       res.json({ success: true, bot });
     } else {
-      const bot = new BotConfig({ title, description, link, isActive: isActive !== false });
+      const bot = new BotConfig({ title, description, link, isActive: isActive !== false, reward: reward || 0 });
       await bot.save();
       res.json({ success: true, bot });
     }
@@ -325,13 +385,17 @@ app.post('/api/admin/contact', async (req, res) => {
 
 // --- Admin Management APIs ---
 app.post('/api/admin/add', async (req, res) => {
-  const { newAdminId } = req.body;
+  const { newAdminId, callerId } = req.body;
   try {
+    const caller = await User.findOne({ telegramId: callerId });
+    if (!caller || !caller.isMasterAdmin) {
+      return res.status(403).json({ error: 'Permission denied. Only Master Admin can add admins.' });
+    }
     let user = await User.findOne({ telegramId: newAdminId });
     if (user) {
       user.isAdmin = true;
       await user.save();
-      res.json({ success: true, message: 'Admin added' });
+      res.json({ success: true, message: 'Admin added successfully' });
     } else {
       res.status(404).json({ error: 'User not found in system. They must login first.' });
     }
@@ -340,16 +404,53 @@ app.post('/api/admin/add', async (req, res) => {
   }
 });
 
-app.post('/api/admin/remove', async (req, res) => {
-  const { removeAdminId } = req.body;
+app.post('/api/admin/promote-master', async (req, res) => {
+  const { targetAdminId, callerId } = req.body;
   try {
-    if (removeAdminId === (process.env.MASTER_ADMIN_UID || '6323700179')) return res.status(400).json({ error: 'Cannot remove master admin' });
+    const caller = await User.findOne({ telegramId: callerId });
+    if (!caller || !caller.isMasterAdmin) {
+      return res.status(403).json({ error: 'Permission denied. Only Master Admin can promote others.' });
+    }
+    let user = await User.findOne({ telegramId: targetAdminId });
+    if (user) {
+      user.isAdmin = true;
+      user.isMasterAdmin = true;
+      await user.save();
+      res.json({ success: true, message: 'Admin promoted to Master Admin successfully' });
+    } else {
+      res.status(404).json({ error: 'User not found in system.' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/admin/remove', async (req, res) => {
+  const { removeAdminId, callerId } = req.body;
+  try {
+    const caller = await User.findOne({ telegramId: callerId });
+    if (!caller || !caller.isMasterAdmin) {
+      return res.status(403).json({ error: 'Permission denied. Only Master Admin can remove admins.' });
+    }
+    if (removeAdminId === (process.env.MASTER_ADMIN_UID || '6323700179')) {
+      return res.status(400).json({ error: 'Cannot remove original master admin' });
+    }
     let user = await User.findOne({ telegramId: removeAdminId });
     if (user) {
       user.isAdmin = false;
+      user.isMasterAdmin = false;
       await user.save();
     }
-    res.json({ success: true, message: 'Admin removed' });
+    res.json({ success: true, message: 'Admin removed successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/admin/list', async (req, res) => {
+  try {
+    const admins = await User.find({ isAdmin: true }, 'telegramId username firstName isMasterAdmin createdAt');
+    res.json(admins);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -652,15 +753,20 @@ app.get('/api/tasks', async (req, res) => {
 });
 
 app.post('/api/admin/tasks', async (req, res) => {
-  const { taskId, title, accountVideo, workVideo, withdrawVideo, regLink } = req.body;
+  const { taskId, title, accountVideo, workVideo, withdrawVideo, regLink, walletAddress, walletType } = req.body;
   try {
     let task = await TaskConfig.findOne({ taskId });
-    if (!task) task = new TaskConfig({ taskId });
-    task.title = title || task.title;
+    if (!task) {
+      task = new TaskConfig({ taskId, title: title || 'Task' });
+    } else {
+      task.title = title || task.title;
+    }
     task.accountVideo = accountVideo !== undefined ? accountVideo : task.accountVideo;
     task.workVideo = workVideo !== undefined ? workVideo : task.workVideo;
     task.withdrawVideo = withdrawVideo !== undefined ? withdrawVideo : task.withdrawVideo;
     task.regLink = regLink !== undefined ? regLink : task.regLink;
+    task.walletAddress = walletAddress !== undefined ? walletAddress : task.walletAddress;
+    task.walletType = walletType !== undefined ? walletType : task.walletType;
     await task.save();
     res.json({ success: true });
   } catch (error) {

@@ -26,13 +26,16 @@ window.alert = (message) => {
   });
 };
 
+
 const tasks = [
   { id: 'tiktok', title: 'TikTok Like Follow', subtitle: 'লাইক/ফলো করে ইনকাম', iconUrl: 'https://cdn.simpleicons.org/tiktok/000000', type: 'template', dataKey: 'tiktok' },
   { id: 'vk', title: 'VK Surfing', subtitle: 'কমেন্ট/অ্যাড দেখে ইনকাম', iconUrl: 'https://cdn.simpleicons.org/vk/0077FF', type: 'template', dataKey: 'vk' },
   { id: 'gamgala', title: 'Gamgala Earn', subtitle: 'গেম খেলে আয়', iconUrl: 'https://img.icons8.com/color/96/controller.png', type: 'template', dataKey: 'gamgala' },
   { id: 'typing-job', title: 'Typing Job', subtitle: 'টাইপিং করে ইনকাম', iconUrl: 'https://img.icons8.com/color/96/keyboard.png', type: 'template', dataKey: 'typing-job' },
   { id: 'work-cash', title: 'Video Watching', subtitle: 'ভিডিও দেখে ইনকাম', iconUrl: 'https://cdn.simpleicons.org/youtube/FF0000', type: 'template', dataKey: 'work-cash' },
-  { id: 'ip-web', title: 'IP Work', subtitle: 'IP ব্যবহার করে অনলাইন কাজ', iconUrl: 'https://img.icons8.com/color/96/internet.png', type: 'template', dataKey: 'ip-web' }
+  { id: 'ip-web', title: 'IP Work', subtitle: 'IP ব্যবহার করে অনলাইন কাজ', iconUrl: 'https://img.icons8.com/color/96/internet.png', type: 'template', dataKey: 'ip-web' },
+  { id: 'e-task', title: 'E-Task Earn', subtitle: 'সাবস্ক্রাইব/লাইক কমেন্ট করে আয়', iconUrl: 'https://img.icons8.com/color/96/task.png', type: 'template', dataKey: 'e-task' },
+  { id: 'aviso', title: 'Aviso Task', subtitle: 'টাস্ক পূরণ করে ইনকাম', iconUrl: 'https://img.icons8.com/color/96/star--v1.png', type: 'template', dataKey: 'aviso' }
 ];
 
 const jobData = {
@@ -41,38 +44,66 @@ const jobData = {
     accountVideo: 'EF_pBnwW9h0',
     regLink: 'https://tiktop-free.com/?ref=mdmahmudsah575',
     workVideo: 'lBJfDuyngFM',
-    withdrawVideo: 'JCKlTP0X_YU'
+    withdrawVideo: 'JCKlTP0X_YU',
+    walletType: 'TRX (Network: Tron)',
+    walletAddress: 'THdYuBfDHncZwz1AFmpWEkWi84eNJnVxua'
   },
   vk: {
     title: 'VK Surfing',
     accountVideo: '46ZN7DmNzoE',
     regLink: 'https://vkserfing.ru/?ref=551293767',
     workVideo: '-9YSEYHxx4o',
-    withdrawVideo: 'ritzyUqWIx4'
+    withdrawVideo: 'ritzyUqWIx4',
+    walletType: 'Wallet (Volet)',
+    walletAddress: 'U870740602777'
   },
   gamgala: {
     title: 'Gamgala Earn',
     accountVideo: 'VJeZY6VjC98',
     regLink: 'https://getblock.me/u/29498073',
-    withdrawVideo: 'nk_tRRU9IsA'
+    withdrawVideo: 'nk_tRRU9IsA',
+    walletType: 'USDT (TRC-20)',
+    walletAddress: 'TAN7Nad7jHvAcRNfQpgrKAwSPyMFurNrit'
   },
   'ip-web': {
     title: 'IP work',
     accountVideo: 'OCPfczevxIo',
     regLink: 'https://www.ipweb.pro/?mahmudsah',
-    withdrawVideo: 'GgkJEtw_Uys'
+    withdrawVideo: 'GgkJEtw_Uys',
+    walletType: '',
+    walletAddress: ''
   },
   'work-cash': {
     title: 'Video Watching',
     accountVideo: 'V62ozu15JIo',
     regLink: 'https://worker.cash/u/1412507',
-    withdrawVideo: 'cf3asyi9uhI'
+    withdrawVideo: 'cf3asyi9uhI',
+    walletType: '',
+    walletAddress: ''
   },
   'typing-job': {
     title: 'Typing Job',
     accountVideo: 'JP56leadK6E',
     regLink: '',
-    withdrawVideo: '1hhW_9sZtaE'
+    withdrawVideo: '1hhW_9sZtaE',
+    walletType: '',
+    walletAddress: ''
+  },
+  'e-task': {
+    title: 'E-Task Earn',
+    accountVideo: 'dnaJfUPV1pU',
+    regLink: 'https://e-task.net?ref=1434418',
+    withdrawVideo: 'CbKMb5ElJUA',
+    walletType: '',
+    walletAddress: ''
+  },
+  aviso: {
+    title: 'Aviso Task',
+    accountVideo: '',
+    regLink: '',
+    withdrawVideo: '',
+    walletType: '',
+    walletAddress: ''
   }
 };
 
@@ -249,17 +280,32 @@ const Home = () => {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <h4 style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>{bot.title}</h4>
-                  <span style={{
-                    background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)',
-                    color: 'white',
-                    padding: '4px 10px',
-                    borderRadius: '20px',
-                    fontSize: '0.75rem',
-                    fontWeight: '800',
-                    boxShadow: '0 2px 10px rgba(214, 0, 147, 0.3)'
-                  }}>
-                    Real Bot ✅
-                  </span>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    {bot.reward !== undefined && bot.reward > 0 && (
+                      <span style={{
+                        background: 'rgba(0, 230, 118, 0.15)',
+                        color: 'var(--positive-color)',
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        fontSize: '0.75rem',
+                        fontWeight: '800',
+                        border: '1px solid var(--positive-color)'
+                      }}>
+                        Reward: {bot.reward}৳
+                      </span>
+                    )}
+                    <span style={{
+                      background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)',
+                      color: 'white',
+                      padding: '4px 10px',
+                      borderRadius: '20px',
+                      fontSize: '0.75rem',
+                      fontWeight: '800',
+                      boxShadow: '0 2px 10px rgba(214, 0, 147, 0.3)'
+                    }}>
+                      Real Bot ✅
+                    </span>
+                  </div>
                 </div>
                 <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '15px', whiteSpace: 'pre-wrap', lineHeight: '1.4' }}>
                   {bot.description}
@@ -367,7 +413,16 @@ const Home = () => {
             alignItems: 'center', gap: '10px', cursor: 'pointer', border: 'var(--card-border)',
             backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', color: 'var(--text-primary)'
           }}>
-            <div style={{background: 'var(--input-bg)', padding: '12px', borderRadius: '16px', marginBottom: '5px'}}>
+            <div style={{
+              background: '#ffffff', 
+              padding: '12px', 
+              borderRadius: '16px', 
+              marginBottom: '5px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.08)'
+            }}>
               <img src={task.iconUrl} alt={task.title} style={{width: '40px', height: '40px', objectFit: 'contain'}} />
             </div>
             <div style={{flex: 1}}>
@@ -442,7 +497,23 @@ const CoinMarketPage = () => {
           <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px'}}>
             {coins.filter(c => c.isVisible).map(coin => (
               <div key={coin.coinId} onClick={() => {
-                if (!coin.isActive) return alert('এই কয়েনের বিক্রি এখন বন্ধ আছে।');
+                if (!coin.isActive) {
+                  Swal.fire({
+                    title: 'দুঃখিত!',
+                    text: 'বর্তমানে তা কেনা অফ আছে অন হলে সেল করতে পারবেন দয়া করে অপেক্ষা করুন',
+                    icon: 'info',
+                    confirmButtonText: 'ঠিক আছে',
+                    confirmButtonColor: 'var(--primary-color)',
+                    background: '#ffffff',
+                    color: '#374151',
+                    customClass: {
+                      popup: 'swal2-custom-popup',
+                      title: 'swal2-custom-title',
+                      confirmButton: 'swal2-custom-button'
+                    }
+                  });
+                  return;
+                }
                 navigate(`/sell-coin?type=${coin.coinId}&name=${coin.label}&color=${encodeURIComponent(coin.color)}`);
               }} style={{
                 background: 'var(--card-bg)',
@@ -451,10 +522,10 @@ const CoinMarketPage = () => {
                 padding: '16px',
                 borderRadius: '16px',
                 boxShadow: 'var(--shadow)',
-                cursor: 'pointer',
+                cursor: coin.isActive ? 'pointer' : 'not-allowed',
                 display: 'flex',
                 flexDirection: 'column',
-                opacity: coin.isActive ? 1 : 0.6,
+                opacity: coin.isActive ? 1 : 0.5,
                 transition: 'transform 0.1s',
               }}>
                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px'}}>
@@ -468,8 +539,8 @@ const CoinMarketPage = () => {
                   <h3 style={{fontSize: '1.8rem', fontWeight: '900', color: 'var(--text-primary)', margin: 0, lineHeight: 1}}>{coin.price}<span style={{fontSize: '0.9rem', color: 'var(--text-secondary)', marginLeft: '2px'}}>৳</span></h3>
                   <p style={{fontSize: '0.65rem', fontWeight: '600', color: 'var(--text-secondary)', margin: '4px 0 10px 0'}}>Per 1,000 Coins</p>
                 </div>
-                <div style={{background: coin.color, color: 'white', padding: '7px', borderRadius: '10px', textAlign: 'center', fontWeight: '800', fontSize: '0.8rem'}}>
-                  Sell Now →
+                <div style={{background: coin.isActive ? coin.color : 'var(--text-secondary)', color: 'white', padding: '7px', borderRadius: '10px', textAlign: 'center', fontWeight: '800', fontSize: '0.8rem'}}>
+                  {coin.isActive ? 'Sell Now →' : 'Closed (সেল অফ)'}
                 </div>
               </div>
             ))}
@@ -491,6 +562,7 @@ const Profile = () => {
   const [jobDesc, setJobDesc] = useState('');
   const [jobLink, setJobLink] = useState('');
   const [jobAmount, setJobAmount] = useState('');
+  const [jobLimit, setJobLimit] = useState('');
   const [isPosting, setIsPosting] = useState(false);
 
   // Microjob management states
@@ -537,7 +609,8 @@ const Profile = () => {
         description: jobDesc,
         link: jobLink,
         amount: Number(jobAmount),
-        postedBy: user.telegramId
+        postedBy: user.telegramId,
+        workerLimit: Number(jobLimit) || 0
       })
     }).then(res => res.json())
       .then(data => {
@@ -548,6 +621,7 @@ const Profile = () => {
           setJobDesc('');
           setJobLink('');
           setJobAmount('');
+          setJobLimit('');
           fetchMyJobs();
         } else {
           alert("পাবলিশ করতে ব্যর্থ হয়েছে।");
@@ -795,6 +869,10 @@ const Profile = () => {
                 <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '5px'}}>কাজের মূল্য (Reward per complete in ৳)</label>
                 <input type="number" placeholder="e.g. 5" value={jobAmount} onChange={e => setJobAmount(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem'}} />
               </div>
+              <div style={{marginBottom: '15px'}}>
+                <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '5px'}}>সর্বোচ্চ কতজন কাজ করতে পারবে (Worker Limit - ০ মানে আনলিমিটেড)</label>
+                <input type="number" placeholder="e.g. 10 (0 for unlimited)" value={jobLimit} onChange={e => setJobLimit(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem'}} />
+              </div>
               
               <button type="submit" disabled={isPosting} style={{
                 background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)', color: 'white', border: 'none',
@@ -834,7 +912,8 @@ const Profile = () => {
                   }}>
                     <div style={{flex: 1, marginRight: '10px'}}>
                       <h4 style={{fontSize: '1rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '3px'}}>{job.title}</h4>
-                      <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '5px'}}>Pay: {job.amount} ৳</p>
+                      <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '3px'}}>Pay: {job.amount} ৳</p>
+                      <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '5px'}}>Completed: <span style={{fontWeight: '800', color: 'var(--text-primary)'}}>{job.completedCount || 0}</span> / {job.workerLimit > 0 ? job.workerLimit : 'Unlimited'}</p>
                       <span style={{
                         fontSize: '0.75rem', 
                         fontWeight: '800', 
@@ -1087,12 +1166,23 @@ const SellCoinPage = () => {
   const handleNext = () => {
     if (Number(amount) < minAmount) return alert(`Minimum sell amount is ${minAmount} coins.`);
     if (!paymentMethod || !paymentNumber) return alert("Payment method এবং account number দিন।");
-    if (!senderDetails) return alert(`আপনার ${coinName} Username দিন — কোন ID থেকে কয়েন পাঠিয়েছেন।`);
+    if (coinType === 'topfollows') {
+      if (!couponCode) return alert("Coupon code দিন।");
+      if (!senderDetails) return alert("Telegram screenshot link দিন।");
+      if (!senderDetails.startsWith('http')) return alert("সঠিক screenshot link দিন (উদাঃ https://t.me/...)");
+    } else {
+      if (!senderDetails) return alert(`আপনার ${coinName} Username দিন — কোন ID থেকে কয়েন পাঠিয়েছেন।`);
+    }
     setStep(2);
   };
 
   const handleSell = () => {
-    if (!senderDetails) return alert("Please enter your App ID or Sender Username.");
+    if (coinType === 'topfollows') {
+      if (!couponCode) return alert("Please enter your coupon code.");
+      if (!senderDetails) return alert("Please enter your Telegram screenshot link.");
+    } else {
+      if (!senderDetails) return alert("Please enter your App ID or Sender Username.");
+    }
     
     const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '6323700179';
     const myUsername = window.Telegram?.WebApp?.initDataUnsafe?.user?.username || window.Telegram?.WebApp?.initDataUnsafe?.user?.first_name || 'User';
@@ -1140,6 +1230,23 @@ const SellCoinPage = () => {
               <p style={{fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: '600'}}>Rate per 1,000 Coins</p>
             </div>
 
+            {coinType === 'topfollows' && (
+              <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '15px', borderRadius: '14px', marginBottom: '15px' }}>
+                <p style={{ color: '#d97706', fontWeight: '800', fontSize: '0.85rem', marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <AlertCircle size={16} /> ATTENTION!
+                </p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: '0 0 5px 0', lineHeight: '1.4', fontWeight: '600' }}>
+                  প্রথমে একটি coupon code তৈরি করুন এবং সেটার screenshot নিয়ে নিচের লিংকে submit করুন:
+                </p>
+                <p style={{ textAlign: 'center', margin: '8px 0' }}>
+                  👉 <a href={targetUser || "https://t.me/topfollowproof"} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)', fontWeight: '800', textDecoration: 'underline' }}>{targetUser || "https://t.me/topfollowproof"}</a> 👈
+                </p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', margin: 0, lineHeight: '1.4', fontWeight: '600' }}>
+                  এরপর টেলিগ্রামে আপলোড করা screenshot-এর লিংকটি কপি করে নিচের বক্সে দিন। সাথে coupon code, amount এবং payment method সিলেক্ট করে ফর্ম submit করুন।
+                </p>
+              </div>
+            )}
+
             <div style={{marginBottom: '15px'}}>
               <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '5px'}}>Coin Amount</label>
               <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder={`Min ${minAmount}`} style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '1rem', outline: 'none'}} />
@@ -1172,7 +1279,7 @@ const SellCoinPage = () => {
             </div>
 
             {/* Admin ID to send coins to */}
-            {targetUser && (
+            {targetUser && coinType !== 'topfollows' && (
               <div style={{background: 'rgba(59, 130, 246, 0.1)', padding: '15px', borderRadius: '14px', marginBottom: '15px', border: `2px solid ${coinColor}`}}>
                 <p style={{fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em'}}>📤 এই ID তে কয়েন পাঠান</p>
                 <span style={{fontWeight: '900', fontSize: '1.3rem', color: coinColor, userSelect: 'all', wordBreak: 'break-all', display: 'block'}}>{targetUser}</span>
@@ -1180,11 +1287,31 @@ const SellCoinPage = () => {
               </div>
             )}
 
-            {/* Sender ID field */}
+            {/* Coupon Code Input for topfollows */}
+            {coinType === 'topfollows' && (
+              <div style={{marginBottom: '15px'}}>
+                <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '5px'}}>COUPON CODE</label>
+                <input type="text" value={couponCode} onChange={e => setCouponCode(e.target.value)} placeholder="Enter coupon code..." style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '1rem', outline: 'none'}} />
+              </div>
+            )}
+
+            {/* Sender ID / Screenshot Link field */}
             <div style={{marginBottom: '15px'}}>
-              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '5px'}}>আপনার যে {coinName} ID থেকে পাঠিয়েছেন</label>
-              <input type="text" value={senderDetails} onChange={e => setSenderDetails(e.target.value)} placeholder={`আপনার ${coinName} Username / ID`} style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '1rem', outline: 'none'}} />
-              <p style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px'}}>কোন ID থেকে কয়েন পাঠিয়েছেন সেটা লিখুন</p>
+              <label style={{display: 'block', fontSize: '0.9rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '5px'}}>
+                {coinType === 'topfollows' ? 'SCREENSHOT LINK' : `আপনার যে ${coinName} ID থেকে পাঠিয়েছেন`}
+              </label>
+              <input 
+                type="text" 
+                value={senderDetails} 
+                onChange={e => setSenderDetails(e.target.value)} 
+                placeholder={coinType === 'topfollows' ? "https://t.me/topfollowproof/..." : `আপনার ${coinName} Username / ID`} 
+                style={{width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', fontSize: '1rem', outline: 'none'}} 
+              />
+              <p style={{fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '4px'}}>
+                {coinType === 'topfollows' 
+                  ? 'টেলিগ্রাম থেকে স্ক্রিনশট লিংকটি কপি করে এখানে দিন' 
+                  : 'কোন ID থেকে কয়েন পাঠিয়েছেন সেটা লিখুন'}
+              </p>
             </div>
 
             <div style={{background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -1221,19 +1348,35 @@ const SellCoinPage = () => {
                   <span style={{fontWeight: '800', color: 'var(--text-primary)'}}>{paymentNumber}</span>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                  <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>পাঠানো ID</span>
-                  <span style={{fontWeight: '800', color: '#2563eb'}}>{senderDetails}</span>
+                  <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>
+                    {coinType === 'topfollows' ? 'Screenshot Link' : 'পাঠানো ID'}
+                  </span>
+                  <span style={{fontWeight: '800', color: '#2563eb', wordBreak: 'break-all', textAlign: 'right', maxWidth: '60%'}}>
+                    {coinType === 'topfollows' ? (
+                      <a href={senderDetails} target="_blank" rel="noreferrer" style={{color: 'var(--primary-color)', textDecoration: 'underline'}}>{senderDetails}</a>
+                    ) : (
+                      senderDetails
+                    )}
+                  </span>
                 </div>
+                {coinType === 'topfollows' && (
+                  <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                    <span style={{color: 'var(--text-secondary)', fontSize: '0.85rem'}}>Coupon Code</span>
+                    <span style={{fontWeight: '800', color: 'var(--text-primary)'}}>{couponCode}</span>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Admin ID reminder */}
-            <div style={{background: '#eff6ff', padding: '14px', borderRadius: '12px', border: `2px solid ${coinColor}`, marginBottom: '18px', textAlign: 'center'}}>
-              <p style={{fontSize: '0.8rem', color: '#6b7280', marginBottom: '4px', fontWeight: '700'}}>📤 আপনি কি এই ID তে কয়েন পাঠিয়েছেন?</p>
-              <span style={{fontWeight: '900', fontSize: '1.2rem', color: coinColor, userSelect: 'all'}}>
-                {targetUser || <span style={{color: 'var(--negative-color)'}}>⚠️ Admin ID নেই</span>}
-              </span>
-            </div>
+            {coinType !== 'topfollows' && (
+              <div style={{background: '#eff6ff', padding: '14px', borderRadius: '12px', border: `2px solid ${coinColor}`, marginBottom: '18px', textAlign: 'center'}}>
+                <p style={{fontSize: '0.8rem', color: '#6b7280', marginBottom: '4px', fontWeight: '700'}}>📤 আপনি কি এই ID তে কয়েন পাঠিয়েছেন?</p>
+                <span style={{fontWeight: '900', fontSize: '1.2rem', color: coinColor, userSelect: 'all'}}>
+                  {targetUser || <span style={{color: 'var(--negative-color)'}}>⚠️ Admin ID নেই</span>}
+                </span>
+              </div>
+            )}
 
             {coinType === 'topfollower' && (
               <div style={{marginBottom: '18px'}}>
@@ -1519,16 +1662,23 @@ const getYouTubeId = (input) => {
 };
 
 const JobDetailTemplate = ({ job }) => {
+  const navigate = useNavigate();
   return (
-    <div style={{ padding: '20px', paddingBottom: '100px', backgroundColor: '#f3f4f6', minHeight: '100vh' }}>
+    <div style={{ padding: '20px', paddingBottom: '100px', background: 'transparent', minHeight: '100vh' }}>
       
-      {/* Title */}
-      <h2 style={{ textAlign: 'center', fontWeight: '900', fontSize: '1.8rem', color: '#1f2937', marginBottom: '20px' }}>
-        {job.title}
-      </h2>
+      {/* Header with Back Button */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
+        <button onClick={() => navigate('/')} style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '8px', borderRadius: '12px', boxShadow: 'var(--shadow)', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <ChevronRight size={24} color="var(--text-primary)" style={{ transform: 'rotate(180deg)' }} />
+        </button>
+        <div>
+          <h2 style={{ fontWeight: '900', fontSize: '1.5rem', color: 'var(--text-primary)', margin: 0 }}>{job.title}</h2>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>কাজ করার সম্পূর্ণ গাইড</p>
+        </div>
+      </div>
 
       {/* Account Section */}
-      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
+      <div style={{ backgroundColor: 'var(--card-bg)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)', marginBottom: '20px' }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#8b5cf6', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
           <PlayCircle size={24} /> কিভাবে একাউন্ট করবেন 
         </h3>
@@ -1540,7 +1690,7 @@ const JobDetailTemplate = ({ job }) => {
               allowFullScreen 
             />
           ) : (
-            <div style={{background:'#f3f4f6', padding:'30px', textAlign:'center', color:'#9ca3af', borderRadius:'12px'}}>ভিডিও সেট করা হয়নি</div>
+            <div style={{ background: 'var(--input-bg)', padding: '30px', textAlign: 'center', color: 'var(--text-secondary)', borderRadius: '12px' }}>ভিডিও সেট করা হয়নি</div>
           )}
         </div>
         {job.regLink && (
@@ -1552,7 +1702,7 @@ const JobDetailTemplate = ({ job }) => {
               display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white',
               padding: '14px', borderRadius: '14px', fontSize: '1.1rem', fontWeight: '700',
-              marginTop: '15px', boxShadow: '0 6px 15px rgba(59, 130, 246, 0.3)'
+              marginTop: '15px', boxShadow: '0 6px 15px rgba(59, 130, 246, 0.3)', textDecoration: 'none'
             }}
           >
             রেজিষ্ট্রেশন লিংক <ExternalLink size={20} />
@@ -1562,7 +1712,7 @@ const JobDetailTemplate = ({ job }) => {
 
       {/* Work Section (If exists) */}
       {job.workVideo && (
-        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
+        <div style={{ backgroundColor: 'var(--card-bg)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)', marginBottom: '20px' }}>
           <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
             <PlayCircle size={24} /> কিভাবে কাজ করবেন
           </h3>
@@ -1574,15 +1724,15 @@ const JobDetailTemplate = ({ job }) => {
                 allowFullScreen 
               />
             ) : (
-              <div style={{background:'#f3f4f6', padding:'30px', textAlign:'center', color:'#9ca3af', borderRadius:'12px'}}>ভিডিও সেট করা হয়নি</div>
+              <div style={{ background: 'var(--input-bg)', padding: '30px', textAlign: 'center', color: 'var(--text-secondary)', borderRadius: '12px' }}>ভিডিও সেট করা হয়নি</div>
             )}
           </div>
         </div>
       )}
 
       {/* Withdraw Section */}
-      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color:  'var(--positive-color)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+      <div style={{ backgroundColor: 'var(--card-bg)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--positive-color)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
           <DollarSign size={24} /> কিভাবে উইথড্র করবেন
         </h3>
         <div className="video-wrapper" style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
@@ -1593,35 +1743,1165 @@ const JobDetailTemplate = ({ job }) => {
               allowFullScreen 
             />
           ) : (
-            <div style={{background:'#f3f4f6', padding:'30px', textAlign:'center', color:'#9ca3af', borderRadius:'12px'}}>ভিডিও সেট করা হয়নি</div>
+            <div style={{ background: 'var(--input-bg)', padding: '30px', textAlign: 'center', color: 'var(--text-secondary)', borderRadius: '12px' }}>ভিডিও সেট করা হয়নি</div>
           )}
         </div>
       </div>
+
+      {/* Admin Wallet Details Section */}
+      {(job.walletAddress || job.walletType) && (
+        <div style={{ backgroundColor: 'var(--card-bg)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)', marginBottom: '20px' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+            <Wallet size={24} /> {job.walletType || 'Admin Wallet Details'}
+          </h3>
+          
+          <div style={{ 
+            display: 'flex', alignItems: 'center', background: 'var(--input-bg)', padding: '15px', 
+            borderRadius: '12px', border: '1px dashed var(--input-border)', gap: '10px'
+          }}>
+            <span style={{ 
+              flex: 1, color: 'var(--text-primary)', fontSize: '1rem', fontWeight: '800', 
+              wordBreak: 'break-all', fontFamily: 'monospace', letterSpacing: '0.5px' 
+            }}>
+              {job.walletAddress}
+            </span>
+            {job.walletAddress && (
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(job.walletAddress);
+                  Swal.fire({
+                    title: 'Copied!',
+                    text: 'Wallet address has been copied to your clipboard.',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: '#ffffff',
+                    color: '#374151'
+                  });
+                }} 
+                style={{ 
+                  background: 'var(--primary-color)', color: 'white', border: 'none', 
+                  padding: '8px 15px', borderRadius: '8px', cursor: 'pointer', 
+                  fontWeight: '700', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '5px' 
+                }}
+              >
+                <Copy size={16} /> Copy
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );
 };
 
-const TopFollowWork = () => (
-  <div>
-    <div className="topfollow-pink">
-      <div className="tf-title">Top Follow Work</div>
-      <div className="tf-subtitle"><span>📲</span> কাজ করার জন্য কিভাবে একাউন্ট করবেন নিচের ভিডিও টি দেখুন !</div>
-      <div className="video-wrapper" style={{borderRadius: '12px', border: '1px solid #000'}}>
-        <iframe src="https://www.youtube.com/embed/PjN0Xv7Bnp4" style={{width: '100%', height: '100%', border: 'none', borderRadius: '12px'}} allowFullScreen />
-      </div>
-      <button className="app-link-btn">App Link <Download size={16} /></button>
-    </div>
-    <div className="topfollow-green">
-      <div className="tg-title"><span>💸</span> কিভাবে বেশি ইনকাম করতে পারবেন নিচের ভিডিও টি দেখুন !</div>
-      <div className="video-wrapper" style={{borderRadius: '12px', border: '1px solid #000'}}>
-        <iframe src="https://www.youtube.com/embed/r9k0tESYuyQ" style={{width: '100%', height: '100%', border: 'none', borderRadius: '12px'}} allowFullScreen />
-      </div>
-    </div>
-  </div>
-);
+const AdminPanel = () => {
+  const [config, setConfig] = useState({
+    supportLink: '',
+    telegramChannel: '',
+    youtubeChannel: '',
+    bkashNumber: '',
+    nagadNumber: '',
+    rocketNumber: '',
+    activationFee: 20,
+  });
+  const [newAdminId, setNewAdminId] = useState('');
+  const [adminsList, setAdminsList] = useState([]);
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    pendingVerifications: 0,
+    pendingWithdraws: 0,
+    verifications: [],
+    withdraws: [],
+  });
+  const [taskLinks, setTaskLinks] = useState([]);
+  const [coinRequests, setCoinRequests] = useState([]);
+  const [addFundRequests, setAddFundRequests] = useState([]);
+  const [coins, setCoins] = useState([]);
+  const [marketConfig, setMarketConfig] = useState({ marketIsVisible: true });
+  const [jobSubmissions, setJobSubmissions] = useState([]);
+  const [bots, setBots] = useState([]);
+  const [allJobs, setAllJobs] = useState([]);
+  const [editingBot, setEditingBot] = useState(null);
 
+  // User search/manage states
+  const [searchId, setSearchId] = useState('');
+  const [searchedUser, setSearchedUser] = useState(null);
+  const [balanceAmount, setBalanceAmount] = useState('');
 
+  // Tab states
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [coinTab, setCoinTab] = useState('requests');
+
+  const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179";
+  const currentAdmin = adminsList.find(a => a.telegramId === myTelegramId);
+  const isMaster = currentAdmin ? currentAdmin.isMasterAdmin : (myTelegramId === "6323700179");
+
+  const fetchBots = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/bots`)
+      .then(res => res.json())
+      .then(data => setBots(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const saveBot = (botData) => {
+    const formattedData = {
+      ...botData,
+      reward: Number(botData.reward) || 0
+    };
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/bots/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formattedData),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Bot saved successfully!');
+          setEditingBot(null);
+          fetchBots();
+        } else {
+          alert('Failed to save bot: ' + data.error);
+        }
+      })
+      .catch(console.error);
+  };
+
+  const deleteBot = (id) => {
+    if (window.confirm('Are you sure you want to delete this bot?')) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/bots/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Bot deleted successfully!');
+            fetchBots();
+          } else {
+            alert('Failed to delete bot: ' + data.error);
+          }
+        })
+        .catch(console.error);
+    }
+  };
+
+  const fetchMarketConfig = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/config`)
+      .then(res => res.json())
+      .then(data => setMarketConfig(data))
+      .catch(console.error);
+  };
+
+  const fetchAddFundRequests = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/fund-requests`)
+      .then(res => res.json())
+      .then(data => setAddFundRequests(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const fetchCoins = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/coins`)
+      .then(res => res.json())
+      .then(data => setCoins(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const fetchCoinRequests = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/coin-requests`)
+      .then(res => res.json())
+      .then(data => setCoinRequests(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const fetchStats = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/stats`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error && data.verifications) {
+          setStats(data);
+        }
+      })
+      .catch(console.error);
+  };
+
+  const fetchTasks = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/tasks`)
+      .then(res => res.json())
+      .then(data => {
+        const fetchedList = Array.isArray(data) ? data : [];
+        const mergedList = Object.keys(jobData).map(taskId => {
+          const found = fetchedList.find(t => t.taskId === taskId);
+          return found || {
+            taskId,
+            title: jobData[taskId].title || taskId,
+            accountVideo: '',
+            workVideo: '',
+            withdrawVideo: '',
+            regLink: '',
+            walletAddress: '',
+            walletType: ''
+          };
+        });
+        setTaskLinks(mergedList);
+      })
+      .catch(() => {
+        const fallbackList = Object.keys(jobData).map(taskId => ({
+          taskId,
+          title: jobData[taskId].title || taskId,
+          accountVideo: '',
+          workVideo: '',
+          withdrawVideo: '',
+          regLink: '',
+          walletAddress: '',
+          walletType: ''
+        }));
+        setTaskLinks(fallbackList);
+      });
+  };
+
+  const fetchJobSubmissions = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/job-submissions`)
+      .then(res => res.json())
+      .then(data => setJobSubmissions(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const approveJobSubmission = (id) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId: id }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert('Job submission approved!');
+          fetchJobSubmissions();
+          fetchStats();
+        }
+      });
+  };
+
+  const rejectJobSubmission = (id) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId: id }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert('Job submission rejected!');
+          fetchJobSubmissions();
+        }
+      });
+  };
+
+  const fetchAllJobs = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/jobs`)
+      .then(res => res.json())
+      .then(data => setAllJobs(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const deleteJobByAdmin = (jobId) => {
+    if (window.confirm('Are you sure you want to delete this microjob?')) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/${jobId}/delete`, {
+        method: 'POST',
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Microjob deleted successfully!');
+            fetchAllJobs();
+            fetchJobSubmissions();
+          } else {
+            alert('Failed to delete job: ' + (data.error || 'Server error'));
+          }
+        })
+        .catch(console.error);
+    }
+  };
+
+  const getTelegramChatUrl = (telegramId, username) => {
+    if (username) {
+      const cleanUsername = username.replace('@', '');
+      return `https://t.me/${cleanUsername}`;
+    }
+    return `tg://user?id=${telegramId}`;
+  };
+
+  const fetchAdminsList = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/list`)
+      .then(res => res.json())
+      .then(data => setAdminsList(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/contact`)
+      .then(res => res.json())
+      .then(data => setConfig(data))
+      .catch(console.error);
+    fetchStats();
+    fetchTasks();
+    fetchCoinRequests();
+    fetchAddFundRequests();
+    fetchCoins();
+    fetchMarketConfig();
+    fetchJobSubmissions();
+    fetchBots();
+    fetchAdminsList();
+    fetchAllJobs();
+  }, []);
+
+  const saveContactSettings = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    }).then(() => alert('Settings saved!'));
+  };
+
+  const addAdmin = () => {
+    if (!newAdminId) return alert('Telegram UID দিন!');
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ newAdminId, callerId: myTelegramId }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || data.error);
+        setNewAdminId('');
+        fetchAdminsList();
+      });
+  };
+
+  const promoteToMaster = (adminId) => {
+    if (window.confirm('Are you sure you want to promote this admin to Master Admin?')) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/promote-master`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetAdminId: adminId, callerId: myTelegramId }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message || data.error);
+          fetchAdminsList();
+        })
+        .catch(console.error);
+    }
+  };
+
+  const removeAdmin = (adminId) => {
+    if (window.confirm('Are you sure you want to remove this admin?')) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/remove`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ removeAdminId: adminId, callerId: myTelegramId }),
+      })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message || data.error);
+          fetchAdminsList();
+        });
+    }
+  };
+
+  const searchUser = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          setSearchedUser(data);
+        }
+      });
+  };
+
+  const toggleBanUser = () => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/ban`, { method: 'POST' })
+      .then(res => res.json())
+      .then(data => setSearchedUser({ ...searchedUser, isBanned: data.isBanned }));
+  };
+
+  const verifyUserNow = () => {
+    if (window.confirm(`Are you sure you want to manually verify @${searchedUser.username || searchedUser.telegramId}?`)) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/manual-verify`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            alert(data.error);
+          } else {
+            alert(data.message);
+            setSearchedUser({ ...searchedUser, isVerified: true });
+          }
+        });
+    }
+  };
+
+  const adjustBalance = (action) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/balance`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: balanceAmount, action }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        setSearchedUser({ ...searchedUser, balance: data.balance });
+        setBalanceAmount('');
+      });
+  };
+
+  const approveVerificationRequest = (requestId) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/verify/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert('Verification request approved!');
+          fetchStats();
+        }
+      });
+  };
+
+  const rejectVerificationRequest = (requestId) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/verify/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requestId }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert('Verification request rejected!');
+          fetchStats();
+        }
+      });
+  };
+
+  const saveTaskLinks = (task) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(task),
+    }).then(() => alert(`Saved links for ${task.title}`));
+  };
+
+  const handleTaskLinkChange = (index, key, val) => {
+    const updated = [...taskLinks];
+    updated[index][key] = val;
+    setTaskLinks(updated);
+  };
+
+  const handleCoinRequestStatus = (id, status) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/coin-requests/${id}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    }).then(() => {
+      alert(`Request ${status}`);
+      fetchCoinRequests();
+    });
+  };
+
+  const saveCoinSettings = (index) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/coins`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ configs: [coins[index]] }),
+    }).then(() => alert(`${coins[index].label} settings saved successfully!`));
+  };
+
+  const saveMarketConfigVisibility = (visible) => {
+    setMarketConfig({ marketIsVisible: visible });
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/config`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ marketIsVisible: visible }),
+    });
+  };
+
+  const handleCoinConfigChange = (index, key, val) => {
+    const updated = [...coins];
+    updated[index][key] = val;
+    setCoins(updated);
+  };
+
+  const pendingVerifyCount = stats.pendingVerifications || 0;
+  const pendingCoinSellCount = coinRequests.filter(c => c.status === 'Pending').length;
+  const pendingAddFundCount = addFundRequests.filter(f => f.status === 'Pending').length;
+  const pendingJobProofCount = jobSubmissions.filter(j => j.status === 'pending').length;
+
+  return (
+    <div className="home-container" style={{ background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px' }}>
+      <h2 style={{ textAlign: 'center', fontWeight: '900', fontSize: '1.8rem', marginBottom: '15px', color: 'var(--text-primary)' }}>Admin Dashboard</h2>
+      
+      {/* Tab Navigation */}
+      <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px', paddingBottom: '10px', justifyContent: 'center' }}>
+        <button onClick={() => setActiveTab('dashboard')} style={{ position: 'relative', background: activeTab === 'dashboard' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'dashboard' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          Dashboard
+          {pendingVerifyCount > 0 && (
+            <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'var(--negative-color)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{pendingVerifyCount}</span>
+          )}
+        </button>
+        
+        <button onClick={() => setActiveTab('users')} style={{ background: activeTab === 'users' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'users' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          Users
+        </button>
+
+        <button onClick={() => setActiveTab('tasks')} style={{ background: activeTab === 'tasks' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'tasks' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>Tasks</button>
+        
+        <button onClick={() => setActiveTab('coinSells')} style={{ position: 'relative', background: activeTab === 'coinSells' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'coinSells' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          Coin Sells
+          {pendingCoinSellCount > 0 && (
+            <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'var(--negative-color)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{pendingCoinSellCount}</span>
+          )}
+        </button>
+
+        <button onClick={() => setActiveTab('addFunds')} style={{ position: 'relative', background: activeTab === 'addFunds' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'addFunds' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          Add Funds
+          {pendingAddFundCount > 0 && (
+            <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'var(--negative-color)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{pendingAddFundCount}</span>
+          )}
+        </button>
+
+        <button onClick={() => setActiveTab('jobProofs')} style={{ position: 'relative', background: activeTab === 'jobProofs' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'jobProofs' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          Job Proofs
+          {pendingJobProofCount > 0 && (
+            <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'var(--negative-color)', color: 'white', borderRadius: '50%', width: '18px', height: '18px', fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>{pendingJobProofCount}</span>
+          )}
+        </button>
+
+        <button onClick={() => setActiveTab('manageJobs')} style={{ background: activeTab === 'manageJobs' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'manageJobs' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          Microjobs
+        </button>
+
+        <button onClick={() => setActiveTab('bots')} style={{ background: activeTab === 'bots' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'bots' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>Manage Bots</button>
+        <button onClick={() => setActiveTab('contact')} style={{ background: activeTab === 'contact' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'contact' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>Settings</button>
+      </div>
+
+      {/* DASHBOARD TAB */}
+      {activeTab === 'dashboard' && (
+        <>
+          <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+            <div style={{ flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '700' }}>Total Users</p>
+              <h3 style={{ color: 'var(--text-primary)', fontSize: '1.5rem' }}>{stats.totalUsers}</h3>
+            </div>
+            <div style={{ flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '700' }}>Pending Verify</p>
+              <h3 style={{ color: '#f59e0b', fontSize: '1.5rem' }}>{stats.pendingVerifications}</h3>
+            </div>
+            <div style={{ flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: '700' }}>Pending Withdraw</p>
+              <h3 style={{ color: 'var(--negative-color)', fontSize: '1.5rem' }}>{stats.pendingWithdraws}</h3>
+            </div>
+          </div>
+
+          {/* Pending Verification Requests List */}
+          <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: 'var(--text-primary)' }}>Pending Account Activation Requests</h3>
+            {stats.verifications.length === 0 ? (
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No pending activation requests</p>
+            ) : (
+              stats.verifications.map((y, idx) => (
+                <div key={y._id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
+                  <div>
+                    <p style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)', margin: 0 }}>UID: {y.userTelegramId}</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0 0' }}>
+                      Method: <span style={{ fontWeight: '800', color: 'var(--primary-color)' }}>{y.paymentMethod || 'Bkash'}</span> | TrxID: <span style={{ fontWeight: '800', color: 'var(--text-primary)' }}>{y.transactionId}</span>
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => approveVerificationRequest(y._id)} style={{ background: 'var(--positive-color)', color: 'white', padding: '6px 12px', borderRadius: '8px', border: 'none', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}>Approve</button>
+                    <button onClick={() => rejectVerificationRequest(y._id)} style={{ background: 'var(--negative-color)', color: 'white', padding: '6px 12px', borderRadius: '8px', border: 'none', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}>Reject</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
+
+      {/* USERS TAB */}
+      {activeTab === 'users' && (
+        <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px' }}>
+          <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: 'var(--text-primary)' }}>Search User</h3>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+            <input type="text" placeholder="UID or @username" value={searchId} onChange={(e) => setSearchId(e.target.value)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+            <button onClick={searchUser} style={{ background: 'var(--primary-color)', color: 'white', padding: '10px 15px', borderRadius: '8px', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Search size={20} />
+            </button>
+          </div>
+          
+          {searchedUser && (
+            <div style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '15px', borderRadius: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>@{searchedUser.username || 'NoUsername'}</h4>
+                <span style={{ background: searchedUser.isBanned ? 'rgba(239, 68, 68, 0.15)' : 'rgba(0, 230, 118, 0.15)', color: searchedUser.isBanned ? 'var(--negative-color)' : 'var(--positive-color)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700' }}>
+                  {searchedUser.isBanned ? 'BANNED' : 'ACTIVE'}
+                </span>
+              </div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '5px' }}><strong>UID:</strong> {searchedUser.telegramId}</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '5px' }}><strong>Name:</strong> {searchedUser.firstName || 'N/A'}</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '5px' }}><strong>Joined:</strong> {new Date(searchedUser.createdAt).toLocaleDateString()}</p>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}><strong>Verified:</strong> {searchedUser.isVerified ? 'Yes' : 'No'}</p>
+                {!searchedUser.isVerified && (
+                  <button onClick={verifyUserNow} style={{ background: 'var(--positive-color)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer' }}>Verify Now</button>
+                )}
+              </div>
+              
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '15px' }}><strong>Balance:</strong> <span style={{ color: 'var(--positive-color)', fontWeight: '800', fontSize: '1.1rem' }}>{searchedUser.balance} ৳</span></p>
+              
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                <input type="number" placeholder="Amount" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)} style={{ flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                <button onClick={() => adjustBalance('add')} style={{ background: 'var(--positive-color)', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>+</button>
+                <button onClick={() => adjustBalance('cut')} style={{ background: 'var(--negative-color)', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>-</button>
+              </div>
+              
+              <button onClick={toggleBanUser} style={{ width: '100%', background: searchedUser.isBanned ? 'var(--primary-color)' : 'var(--negative-color)', color: 'white', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>
+                {searchedUser.isBanned ? 'Unban User' : 'Ban User'}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TASKS TAB */}
+      {activeTab === 'tasks' && (
+        <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px' }}>
+          <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Manage Task Configurations</h3>
+          {taskLinks.map((y, idx) => (
+            <div key={y.taskId || idx} style={{ marginBottom: '20px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+              <h4 style={{ marginBottom: '10px', color: 'var(--text-primary)', fontWeight: '800' }}>{y.title}</h4>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600' }}>YouTube Account Video ID (e.g. EF_pBnwW9h0)</label>
+                  <input type="text" value={y.accountVideo || ''} onChange={(e) => handleTaskLinkChange(idx, 'accountVideo', e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600' }}>YouTube Work Video ID</label>
+                  <input type="text" value={y.workVideo || ''} onChange={(e) => handleTaskLinkChange(idx, 'workVideo', e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600' }}>YouTube Withdraw Video ID</label>
+                  <input type="text" value={y.withdrawVideo || ''} onChange={(e) => handleTaskLinkChange(idx, 'withdrawVideo', e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Registration Link</label>
+                  <input type="text" value={y.regLink || ''} onChange={(e) => handleTaskLinkChange(idx, 'regLink', e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Admin Wallet Type (e.g. TRON Wallet Address / Bkash Agent)</label>
+                  <input type="text" placeholder="TRON (TRX) Wallet Address / TRC20" value={y.walletType || ''} onChange={(e) => handleTaskLinkChange(idx, 'walletType', e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: '600' }}>Admin Wallet Address</label>
+                  <input type="text" placeholder="Enter wallet address" value={y.walletAddress || ''} onChange={(e) => handleTaskLinkChange(idx, 'walletAddress', e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                </div>
+              </div>
+
+              <button onClick={() => saveTaskLinks(y)} style={{ background: 'var(--positive-color)', color: 'white', padding: '8px 15px', borderRadius: '8px', fontWeight: '700', width: '100%', border: 'none', marginTop: '12px', cursor: 'pointer' }}>Save {y.title}</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* COIN SELLS TAB */}
+      {activeTab === 'coinSells' && (
+        <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px' }}>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+            <button onClick={() => setCoinTab('requests')} style={{ background: coinTab === 'requests' ? 'var(--primary-color)' : 'transparent', color: coinTab === 'requests' ? '#ffffff' : 'var(--text-secondary)', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Requests {pendingCoinSellCount > 0 && <span style={{ marginLeft: '5px', background: 'var(--negative-color)', color: 'white', padding: '2px 6px', borderRadius: '10px', fontSize: '0.7rem' }}>{pendingCoinSellCount}</span>}</button>
+            <button onClick={() => setCoinTab('settings')} style={{ background: coinTab === 'settings' ? 'var(--primary-color)' : 'transparent', color: coinTab === 'settings' ? '#ffffff' : 'var(--text-secondary)', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Coin Settings</button>
+          </div>
+
+          {coinTab === 'requests' && (
+            <div>
+              {coinRequests.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)' }}>No coin sell requests.</p>
+              ) : (
+                coinRequests.map((y, idx) => (
+                  <div key={y._id || idx} style={{ marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <h4 style={{ fontWeight: '800', color: 'var(--text-primary)', margin: 0, textTransform: 'uppercase' }}>{y.coinType}</h4>
+                      <span style={{ background: y.status === 'Pending' ? 'rgba(217, 119, 6, 0.15)' : y.status === 'Accepted' ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255, 23, 68, 0.15)', color: y.status === 'Pending' ? '#d97706' : y.status === 'Accepted' ? 'var(--positive-color)' : 'var(--negative-color)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700' }}>{y.status}</span>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 5px 0' }}><strong>UID:</strong> {y.userId}</p>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 5px 0' }}><strong>Amount:</strong> {y.amount}</p>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 10px 0' }}><strong>Method:</strong> {y.paymentMethod} ({y.paymentNumber})</p>
+                    {y.coinType === 'topfollows' ? (
+                      <p style={{ fontSize: '0.9rem', color: '#8b5cf6', margin: '0 0 10px 0', fontWeight: '700' }}>
+                        <strong>Screenshot Link:</strong>{' '}
+                        <a href={y.senderDetails} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>
+                          {y.senderDetails}
+                        </a>
+                      </p>
+                    ) : (
+                      <p style={{ fontSize: '0.9rem', color: '#8b5cf6', margin: '0 0 10px 0', fontWeight: '700' }}>
+                        <strong>Sender App ID:</strong> {y.senderDetails}
+                      </p>
+                    )}
+                    {y.couponCode && <p style={{ fontSize: '0.9rem', color: '#f59e0b', margin: '0 0 10px 0', fontWeight: '700' }}><strong>Coupon:</strong> {y.couponCode}</p>}
+                    
+                    {y.status === 'Pending' && (
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button onClick={() => handleCoinRequestStatus(y._id, 'Accepted')} style={{ flex: 1, background: 'var(--positive-color)', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Accept</button>
+                        <button onClick={() => handleCoinRequestStatus(y._id, 'Rejected')} style={{ flex: 1, background: 'var(--negative-color)', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Reject</button>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {coinTab === 'settings' && (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontWeight: '800', color: 'var(--text-primary)' }}>Show Full Market Section (Home Page)</span>
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={marketConfig.marketIsVisible} onChange={(e) => saveMarketConfigVisibility(e.target.checked)} style={{ transform: 'scale(1.2)' }} />
+                </label>
+              </div>
+
+              {coins.map((y, idx) => (
+                <div key={y._id || idx} style={{ marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <span style={{ fontWeight: '800', color: 'var(--text-primary)' }}>{y.label}</span>
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.9rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                        <input type="checkbox" checked={y.isVisible !== false} onChange={(e) => handleCoinConfigChange(idx, 'isVisible', e.target.checked)} /> Visible
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.9rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>
+                        <input type="checkbox" checked={y.isActive} onChange={(e) => handleCoinConfigChange(idx, 'isActive', e.target.checked)} /> Active
+                      </label>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)' }}>Price (৳ / 1000)</label>
+                      <input type="number" value={y.price} onChange={(e) => handleCoinConfigChange(idx, 'price', Number(e.target.value))} style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)' }}>Min Amount</label>
+                      <input type="number" value={y.minAmount || 1000} onChange={(e) => handleCoinConfigChange(idx, 'minAmount', Number(e.target.value))} style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                    </div>
+                    <div style={{ flex: 2 }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
+                        {y.coinId === 'topfollows' ? 'Screenshot Submit Link (Telegram)' : 'Target Username / ID'}
+                      </label>
+                      <input type="text" value={y.targetUser} onChange={(e) => handleCoinConfigChange(idx, 'targetUser', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--text-secondary)' }}>Tutorial Video (Optional)</label>
+                    <input type="text" value={y.tutorialVideo || ''} onChange={(e) => handleCoinConfigChange(idx, 'tutorialVideo', e.target.value)} style={{ width: '100%', padding: '8px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} placeholder="Link e.g. https://youtu.be/..." />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '15px' }}>
+                    <button onClick={() => saveCoinSettings(idx)} style={{ background: 'var(--positive-color)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontWeight: '700', border: 'none', cursor: 'pointer' }}>Save {y.label}</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ADD FUNDS TAB */}
+      {activeTab === 'addFunds' && (
+        <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px' }}>
+          <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Add Fund Requests</h3>
+          {addFundRequests.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)' }}>No add fund requests.</p>
+          ) : (
+            addFundRequests.map((y, idx) => (
+              <div key={y._id || idx} style={{ marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <h4 style={{ fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>+{y.amount} ৳</h4>
+                  <span style={{ background: y.status === 'Pending' ? 'rgba(217, 119, 6, 0.15)' : y.status === 'Accepted' ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255, 23, 68, 0.15)', color: y.status === 'Pending' ? '#d97706' : y.status === 'Accepted' ? 'var(--positive-color)' : 'var(--negative-color)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700' }}>{y.status}</span>
+                </div>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 5px 0' }}><strong>UID:</strong> {y.userId}</p>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 5px 0' }}><strong>Method:</strong> <span style={{ textTransform: 'capitalize' }}>{y.paymentMethod}</span></p>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 5px 0' }}><strong>Sender Number:</strong> {y.senderNumber}</p>
+                <p style={{ fontSize: '0.9rem', color: 'var(--primary-color)', margin: '0 0 10px 0', fontWeight: '700' }}><strong>TrxID:</strong> {y.transactionId}</p>
+
+                {y.status === 'Pending' && (
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button onClick={() => {
+                      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/fund-requests/${y._id}/status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'Accepted' }),
+                      }).then(() => fetchAddFundRequests());
+                    }} style={{ flex: 1, background: 'var(--positive-color)', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Approve</button>
+                    
+                    <button onClick={() => {
+                      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/fund-requests/${y._id}/status`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'Rejected' }),
+                      }).then(() => fetchAddFundRequests());
+                    }} style={{ flex: 1, background: 'var(--negative-color)', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Reject</button>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* JOB PROOFS TAB */}
+      {activeTab === 'jobProofs' && (
+        <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px' }}>
+          <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Job Proof Submissions</h3>
+          {jobSubmissions.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)' }}>No job submissions.</p>
+          ) : (
+            jobSubmissions.map((y, idx) => {
+              const isSystemAdmin = y.jobId?.postedBy === 'admin';
+              const posterUsername = y.jobPoster?.username || '';
+              const posterFirstName = y.jobPoster?.firstName || '';
+              const posterId = y.jobId?.postedBy;
+
+              const displayPoster = isSystemAdmin
+                ? 'System Admin'
+                : (posterUsername ? `@${posterUsername.replace('@', '')}` : (posterFirstName || `UID: ${posterId}`));
+
+              return (
+                <div key={y._id || idx} style={{ marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <h4 style={{ fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>{y.jobId?.title || 'Unknown Job'}</h4>
+                    <span style={{ background: y.status === 'pending' ? 'rgba(217, 119, 6, 0.15)' : y.status === 'approved' ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255, 23, 68, 0.15)', color: y.status === 'pending' ? '#d97706' : y.status === 'approved' ? 'var(--positive-color)' : 'var(--negative-color)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700' }}>{y.status.toUpperCase()}</span>
+                  </div>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 5px 0' }}><strong>Worker UID:</strong> {y.userTelegramId}</p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 5px 0' }}><strong>Job Pay:</strong> {y.jobId?.amount || 0} ৳</p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 5px 0' }}>
+                    <strong>Job Posted By:</strong>{' '}
+                    {isSystemAdmin ? (
+                      <span style={{ fontWeight: '700' }}>System Admin</span>
+                    ) : posterId ? (
+                      <a 
+                        href={getTelegramChatUrl(posterId, posterUsername)} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        style={{ color: 'var(--primary-color)', fontWeight: '700', textDecoration: 'underline' }}
+                      >
+                        {displayPoster}
+                      </a>
+                    ) : (
+                      'Unknown'
+                    )}
+                  </p>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--primary-color)', margin: '0 0 10px 0', fontWeight: '700' }}><strong>Submitted Proof:</strong> {y.submittedId}</p>
+
+                  {y.status === 'pending' && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button onClick={() => approveJobSubmission(y._id)} style={{ flex: 1, background: 'var(--positive-color)', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Approve</button>
+                      <button onClick={() => rejectJobSubmission(y._id)} style={{ flex: 1, background: 'var(--negative-color)', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Reject</button>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* MANAGE MICROJOBS TAB */}
+      {activeTab === 'manageJobs' && (
+        <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px' }}>
+          <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Manage Microjobs</h3>
+          {allJobs.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)' }}>No microjobs found.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              {allJobs.map((job) => {
+                const isSystemAdmin = job.postedBy === 'admin';
+                const creatorUsername = job.user?.username || '';
+                const creatorFirstName = job.user?.firstName || '';
+                const creatorId = job.postedBy;
+
+                const displayName = isSystemAdmin 
+                  ? 'System Admin' 
+                  : (creatorUsername ? `@${creatorUsername.replace('@', '')}` : (creatorFirstName || `UID: ${creatorId}`));
+
+                return (
+                  <div key={job._id} style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px', background: 'var(--input-bg)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                      <div>
+                        <h4 style={{ fontWeight: '800', color: 'var(--text-primary)', margin: '0 0 5px 0' }}>{job.title}</h4>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>{job.description}</p>
+                      </div>
+                      <span style={{ background: job.isActive ? 'rgba(0, 230, 118, 0.15)' : 'rgba(255, 23, 68, 0.15)', color: job.isActive ? 'var(--positive-color)' : 'var(--negative-color)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700' }}>
+                        {job.isActive ? 'ACTIVE' : 'INACTIVE'}
+                      </span>
+                    </div>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '12px' }}>
+                      <p style={{ margin: 0 }}><strong>Pay Rate:</strong> {job.amount} ৳</p>
+                      <p style={{ margin: 0 }}><strong>Limit:</strong> {job.completedCount} / {job.workerLimit === 0 ? 'Unlimited' : job.workerLimit}</p>
+                      <p style={{ margin: 0 }}><strong>Link:</strong> <a href={job.link} target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>View Task Link <ExternalLink size={12} style={{ display: 'inline', marginLeft: '2px' }} /></a></p>
+                      <p style={{ margin: 0 }}>
+                        <strong>Posted By:</strong>{' '}
+                        {isSystemAdmin ? (
+                          <span style={{ fontWeight: '700' }}>System Admin</span>
+                        ) : (
+                          <a 
+                            href={getTelegramChatUrl(creatorId, creatorUsername)} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            style={{ color: 'var(--primary-color)', fontWeight: '700', textDecoration: 'underline' }}
+                          >
+                            {displayName}
+                          </a>
+                        )}
+                      </p>
+                    </div>
+
+                    <button 
+                      onClick={() => deleteJobByAdmin(job._id)} 
+                      style={{ 
+                        background: 'var(--negative-color)', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '8px 16px', 
+                        borderRadius: '8px', 
+                        fontSize: '0.85rem', 
+                        fontWeight: '700', 
+                        cursor: 'pointer',
+                        width: '100%'
+                      }}
+                    >
+                      Delete Microjob
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* MANAGE BOTS TAB */}
+      {activeTab === 'bots' && (
+        <div style={{ background: 'var(--card-bg)', padding: '20px', borderRadius: '16px', border: 'var(--card-border)', color: 'var(--text-primary)' }}>
+          <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Manage Telegram Bots (হটাৎ ইনকাম)</h3>
+          
+          <div style={{ background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px solid var(--input-border)' }}>
+            <h4 style={{ marginBottom: '12px', fontWeight: '800', color: 'var(--text-primary)' }}>{editingBot?.id ? 'Edit Bot' : 'Add New Bot'}</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <input type="text" placeholder="Bot Title (বটের নাম)" value={editingBot?.title || ''} onChange={(e) => setEditingBot({ ...editingBot, title: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none' }} />
+              <textarea placeholder="Bot Description (বটের কাজ ও বিস্তারিত)" value={editingBot?.description || ''} onChange={(e) => setEditingBot({ ...editingBot, description: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', minHeight: '80px', fontFamily: 'inherit' }} />
+              <input type="text" placeholder="Registration Link (রেজিষ্ট্রেশন লিংক)" value={editingBot?.link || ''} onChange={(e) => setEditingBot({ ...editingBot, link: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none' }} />
+              <input type="number" step="any" placeholder="Reward Bonus Amount (৳)" value={editingBot?.reward !== undefined && editingBot?.reward !== null ? editingBot.reward : ''} onChange={(e) => setEditingBot({ ...editingBot, reward: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none' }} />
+              
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-secondary)' }}>
+                <input type="checkbox" checked={editingBot?.isActive !== false} onChange={(e) => setEditingBot({ ...editingBot, isActive: e.target.checked })} /> Active (সক্রিয়)
+              </label>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                <button onClick={() => {
+                  if (!editingBot?.title || !editingBot?.description || !editingBot?.link) return alert('সবগুলো ঘর পূরণ করুন!');
+                  saveBot(editingBot);
+                }} style={{ flex: 1, background: 'var(--positive-color)', color: 'white', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Save Bot</button>
+                {editingBot && (
+                  <button onClick={() => setEditingBot(null)} style={{ background: '#6b7280', color: 'white', padding: '10px 15px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Cancel</button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <h4 style={{ marginBottom: '12px', fontWeight: '800', color: 'var(--text-primary)' }}>Current Bots ({bots.length}/5)</h4>
+          {bots.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>কোন বট এড করা নেই।</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {bots.map((y, idx) => (
+                <div key={y._id || idx} style={{ padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: y.isActive ? 'var(--input-bg)' : 'rgba(239, 68, 68, 0.08)' }}>
+                  <div style={{ flex: 1, marginRight: '10px' }}>
+                    <h5 style={{ fontWeight: '800', color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '4px' }}>{y.title}</h5>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px', whiteSpace: 'pre-wrap' }}>{y.description}</p>
+                    <a href={y.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.85rem', color: 'var(--positive-color)', fontWeight: '700', textDecoration: 'underline' }}>Link: {y.link}</a>
+                    <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--positive-color)', fontWeight: '700', marginTop: '5px' }}>Reward: {y.reward || 0} ৳</span>
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: y.isActive ? 'var(--positive-color)' : 'var(--negative-color)', fontWeight: '700', marginTop: '5px' }}>{y.isActive ? '● Active' : '● Inactive'}</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <button onClick={() => setEditingBot({ id: y._id, title: y.title, description: y.description, link: y.link, isActive: y.isActive, reward: y.reward })} style={{ background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)', color: 'white', padding: '6px 12px', borderRadius: '6px', border: 'none', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer' }}>Edit</button>
+                    <button onClick={() => deleteBot(y._id)} style={{ background: 'transparent', color: 'var(--negative-color)', border: '1px solid var(--negative-color)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer' }}>Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SETTINGS TAB */}
+      {activeTab === 'contact' && (
+        <>
+          <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Update Contact Links</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Admin Support Link</label>
+                <input type="text" value={config.supportLink} onChange={(e) => setConfig({ ...config, supportLink: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Telegram Channel</label>
+                <input type="text" value={config.telegramChannel} onChange={(e) => setConfig({ ...config, telegramChannel: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>YouTube Channel</label>
+                <input type="text" value={config.youtubeChannel} onChange={(e) => setConfig({ ...config, youtubeChannel: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              
+              <h4 style={{ marginTop: '10px', marginBottom: '5px', color: 'var(--text-primary)' }}>System Settings</h4>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Activation Fee (৳)</label>
+                <input type="number" value={config.activationFee || ''} onChange={(e) => setConfig({ ...config, activationFee: Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Bkash Agent / Personal Number</label>
+                <input type="text" value={config.bkashNumber || ''} onChange={(e) => setConfig({ ...config, bkashNumber: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Nagad Personal Number</label>
+                <input type="text" value={config.nagadNumber || ''} onChange={(e) => setConfig({ ...config, nagadNumber: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Rocket Personal Number</label>
+                <input type="text" value={config.rocketNumber || ''} onChange={(e) => setConfig({ ...config, rocketNumber: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+
+              <button onClick={saveContactSettings} style={{ background: 'var(--positive-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width: '100%', cursor: 'pointer', border: 'none', marginTop: '10px' }}>Save Settings</button>
+            </div>
+          </div>
+
+          {/* Manage Admins List / Form */}
+          <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Manage Admins</h3>
+            
+            {/* Add Admin */}
+            {isMaster ? (
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                <input type="text" placeholder="Telegram UID" value={newAdminId} onChange={(e) => setNewAdminId(e.target.value)} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+                <button onClick={addAdmin} style={{ background: 'var(--primary-color)', color: 'white', padding: '10px 15px', borderRadius: '8px', border: 'none', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', fontWeight: '700' }}>
+                  Add Admin
+                </button>
+              </div>
+            ) : (
+              <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '10px 15px', borderRadius: '8px', marginBottom: '20px', color: 'var(--negative-color)', fontSize: '0.85rem', fontWeight: '600' }}>
+                Only Master Admins can add, remove, or promote admin members.
+              </div>
+            )}
+
+            {/* List Admins */}
+            <h4 style={{ marginBottom: '10px', color: 'var(--text-primary)', fontWeight: '800' }}>Active Admins List</h4>
+            {adminsList.length === 0 ? (
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No admin users found.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {adminsList.map((admin, idx) => (
+                  <div key={admin.telegramId || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', borderRadius: '8px', background: 'var(--input-bg)', border: '1px solid var(--border-color)' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <p style={{ margin: 0, fontWeight: '700', color: 'var(--text-primary)' }}>@{admin.username || 'NoUsername'}</p>
+                        {admin.isMasterAdmin && (
+                          <span style={{ fontSize: '0.65rem', background: 'var(--primary-color)', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>Master</span>
+                        )}
+                      </div>
+                      <p style={{ margin: '3px 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>UID: {admin.telegramId}</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      {/* Promote Button */}
+                      {isMaster && !admin.isMasterAdmin && (
+                        <button onClick={() => promoteToMaster(admin.telegramId)} style={{ background: 'var(--primary-color)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer' }}>Make Master</button>
+                      )}
+                      
+                      {/* Remove Button */}
+                      {admin.telegramId !== '6323700179' ? (
+                        isMaster ? (
+                          <button onClick={() => removeAdmin(admin.telegramId)} style={{ background: 'var(--negative-color)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer' }}>Remove</button>
+                        ) : null
+                      ) : (
+                        <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--primary-color)' }}>Original Master</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+const TopFollowWork = () => {
+  const navigate = useNavigate();
+  return (
+    <div style={{ padding: '20px', paddingBottom: '100px', background: 'transparent', minHeight: '100vh' }}>
+      
+      {/* Header with Back Button */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
+        <button onClick={() => navigate('/')} style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '8px', borderRadius: '12px', boxShadow: 'var(--shadow)', cursor: 'pointer', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <ChevronRight size={24} color="var(--text-primary)" style={{ transform: 'rotate(180deg)' }} />
+        </button>
+        <div>
+          <h2 style={{ fontWeight: '900', fontSize: '1.5rem', color: 'var(--text-primary)', margin: 0 }}>Top Follow Work</h2>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: 0 }}>কাজ করার সম্পূর্ণ গাইড</p>
+        </div>
+      </div>
+
+      <div style={{ backgroundColor: 'var(--card-bg)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: '#d60093', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+          <PlayCircle size={24} /> কিভাবে একাউন্ট করবেন
+        </h3>
+        <div className="video-wrapper" style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
+          <iframe src="https://www.youtube.com/embed/PjN0Xv7Bnp4" style={{ width: '100%', height: '100%', border: 'none' }} allowFullScreen />
+        </div>
+        <a 
+          href="https://topfollow.app" 
+          target="_blank" 
+          rel="noreferrer"
+          style={{
+            display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
+            background: 'linear-gradient(135deg, #d60093, #8b00ff)', color: 'white',
+            padding: '14px', borderRadius: '14px', fontSize: '1.1rem', fontWeight: '700',
+            marginTop: '15px', boxShadow: '0 6px 15px rgba(214, 0, 147, 0.3)', textDecoration: 'none'
+          }}
+        >
+          App Link <Download size={20} />
+        </a>
+      </div>
+
+    </div>
+  );
+};
 
 const ContactPage = () => {
   const [links, setLinks] = useState({ supportLink: '', telegramChannel: '', youtubeChannel: '' });
@@ -1697,708 +2977,28 @@ const ContactPage = () => {
       </div>
 
       {/* FAQ Section */}
-      <h3 style={{color: 'var(--text-primary)', marginBottom: '15px', fontWeight: '800', fontSize: '1.3rem'}}>🤔 Frequently Asked Questions</h3>
-      <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-        {faqs.map((faq, idx) => (
-          <div key={idx} style={{background: 'var(--card-bg)', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)'}}>
-            <div 
-              onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-              style={{padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', background: 'transparent'}}
-            >
-              <h4 style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '1rem', margin: 0}}>{faq.q}</h4>
-              <span style={{color: 'var(--text-secondary)', transform: openFaq === idx ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s'}}>
-                <ChevronRight size={20} />
-              </span>
-            </div>
-            {openFaq === idx && (
-              <div style={{padding: '15px 20px', color: 'var(--text-secondary)', fontSize: '0.95rem', borderTop: '1px solid var(--border-color)', background: 'var(--input-bg)', lineHeight: '1.5'}}>
-                {faq.a}
+      <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)'}}>
+        <h3 style={{fontSize: '1.3rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '20px', textAlign: 'center'}}>💡 Frequently Asked Questions</h3>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
+          {faqs.map((faq, index) => (
+            <div key={index} style={{borderBottom: index !== faqs.length - 1 ? '1px solid var(--border-color)' : 'none', paddingBottom: '10px', paddingTop: '10px'}}>
+              <div 
+                onClick={() => setOpenFaq(openFaq === index ? null : index)} 
+                style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.95rem'}}
+              >
+                <span>{faq.q}</span>
+                <ChevronRight size={18} style={{transform: openFaq === index ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s'}} />
               </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-    </div>
-  );
-};
-
-const AdminPanel = () => {
-  const [links, setLinks] = useState({ supportLink: '', telegramChannel: '', youtubeChannel: '', bkashNumber: '', nagadNumber: '', rocketNumber: '', activationFee: 20 });
-  const [newAdmin, setNewAdmin] = useState('');
-  const [stats, setStats] = useState({ totalUsers: 0, pendingVerifications: 0, pendingWithdraws: 0, verifications: [], withdraws: [] });
-  const [tasksConfig, setTasksConfig] = useState([]);
-  const [coinRequests, setCoinRequests] = useState([]);
-  const [fundRequests, setFundRequests] = useState([]);
-  const [coins, setCoins] = useState([]);
-  const [marketConfig, setMarketConfig] = useState({ marketIsVisible: true });
-  
-  // Job submissions state
-  const [jobSubmissions, setJobSubmissions] = useState([]);
-
-  // Bot states and functions
-  const [bots, setBots] = useState([]);
-  const [editingBot, setEditingBot] = useState(null);
-
-  const fetchBots = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/bots`)
-      .then(res => res.json())
-      .then(data => setBots(Array.isArray(data) ? data : []))
-      .catch(console.error);
-  };
-
-  const saveBot = (botData) => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/bots/save`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(botData)
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        alert('Bot saved successfully!');
-        setEditingBot(null);
-        fetchBots();
-      } else {
-        alert('Failed to save bot: ' + data.error);
-      }
-    })
-    .catch(err => console.error(err));
-  };
-
-  const deleteBot = (id) => {
-    if (window.confirm('Are you sure you want to delete this bot?')) {
-      fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/bots/delete`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert('Bot deleted successfully!');
-          fetchBots();
-        } else {
-          alert('Failed to delete bot: ' + data.error);
-        }
-      })
-      .catch(err => console.error(err));
-    }
-  };
-  
-  const [searchId, setSearchId] = useState('');
-  const [searchedUser, setSearchedUser] = useState(null);
-  const [balanceInput, setBalanceInput] = useState('');
-
-  const [activeTab, setActiveTab] = useState('dashboard'); // dashboard, users, tasks, contact
-  const [coinTab, setCoinTab] = useState('requests');
-  
-  const fetchConfig = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/config`).then(res => res.json()).then(data => setMarketConfig(data));
-  };
-
-  const fetchFundRequests = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/fund-requests`).then(res => res.json()).then(data => setFundRequests(Array.isArray(data) ? data : []));
-  };
-
-  const fetchCoins = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/coins`).then(res => res.json()).then(data => setCoins(Array.isArray(data) ? data : []));
-  };
-
-  const fetchCoinRequests = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/coin-requests`).then(res => res.json()).then(data => setCoinRequests(Array.isArray(data) ? data : []));
-  };
-
-  const fetchStats = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/stats`).then(res => res.json()).then(data => {
-      if (!data.error && data.verifications) setStats(data);
-    }).catch(err => console.error(err));
-  };
-
-  const fetchTasks = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/tasks`)
-      .then(res => res.json())
-      .then(data => {
-        const tasksArray = Array.isArray(data) ? data : [];
-        const defaultTasks = Object.keys(jobData).map(key => {
-          const found = tasksArray.find(t => t.taskId === key);
-          return found || { taskId: key, title: jobData[key].title, accountVideo: '', workVideo: '', withdrawVideo: '', regLink: '' };
-        });
-        setTasksConfig(defaultTasks);
-      }).catch(() => {
-        const defaultTasks = Object.keys(jobData).map(key => ({
-          taskId: key, title: jobData[key].title, accountVideo: '', workVideo: '', withdrawVideo: '', regLink: ''
-        }));
-        setTasksConfig(defaultTasks);
-      });
-  };
-
-  const fetchJobSubmissions = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/job-submissions`)
-      .then(res => res.json())
-      .then(data => setJobSubmissions(Array.isArray(data) ? data : []))
-      .catch(console.error);
-  };
-
-  const approveJobSubmission = (submissionId) => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/jobs/approve`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ submissionId })
-    }).then(res => res.json())
-      .then(data => {
-        if(data.error) alert(data.error);
-        else {
-          alert('Job submission approved!');
-          fetchJobSubmissions();
-          fetchStats();
-        }
-      });
-  };
-
-  const rejectJobSubmission = (submissionId) => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/jobs/reject`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ submissionId })
-    }).then(res => res.json())
-      .then(data => {
-        if(data.error) alert(data.error);
-        else {
-          alert('Job submission rejected!');
-          fetchJobSubmissions();
-        }
-      });
-  };
-
-  useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/contact`).then(res => res.json()).then(data => setLinks(data)).catch(() => {});
-    fetchStats();
-    fetchTasks();
-    fetchCoinRequests();
-    fetchFundRequests();
-    fetchCoins();
-    fetchConfig();
-    fetchJobSubmissions();
-    fetchBots();
-  }, []);
-
-  const saveContact = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/contact`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(links)
-    }).then(() => alert('Settings saved!'));
-  };
-
-  const addAdmin = () => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/add`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ newAdminId: newAdmin })
-    }).then(res => res.json()).then(data => { alert(data.message || data.error); setNewAdmin(''); });
-  };
-
-  const searchUser = () => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) alert(data.error);
-        else setSearchedUser(data);
-      });
-  };
-
-  const toggleBan = () => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/ban`, { method: 'POST' })
-      .then(res => res.json())
-      .then(data => setSearchedUser({...searchedUser, isBanned: data.isBanned}));
-  };
-
-  const manualVerify = () => {
-    if(window.confirm(`Are you sure you want to manually verify @${searchedUser.username || searchedUser.telegramId}?`)) {
-      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/manual-verify`, { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) alert(data.error);
-          else {
-            alert(data.message);
-            setSearchedUser({...searchedUser, isVerified: true});
-          }
-        });
-    }
-  };
-
-  const editBalance = (action) => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${searchId}/balance`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: balanceInput, action })
-    }).then(res => res.json()).then(data => {
-      setSearchedUser({...searchedUser, balance: data.balance});
-      setBalanceInput('');
-    });
-  };
-
-  const approveVerify = (uid) => {
-    // API logic for approve (will call your existing verify approve endpoint)
-    alert("Approved " + uid);
-  };
-
-  const saveTask = (task) => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/tasks`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(task)
-    }).then(() => alert(`Saved links for ${task.title}`));
-  };
-
-  const updateTaskField = (idx, field, value) => {
-    const newTasks = [...tasksConfig];
-    newTasks[idx][field] = value;
-    setTasksConfig(newTasks);
-  };
-
-  const updateCoinRequestStatus = (id, status) => {
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/coin-requests/${id}/status`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    }).then(() => {
-      alert(`Request ${status}`);
-      fetchCoinRequests();
-    });
-  };
-
-  const saveSingleCoin = (idx) => {
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/coins`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ configs: [coins[idx]] })
-    }).then(() => alert(`${coins[idx].label} settings saved successfully!`));
-  };
-
-  const toggleMarketVisibility = (checked) => {
-    setMarketConfig({ marketIsVisible: checked });
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/config`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ marketIsVisible: checked })
-    });
-  };
-
-  const handleCoinChange = (idx, field, val) => {
-    const newCoins = [...coins];
-    newCoins[idx][field] = val;
-    setCoins(newCoins);
-  };
-
-  const pendingVerifications = stats.pendingVerifications || 0;
-  const pendingCoinSells = coinRequests.filter(r => r.status === 'Pending').length;
-  const pendingAddFunds = fundRequests.filter(r => r.status === 'Pending').length;
-
-  return (
-    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
-      <h2 style={{textAlign: 'center', fontWeight: '900', fontSize: '1.8rem', marginBottom: '15px', color: 'var(--text-primary)'}}>Admin Dashboard</h2>
-      
-      <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '20px', paddingBottom: '10px', justifyContent: 'center'}}>
-        <button onClick={()=>setActiveTab('dashboard')} style={{background: activeTab==='dashboard'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='dashboard'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
-          Dashboard
-        </button>
-        <button onClick={()=>setActiveTab('users')} style={{position: 'relative', background: activeTab==='users'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='users'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
-          Users
-          {pendingVerifications > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingVerifications}</span>}
-        </button>
-        <button onClick={()=>setActiveTab('tasks')} style={{background: activeTab==='tasks'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='tasks'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
-          Tasks
-        </button>
-
-        <button onClick={()=>setActiveTab('coinSells')} style={{position: 'relative', background: activeTab==='coinSells'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='coinSells'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
-          Coin Sells
-          {pendingCoinSells > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingCoinSells}</span>}
-        </button>
-        <button onClick={()=>setActiveTab('addFunds')} style={{position: 'relative', background: activeTab==='addFunds'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='addFunds'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
-          Add Funds
-          {pendingAddFunds > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{pendingAddFunds}</span>}
-        </button>
-        <button onClick={()=>setActiveTab('jobProofs')} style={{position: 'relative', background: activeTab==='jobProofs'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='jobProofs'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
-          Job Proofs
-          {jobSubmissions.filter(s => s.status === 'pending').length > 0 && <span style={{position:'absolute', top:'-5px', right:'-5px', background: 'var(--negative-color)', color:'white', borderRadius:'50%', width:'18px', height:'18px', fontSize:'0.7rem', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:'bold'}}>{jobSubmissions.filter(s => s.status === 'pending').length}</span>}
-        </button>
-        <button onClick={()=>setActiveTab('bots')} style={{background: activeTab==='bots'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='bots'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
-          Manage Bots
-        </button>
-        <button onClick={()=>setActiveTab('contact')} style={{background: activeTab==='contact'? 'var(--primary-color)':'var(--card-bg)', color: activeTab==='contact'?'#ffffff':'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight:'700', whiteSpace:'nowrap'}}>
-          Settings
-        </button>
-      </div>
-
-      {activeTab === 'dashboard' && (
-        <>
-          <div style={{display: 'flex', gap: '15px', marginBottom: '20px'}}>
-            <div style={{flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)'}}>
-              <p style={{color: 'var(--text-secondary)', fontSize:'0.85rem', fontWeight:'700'}}>Total Users</p>
-              <h3 style={{color: 'var(--text-primary)', fontSize:'1.5rem'}}>{stats.totalUsers}</h3>
-            </div>
-            <div style={{flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)'}}>
-              <p style={{color: 'var(--text-secondary)', fontSize:'0.85rem', fontWeight:'700'}}>Pending Verify</p>
-              <h3 style={{color: '#f59e0b', fontSize:'1.5rem'}}>{stats.pendingVerifications}</h3>
-            </div>
-            <div style={{flex: 1, background: 'var(--card-bg)', border: 'var(--card-border)', padding: '15px', borderRadius: '15px', textAlign: 'center', boxShadow: 'var(--shadow)'}}>
-              <p style={{color: 'var(--text-secondary)', fontSize:'0.85rem', fontWeight:'700'}}>Pending Withdraw</p>
-              <h3 style={{color:  'var(--negative-color)', fontSize:'1.5rem'}}>{stats.pendingWithdraws}</h3>
-            </div>
-          </div>
-
-          <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
-            <h3 style={{marginBottom: '15px', fontSize: '1.1rem', color: 'var(--text-primary)'}}>Pending Verifications</h3>
-            {stats.verifications.length === 0 ? <p style={{color:'var(--text-secondary)', fontSize:'0.9rem'}}>No pending requests</p> : 
-              stats.verifications.map((v, i) => (
-                <div key={i} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom:'1px solid var(--border-color)'}}>
-                  <div>
-                    <p style={{fontWeight:'700', fontSize:'0.95rem', color: 'var(--text-primary)'}}>UID: {v.telegramId}</p>
-                    <p style={{color:'var(--text-secondary)', fontSize:'0.8rem'}}>TrxID: {v.transactionId}</p>
-                  </div>
-                  <button onClick={() => approveVerify(v.telegramId)} style={{background: 'var(--positive-color)', color:'white', padding:'6px 12px', borderRadius:'8px', border:'none', fontSize:'0.85rem', fontWeight:'700'}}>Approve</button>
-                </div>
-              ))
-            }
-          </div>
-        </>
-      )}
-
-      {activeTab === 'users' && (
-        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
-          <h3 style={{marginBottom: '15px', fontSize: '1.1rem', color: 'var(--text-primary)'}}>Search User</h3>
-          <div style={{display: 'flex', gap: '10px', marginBottom: '20px'}}>
-            <input type="text" placeholder="UID or @username" value={searchId} onChange={(e) => setSearchId(e.target.value)} style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-            <button onClick={searchUser} style={{background:  'var(--primary-color)', color: 'white', padding: '10px 15px', borderRadius: '8px', border:'none'}}><Search size={20}/></button>
-          </div>
-
-          {searchedUser && (
-            <div style={{background: 'var(--input-bg)', border: '1px solid var(--input-border)', padding: '15px', borderRadius: '12px'}}>
-              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'15px'}}>
-                <h4 style={{fontSize:'1.2rem', fontWeight:'800', color:'var(--text-primary)'}}>@{searchedUser.username || 'NoUsername'}</h4>
-                <span style={{background: searchedUser.isBanned ? 'rgba(239, 68, 68, 0.15)' : 'rgba(0, 230, 118, 0.15)', color: searchedUser.isBanned ?  'var(--negative-color)' :  'var(--positive-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
-                  {searchedUser.isBanned ? 'BANNED' : 'ACTIVE'}
-                </span>
-              </div>
-              <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', marginBottom:'5px'}}><strong>UID:</strong> {searchedUser.telegramId}</p>
-              <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', marginBottom:'5px'}}><strong>Joined:</strong> {new Date(searchedUser.createdAt).toLocaleDateString()}</p>
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom:'5px'}}>
-                <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', margin: 0}}><strong>Verified:</strong> {searchedUser.isVerified ? 'Yes' : 'No'}</p>
-                {!searchedUser.isVerified && (
-                  <button onClick={manualVerify} style={{background:  'var(--positive-color)', color: 'white', border: 'none', padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'}}>Verify Now</button>
-                )}
-              </div>
-              <p style={{color:'var(--text-secondary)', fontSize:'0.9rem', marginBottom:'15px'}}><strong>Balance:</strong> <span style={{color: 'var(--positive-color)', fontWeight:'800', fontSize:'1.1rem'}}>{searchedUser.balance} ৳</span></p>
-              
-              <div style={{display: 'flex', gap: '10px', marginBottom: '15px'}}>
-                <input type="number" placeholder="Amount" value={balanceInput} onChange={(e)=>setBalanceInput(e.target.value)} style={{flex: 1, padding: '8px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-                <button onClick={()=>editBalance('add')} style={{background: 'var(--positive-color)', color:'white', border:'none', padding:'8px 12px', borderRadius:'8px', fontWeight:'700'}}>+</button>
-                <button onClick={()=>editBalance('cut')} style={{background: 'var(--negative-color)', color:'white', border:'none', padding:'8px 12px', borderRadius:'8px', fontWeight:'700'}}>-</button>
-              </div>
-
-              <button onClick={toggleBan} style={{width:'100%', background: searchedUser.isBanned ?  'var(--primary-color)' :  'var(--negative-color)', color:'white', padding:'10px', borderRadius:'8px', border:'none', fontWeight:'700'}}>
-                {searchedUser.isBanned ? 'Unban User' : 'Ban User'}
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'tasks' && (
-        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
-          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Manage Task Links</h3>
-          {tasksConfig.map((t, idx) => (
-            <div key={idx} style={{marginBottom: '20px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
-              <h4 style={{marginBottom: '10px', color: 'var(--text-primary)', fontWeight: '800'}}>{t.title}</h4>
-              <input type="text" placeholder="YouTube Account Video ID (e.g. EF_pBnwW9h0)" value={t.accountVideo || ''} onChange={e => updateTaskField(idx, 'accountVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-              <input type="text" placeholder="YouTube Work Video ID" value={t.workVideo || ''} onChange={e => updateTaskField(idx, 'workVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-              <input type="text" placeholder="YouTube Withdraw Video ID" value={t.withdrawVideo || ''} onChange={e => updateTaskField(idx, 'withdrawVideo', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-              <input type="text" placeholder="Registration Link" value={t.regLink || ''} onChange={e => updateTaskField(idx, 'regLink', e.target.value)} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-              <button onClick={() => saveTask(t)} style={{background:  'var(--positive-color)', color: 'white', padding: '8px 15px', borderRadius: '8px', fontWeight: '700', width: '100%', border: 'none'}}>Save {t.title}</button>
+              {openFaq === index && (
+                <p style={{marginTop: '10px', color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', whiteSpace: 'pre-line'}}>
+                  {faq.a}
+                </p>
+              )}
             </div>
           ))}
         </div>
-      )}
+      </div>
 
-      {activeTab === 'contact' && (
-        <>
-          <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
-            <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Update Contact Links</h3>
-            <input type="text" placeholder="Admin Support Link" value={links.supportLink} onChange={(e) => setLinks({...links, supportLink: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-            <input type="text" placeholder="Telegram Channel" value={links.telegramChannel} onChange={(e) => setLinks({...links, telegramChannel: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-            <input type="text" placeholder="YouTube Channel" value={links.youtubeChannel} onChange={(e) => setLinks({...links, youtubeChannel: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-            
-            <h4 style={{marginTop:'10px', marginBottom:'10px', color:'var(--text-primary)'}}>System Settings</h4>
-            <input type="number" placeholder="Activation Fee (৳)" value={links.activationFee || ''} onChange={(e) => setLinks({...links, activationFee: Number(e.target.value)})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-            <input type="text" placeholder="Bkash Number" value={links.bkashNumber || ''} onChange={(e) => setLinks({...links, bkashNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-            <input type="text" placeholder="Nagad Number" value={links.nagadNumber || ''} onChange={(e) => setLinks({...links, nagadNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-            <input type="text" placeholder="Rocket Number" value={links.rocketNumber || ''} onChange={(e) => setLinks({...links, rocketNumber: e.target.value})} style={{width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-            
-            <button onClick={saveContact} style={{background:  'var(--positive-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width:'100%'}}>Save Settings</button>
-          </div>
-
-          <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px'}}>
-            <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Manage Admins</h3>
-            <div style={{display: 'flex', gap: '10px'}}>
-              <input type="text" placeholder="Telegram UID" value={newAdmin} onChange={(e) => setNewAdmin(e.target.value)} style={{flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)'}} />
-              <button onClick={addAdmin} style={{background:  'var(--primary-color)', color: 'white', padding: '10px 15px', borderRadius: '8px', border:'none', display: 'flex', alignItems: 'center', gap: '5px'}}>
-                <UserPlus size={18}/> Add
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'coinSells' && (
-        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
-          <div style={{display: 'flex', gap: '10px', marginBottom: '15px', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px'}}>
-            <button onClick={() => setCoinTab('requests')} style={{background: coinTab === 'requests' ?  'var(--primary-color)' : 'transparent', color: coinTab === 'requests' ? '#ffffff' : 'var(--text-secondary)', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
-              Requests {pendingCoinSells > 0 && <span style={{marginLeft:'5px', background: 'var(--negative-color)', color:'white', padding:'2px 6px', borderRadius:'10px', fontSize:'0.7rem'}}>{pendingCoinSells}</span>}
-            </button>
-            <button onClick={() => setCoinTab('settings')} style={{background: coinTab === 'settings' ?  'var(--primary-color)' : 'transparent', color: coinTab === 'settings' ? '#ffffff' : 'var(--text-secondary)', padding: '6px 12px', borderRadius: '8px', border: 'none', fontWeight: '700'}}>
-              Coin Settings
-            </button>
-          </div>
-
-          {coinTab === 'requests' && (
-            <div>
-              {coinRequests.length === 0 ? <p style={{color:'var(--text-secondary)'}}>No coin sell requests.</p> : 
-                coinRequests.map((req, i) => (
-                  <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
-                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
-                      <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin:0, textTransform:'uppercase'}}>{req.coinType}</h4>
-                      <span style={{background: req.status==='Pending'?'rgba(217, 119, 6, 0.15)':req.status==='Accepted'?'rgba(0, 230, 118, 0.15)':'rgba(255, 23, 68, 0.15)', color: req.status==='Pending'?'#d97706':req.status==='Accepted'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
-                        {req.status}
-                      </span>
-                    </div>
-                    <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>UID:</strong> {req.userId}</p>
-                    <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>Amount:</strong> {req.amount}</p>
-                    <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 10px 0'}}><strong>Method:</strong> {req.paymentMethod} ({req.paymentNumber})</p>
-                    <p style={{fontSize:'0.9rem', color:'#8b5cf6', margin:'0 0 10px 0', fontWeight:'700'}}><strong>Sender App ID:</strong> {req.senderDetails}</p>
-                    {req.couponCode && (
-                      <p style={{fontSize:'0.9rem', color:'#f59e0b', margin:'0 0 10px 0', fontWeight:'700'}}><strong>Coupon:</strong> {req.couponCode}</p>
-                    )}
-                    
-                    {req.status === 'Pending' && (
-                      <div style={{display:'flex', gap:'10px'}}>
-                        <button onClick={() => updateCoinRequestStatus(req._id, 'Accepted')} style={{flex:1, background: 'var(--positive-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Accept</button>
-                        <button onClick={() => updateCoinRequestStatus(req._id, 'Rejected')} style={{flex:1, background: 'var(--negative-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
-                      </div>
-                    )}
-                  </div>
-                ))
-              }
-            </div>
-          )}
-
-          {coinTab === 'settings' && (
-            <div>
-              <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', background:'var(--input-bg)', padding:'15px', borderRadius:'12px', marginBottom:'20px', border:'1px solid var(--border-color)'}}>
-                <span style={{fontWeight:'800', color:'var(--text-primary)'}}>Show Full Market Section (Home Page)</span>
-                <label style={{display:'flex', alignItems:'center', cursor:'pointer'}}>
-                  <input type="checkbox" checked={marketConfig.marketIsVisible} onChange={e => toggleMarketVisibility(e.target.checked)} style={{transform:'scale(1.2)'}} />
-                </label>
-              </div>
-              
-              {coins.map((coin, idx) => (
-                <div key={idx} style={{marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
-                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:'10px'}}>
-                    <span style={{fontWeight:'800', color:'var(--text-primary)'}}>{coin.label}</span>
-                    <div style={{display:'flex', gap:'15px'}}>
-                      <label style={{display:'flex', alignItems:'center', gap:'5px', fontSize:'0.9rem', cursor:'pointer', color:'var(--text-secondary)'}}>
-                        <input type="checkbox" checked={coin.isVisible !== false} onChange={e => handleCoinChange(idx, 'isVisible', e.target.checked)} /> Visible
-                      </label>
-                      <label style={{display:'flex', alignItems:'center', gap:'5px', fontSize:'0.9rem', cursor:'pointer', color:'var(--text-secondary)'}}>
-                        <input type="checkbox" checked={coin.isActive} onChange={e => handleCoinChange(idx, 'isActive', e.target.checked)} /> Active
-                      </label>
-                    </div>
-                  </div>
-                  <div style={{display:'flex', gap:'10px', marginBottom:'10px'}}>
-                    <div style={{flex: 1}}>
-                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'var(--text-secondary)'}}>Price (৳ / 1000)</label>
-                      <input type="number" value={coin.price} onChange={e => handleCoinChange(idx, 'price', Number(e.target.value))} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid var(--input-border)', background:'var(--input-bg)', color:'var(--text-primary)'}} />
-                    </div>
-                    <div style={{flex: 1}}>
-                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'var(--text-secondary)'}}>Min Amount</label>
-                      <input type="number" value={coin.minAmount || 1000} onChange={e => handleCoinChange(idx, 'minAmount', Number(e.target.value))} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid var(--input-border)', background:'var(--input-bg)', color:'var(--text-primary)'}} />
-                    </div>
-                    <div style={{flex: 2}}>
-                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'var(--text-secondary)'}}>Target Username / ID</label>
-                      <input type="text" value={coin.targetUser} onChange={e => handleCoinChange(idx, 'targetUser', e.target.value)} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid var(--input-border)', background:'var(--input-bg)', color:'var(--text-primary)'}} />
-                    </div>
-                  </div>
-                  <div style={{display:'flex', gap:'10px', marginTop:'10px'}}>
-                    <div style={{flex: 1}}>
-                      <label style={{fontSize:'0.8rem', fontWeight:'600', color:'var(--text-secondary)'}}>Tutorial Video (Optional)</label>
-                      <input type="text" value={coin.tutorialVideo || ''} onChange={e => handleCoinChange(idx, 'tutorialVideo', e.target.value)} style={{width:'100%', padding:'8px', borderRadius:'8px', border:'1px solid var(--input-border)', background:'var(--input-bg)', color:'var(--text-primary)'}} placeholder="Link e.g. https://youtu.be/..." />
-                    </div>
-                  </div>
-                  <div style={{display:'flex', justifyContent:'flex-end', marginTop:'15px'}}>
-                    <button onClick={() => saveSingleCoin(idx)} style={{background:  'var(--positive-color)', color: 'white', padding: '8px 16px', borderRadius: '8px', fontWeight: '700', border:'none', cursor:'pointer'}}>
-                      Save {coin.label}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'addFunds' && (
-        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
-          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Add Fund Requests</h3>
-          {fundRequests.length === 0 ? <p style={{color:'var(--text-secondary)'}}>No add fund requests.</p> : 
-            fundRequests.map((req, i) => (
-              <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
-                  <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin:0}}>+{req.amount} ৳</h4>
-                  <span style={{background: req.status==='Pending'?'rgba(217, 119, 6, 0.15)':req.status==='Accepted'?'rgba(0, 230, 118, 0.15)':'rgba(255, 23, 68, 0.15)', color: req.status==='Pending'?'#d97706':req.status==='Accepted'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
-                    {req.status}
-                  </span>
-                </div>
-                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>UID:</strong> {req.userId}</p>
-                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>Method:</strong> <span style={{textTransform:'capitalize'}}>{req.paymentMethod}</span></p>
-                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>Sender Number:</strong> {req.senderNumber}</p>
-                <p style={{fontSize:'0.9rem', color: 'var(--primary-color)', margin:'0 0 10px 0', fontWeight:'700'}}><strong>TrxID:</strong> {req.transactionId}</p>
-                
-                {req.status === 'Pending' && (
-                  <div style={{display:'flex', gap:'10px'}}>
-                    <button onClick={() => {
-                      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/fund-requests/${req._id}/status`, {
-                        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status: 'Accepted'})
-                      }).then(() => fetchFundRequests());
-                    }} style={{flex:1, background: 'var(--positive-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Approve</button>
-                    <button onClick={() => {
-                      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/fund-requests/${req._id}/status`, {
-                        method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({status: 'Rejected'})
-                      }).then(() => fetchFundRequests());
-                    }} style={{flex:1, background: 'var(--negative-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
-                  </div>
-                )}
-              </div>
-            ))
-          }
-        </div>
-      )}
-
-      {activeTab === 'jobProofs' && (
-        <div style={{background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px'}}>
-          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Job Proof Submissions</h3>
-          {jobSubmissions.length === 0 ? <p style={{color:'var(--text-secondary)'}}>No job submissions.</p> : 
-            jobSubmissions.map((sub, i) => (
-              <div key={i} style={{marginBottom: '15px', padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px'}}>
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
-                  <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin:0}}>{sub.jobId?.title || 'Unknown Job'}</h4>
-                  <span style={{background: sub.status==='pending'?'rgba(217, 119, 6, 0.15)':sub.status==='approved'?'rgba(0, 230, 118, 0.15)':'rgba(255, 23, 68, 0.15)', color: sub.status==='pending'?'#d97706':sub.status==='approved'? 'var(--positive-color)': 'var(--negative-color)', padding:'4px 8px', borderRadius:'6px', fontSize:'0.8rem', fontWeight:'700'}}>
-                    {sub.status.toUpperCase()}
-                  </span>
-                </div>
-                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>User UID:</strong> {sub.userTelegramId}</p>
-                <p style={{fontSize:'0.9rem', color:'var(--text-secondary)', margin:'0 0 5px 0'}}><strong>Job Pay:</strong> {sub.jobId?.amount || 0} ৳</p>
-                <p style={{fontSize:'0.9rem', color:'var(--primary-color)', margin:'0 0 10px 0', fontWeight:'700'}}><strong>Submitted Proof:</strong> {sub.submittedId}</p>
-                
-                {sub.status === 'pending' && (
-                  <div style={{display:'flex', gap:'10px'}}>
-                    <button onClick={() => approveJobSubmission(sub._id)} style={{flex:1, background: 'var(--positive-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Approve</button>
-                    <button onClick={() => rejectJobSubmission(sub._id)} style={{flex:1, background: 'var(--negative-color)', color:'white', padding:'8px', borderRadius:'8px', border:'none', fontWeight:'700'}}>Reject</button>
-                  </div>
-                )}
-              </div>
-            ))
-          }
-        </div>
-      )}
-
-      {activeTab === 'bots' && (
-        <div style={{background: 'var(--card-bg)', padding: '20px', borderRadius: '16px', border: 'var(--card-border)', color: 'var(--text-primary)'}}>
-          <h3 style={{marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)'}}>Manage Telegram Bots (হটাৎ ইনকাম)</h3>
-          
-          <div style={{background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px solid var(--input-border)'}}>
-            <h4 style={{marginBottom: '12px', fontWeight: '800', color: 'var(--text-primary)'}}>{editingBot?.id ? 'Edit Bot' : 'Add New Bot'}</h4>
-            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-              <input 
-                type="text" 
-                placeholder="Bot Title (বটের নাম)" 
-                value={editingBot?.title || ''} 
-                onChange={e => setEditingBot({...editingBot, title: e.target.value})} 
-                style={{padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none'}} 
-              />
-              <textarea 
-                placeholder="Bot Description (বটের কাজ ও বিস্তারিত)" 
-                value={editingBot?.description || ''} 
-                onChange={e => setEditingBot({...editingBot, description: e.target.value})} 
-                style={{padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', minHeight: '80px', fontFamily: 'inherit'}} 
-              />
-              <input 
-                type="text" 
-                placeholder="Registration Link (রেজিষ্ট্রেশন লিংক)" 
-                value={editingBot?.link || ''} 
-                onChange={e => setEditingBot({...editingBot, link: e.target.value})} 
-                style={{padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none'}} 
-              />
-              <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: '600', color: 'var(--text-secondary)'}}>
-                <input 
-                  type="checkbox" 
-                  checked={editingBot?.isActive !== false} 
-                  onChange={e => setEditingBot({...editingBot, isActive: e.target.checked})} 
-                />
-                Active (সক্রিয়)
-              </label>
-              
-              <div style={{display: 'flex', gap: '10px', marginTop: '5px'}}>
-                <button 
-                  onClick={() => {
-                    if (!editingBot?.title || !editingBot?.description || !editingBot?.link) {
-                      return alert('সবগুলো ঘর পূরণ করুন!');
-                    }
-                    saveBot(editingBot);
-                  }} 
-                  style={{flex: 1, background: 'var(--positive-color)', color: 'white', padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '700'}}
-                >
-                  Save Bot
-                </button>
-                {editingBot && (
-                  <button 
-                    onClick={() => setEditingBot(null)} 
-                    style={{background: '#6b7280', color: 'white', padding: '10px 15px', borderRadius: '8px', border: 'none', fontWeight: '700'}}
-                  >
-                    Cancel
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <h4 style={{marginBottom: '12px', fontWeight: '800', color: 'var(--text-primary)'}}>Current Bots ({bots.length}/5)</h4>
-          {bots.length === 0 ? <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>কোন বট এড করা নেই।</p> : (
-            <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
-              {bots.map((bot, idx) => (
-                <div key={idx} style={{padding: '15px', border: '1px solid var(--border-color)', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: bot.isActive ? 'var(--input-bg)' : 'rgba(239, 68, 68, 0.08)'}}>
-                  <div style={{flex: 1, marginRight: '10px'}}>
-                    <h5 style={{fontWeight: '800', color: 'var(--text-primary)', fontSize: '1rem', marginBottom: '4px'}}>{bot.title}</h5>
-                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px', whiteSpace: 'pre-wrap'}}>{bot.description}</p>
-                    <a href={bot.link} target="_blank" rel="noopener noreferrer" style={{fontSize: '0.85rem', color: 'var(--positive-color)', fontWeight: '700', textDecoration: 'underline'}}>Link: {bot.link}</a>
-                    <span style={{display: 'block', fontSize: '0.75rem', color: bot.isActive ? 'var(--positive-color)' : 'var(--negative-color)', fontWeight: '700', marginTop: '5px'}}>
-                      {bot.isActive ? '● Active' : '● Inactive'}
-                    </span>
-                  </div>
-                  <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
-                    <button 
-                      onClick={() => setEditingBot({ id: bot._id, title: bot.title, description: bot.description, link: bot.link, isActive: bot.isActive })} 
-                      style={{background: 'linear-gradient(90deg, #d60093 0%, #8b00ff 100%)', color: 'white', padding: '6px 12px', borderRadius: '6px', border: 'none', fontSize: '0.8rem', fontWeight: '700'}}
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      onClick={() => deleteBot(bot._id)} 
-                      style={{background: 'transparent', color: 'var(--negative-color)', border: '1px solid var(--negative-color)', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'}}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-      
     </div>
   );
 };
@@ -2413,23 +3013,36 @@ const TaskRenderer = () => {
       fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/tasks`)
         .then(res => res.json())
         .then(data => {
+          const defaultData = jobData[id] || { title: taskMeta.title || 'Task', accountVideo: '', workVideo: '', withdrawVideo: '', regLink: '' };
           if (Array.isArray(data)) {
             const found = data.find(t => t.taskId === id);
-            setDynamicJob(found || { title: taskMeta.title || 'Task', accountVideo: '', workVideo: '', withdrawVideo: '', regLink: '' });
+            setDynamicJob(found || { taskId: id, ...defaultData });
           } else {
-            setDynamicJob({ title: taskMeta.title || 'Task', accountVideo: '', workVideo: '', withdrawVideo: '', regLink: '' });
+            setDynamicJob({ taskId: id, ...defaultData });
           }
         }).catch(err => {
           console.error("Task fetch failed", err);
-          setDynamicJob({ title: taskMeta.title || 'Task', accountVideo: '', workVideo: '', withdrawVideo: '', regLink: '' });
+          const defaultData = jobData[id] || { title: taskMeta.title || 'Task', accountVideo: '', workVideo: '', withdrawVideo: '', regLink: '' };
+          setDynamicJob({ taskId: id, ...defaultData });
         });
     }
   }, [id, taskMeta]);
 
-  if (!taskMeta) return <div style={{padding:'20px'}}>Task not found</div>;
+  if (!taskMeta) return <div style={{padding:'20px', color: 'var(--text-primary)'}}>Task not found</div>;
   
   if (taskMeta.type === 'custom') {
     if (taskMeta.id === 'top-follow') return <TopFollowWork />;
+  }
+
+  if (taskMeta.type === 'template') {
+    if (!dynamicJob) {
+      return (
+        <div style={{ padding: '40px 20px', textAlign: 'center', minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <p style={{ color: 'var(--text-secondary)' }}>লোড হচ্ছে...</p>
+        </div>
+      );
+    }
+    return <JobDetailTemplate job={dynamicJob} />;
   }
 
   const rawHtml = taskHtmlData[taskMeta.dataKey];
@@ -2528,8 +3141,13 @@ const JobsPage = () => {
               backdropFilter: 'blur(10px)',
               color: 'var(--text-primary)'
             }}>
-              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px'}}>
-                <h4 style={{fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)'}}>{job.title}</h4>
+               <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px'}}>
+                <div>
+                  <h4 style={{fontSize: '1.1rem', fontWeight: '800', color: 'var(--text-primary)'}}>{job.title}</h4>
+                  <span style={{fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: '700', display: 'block', marginTop: '4px'}}>
+                    👥 Limit: <span style={{color: 'var(--text-primary)', fontWeight: '800'}}>{job.completedCount || 0}</span> / {job.workerLimit > 0 ? job.workerLimit : 'Unlimited'} completed
+                  </span>
+                </div>
                 <span style={{background: 'var(--input-bg)', color: 'var(--positive-color)', padding: '4px 10px', borderRadius: '10px', fontSize: '0.85rem', fontWeight: '800', border: '1px solid var(--border-color)'}}>
                   +{job.amount} ৳
                 </span>

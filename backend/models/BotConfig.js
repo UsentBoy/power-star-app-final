@@ -5,6 +5,7 @@ const BotConfigSchema = new mongoose.Schema({
   description: { type: String, required: true },
   link: { type: String, required: true },
   isActive: { type: Boolean, default: true },
+  reward: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 

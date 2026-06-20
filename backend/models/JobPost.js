@@ -7,6 +7,8 @@ const JobPostSchema = new mongoose.Schema({
   amount: { type: Number, required: true }, // Reward amount for completing the work
   isActive: { type: Boolean, default: true },
   postedBy: { type: String, default: 'admin' }, // Telegram ID of the user who posted it
+  workerLimit: { type: Number, default: 0 }, // 0 means unlimited
+  completedCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 
