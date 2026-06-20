@@ -40,11 +40,13 @@ try {
   if (domain) {
     app.use(bot.webhookCallback('/telegraf-webhook'));
     bot.telegram.setWebhook(`${domain}/telegraf-webhook`)
-      .then(() => console.log(`Telegram Webhook set up successfully at ${domain}`));
+      .then(() => console.log(`Telegram Webhook set up successfully at ${domain}`))
+      .catch(err => console.error('Telegram Webhook setup failed:', err.message));
   } else {
     bot.telegram.deleteWebhook()
       .then(() => bot.launch({ dropPendingUpdates: true }))
-      .then(() => console.log('Telegram Bot running via Long Polling (Local)...'));
+      .then(() => console.log('Telegram Bot running via Long Polling (Local)...'))
+      .catch(err => console.error('Telegram Bot polling failed to start:', err.message));
   }
 } catch(e) { 
   console.error('Bot failed to load:', e.message); 
@@ -704,10 +706,19 @@ app.get('/api/admin/stats', async (req, res) => {
     const pendingVerifications = await VerificationRequest.countDocuments({ status: 'pending' });
     const pendingWithdraws = await WithdrawRequest.countDocuments({ status: 'pending' });
     
-    // Also send pending items
-    const verifications = await VerificationRequest.find({ status: 'pending' });
-    const withdraws = await WithdrawRequest.find({ status: 'pending' });
-    res.json({ totalUsers, pendingVerifications, pendingWithdraws, verifications, withdraws });
+    // Also send pending items with user details
+    const verifications = await VerificationRequest.find({ status: 'pending' }).lean();
+    const verificationsWithUser = await Promise.all(verifications.map(async (v) => {
+      const user = await User.findOne({ telegramId: v.userTelegramId }, 'username firstName');
+      return { ...v, user };
+    }));
+
+    const withdraws = await WithdrawRequest.find({ status: 'pending' }).lean();
+    const withdrawsWithUser = await Promise.all(withdraws.map(async (w) => {
+      const user = await User.findOne({ telegramId: w.telegramId }, 'username firstName');
+      return { ...w, user };
+    }));
+    res.json({ totalUsers, pendingVerifications, pendingWithdraws, verifications: verificationsWithUser, withdraws: withdrawsWithUser });
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }

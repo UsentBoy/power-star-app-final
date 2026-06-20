@@ -2352,6 +2352,23 @@ const AdminPanel = () => {
       });
   };
 
+  const approveWithdrawRequest = (id) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/withdraw/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert('Withdraw request marked as paid!');
+          fetchStats();
+        }
+      });
+  };
+
   const saveTaskLinks = (task) => {
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/tasks`, {
       method: 'POST',
@@ -2491,7 +2508,18 @@ const AdminPanel = () => {
               stats.verifications.map((y, idx) => (
                 <div key={y._id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
                   <div>
-                    <p style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)', margin: 0 }}>UID: {y.userTelegramId}</p>
+                    <p style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)', margin: 0 }}>
+                      UID: {y.userTelegramId}
+                      {y.user && y.user.username && (
+                        <span 
+                          onClick={() => window.open(`https://t.me/${y.user.username}`, '_blank')}
+                          style={{ marginLeft: '6px', textDecoration: 'underline', color: 'var(--primary-color)', cursor: 'pointer', fontWeight: '800' }}
+                          title="Open Telegram Chat"
+                        >
+                          ({y.user.firstName || y.user.username})
+                        </span>
+                      )}
+                    </p>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0 0' }}>
                       Method: <span style={{ fontWeight: '800', color: 'var(--primary-color)' }}>{y.paymentMethod || 'Bkash'}</span> | TrxID: <span style={{ fontWeight: '800', color: 'var(--text-primary)' }}>{y.transactionId}</span>
                     </p>
@@ -2499,6 +2527,39 @@ const AdminPanel = () => {
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button onClick={() => approveVerificationRequest(y._id)} style={{ background: 'var(--positive-color)', color: 'white', padding: '6px 12px', borderRadius: '8px', border: 'none', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}>Approve</button>
                     <button onClick={() => rejectVerificationRequest(y._id)} style={{ background: 'var(--negative-color)', color: 'white', padding: '6px 12px', borderRadius: '8px', border: 'none', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}>Reject</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Pending Withdrawal Requests List */}
+          <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '1.1rem', color: 'var(--text-primary)' }}>Pending Withdrawal Requests</h3>
+            {!stats.withdraws || stats.withdraws.length === 0 ? (
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No pending withdrawal requests</p>
+            ) : (
+              stats.withdraws.map((y, idx) => (
+                <div key={y._id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--border-color)' }}>
+                  <div>
+                    <p style={{ fontWeight: '700', fontSize: '0.95rem', color: 'var(--text-primary)', margin: 0 }}>
+                      UID: {y.telegramId}
+                      {y.user && y.user.username && (
+                        <span 
+                          onClick={() => window.open(`https://t.me/${y.user.username}`, '_blank')}
+                          style={{ marginLeft: '6px', textDecoration: 'underline', color: 'var(--primary-color)', cursor: 'pointer', fontWeight: '800' }}
+                          title="Open Telegram Chat"
+                        >
+                          ({y.user.firstName || y.user.username})
+                        </span>
+                      )}
+                    </p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', margin: '4px 0 0 0' }}>
+                      Method: <span style={{ fontWeight: '800', color: 'var(--primary-color)' }}>{y.method}</span> | Account: <span style={{ fontWeight: '800', color: 'var(--text-primary)' }}>{y.accountNumber}</span> | Amount: <span style={{ fontWeight: '800', color: 'var(--positive-color)' }}>{y.amount} ৳</span>
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={() => approveWithdrawRequest(y._id)} style={{ background: 'var(--positive-color)', color: 'white', padding: '6px 12px', borderRadius: '8px', border: 'none', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer' }}>Approve (Paid)</button>
                   </div>
                 </div>
               ))
