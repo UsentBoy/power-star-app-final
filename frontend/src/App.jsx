@@ -2311,7 +2311,12 @@ const AdminPanel = () => {
   };
 
   const removeAdmin = (adminId) => {
-    if (window.confirm('Are you sure you want to remove this admin?')) {
+    const isSelf = adminId === myTelegramId;
+    const confirmMsg = isSelf 
+      ? 'Are you sure you want to resign/leave your admin role?' 
+      : 'Are you sure you want to remove this admin?';
+
+    if (window.confirm(confirmMsg)) {
       fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/remove`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2321,6 +2326,9 @@ const AdminPanel = () => {
         .then(data => {
           alert(data.message || data.error);
           fetchAdminsList();
+          if (isSelf && data.success) {
+            window.location.href = '/';
+          }
         });
     }
   };
@@ -3191,9 +3199,11 @@ const AdminPanel = () => {
                         <button onClick={() => promoteToMaster(admin.telegramId)} style={{ background: 'var(--primary-color)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer' }}>Make Master</button>
                       )}
                       
-                      {/* Remove Button */}
+                      {/* Remove / Leave Button */}
                       {admin.telegramId !== '6323700179' ? (
-                        isMaster ? (
+                        admin.telegramId === myTelegramId ? (
+                          <button onClick={() => removeAdmin(admin.telegramId)} style={{ background: '#eab308', color: 'black', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer' }}>Leave Role</button>
+                        ) : isMaster ? (
                           <button onClick={() => removeAdmin(admin.telegramId)} style={{ background: 'var(--negative-color)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer' }}>Remove</button>
                         ) : null
                       ) : (
@@ -3347,6 +3357,38 @@ const ContactPage = () => {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Developer Promotion / Credit */}
+      <div style={{
+        marginTop: '25px',
+        textAlign: 'center',
+        padding: '12px',
+        borderRadius: '12px',
+        background: 'rgba(255, 255, 255, 0.02)',
+        border: '1px dashed var(--border-color)',
+      }}>
+        <span style={{
+          fontSize: '0.8rem',
+          color: 'var(--text-secondary)',
+          fontWeight: '600'
+        }}>
+          Want to build your own site? 
+        </span>{' '}
+        <a 
+          href="https://t.me/developer1100" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{
+            color: '#38bdf8',
+            textDecoration: 'none',
+            fontWeight: '800',
+            fontSize: '0.85rem',
+            marginLeft: '5px'
+          }}
+        >
+          Contact Developer
+        </a>
       </div>
 
     </div>

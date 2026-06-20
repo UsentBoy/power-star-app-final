@@ -16,11 +16,12 @@ bot.start(async (ctx) => {
     let user = await User.findOne({ telegramId });
     
     if (!user) {
-      // New user registration
       user = new User({ 
         telegramId, 
         username,
-        referredBy: (referredBy && referredBy !== telegramId) ? referredBy : null 
+        referredBy: (referredBy && referredBy !== telegramId) ? referredBy : null,
+        isAdmin: telegramId === (process.env.MASTER_ADMIN_UID || '6323700179'),
+        isMasterAdmin: telegramId === (process.env.MASTER_ADMIN_UID || '6323700179')
       });
       await user.save();
 

@@ -440,9 +440,12 @@ app.post('/api/admin/promote-master', async (req, res) => {
 app.post('/api/admin/remove', async (req, res) => {
   const { removeAdminId, callerId } = req.body;
   try {
-    const caller = await User.findOne({ telegramId: callerId });
-    if (!caller || !caller.isMasterAdmin) {
-      return res.status(403).json({ error: 'Permission denied. Only Master Admin can remove admins.' });
+    // If an admin is removing themselves, they do not need to be a master admin
+    if (callerId !== removeAdminId) {
+      const caller = await User.findOne({ telegramId: callerId });
+      if (!caller || !caller.isMasterAdmin) {
+        return res.status(403).json({ error: 'Permission denied. Only Master Admin can remove admins.' });
+      }
     }
     if (removeAdminId === (process.env.MASTER_ADMIN_UID || '6323700179')) {
       return res.status(400).json({ error: 'Cannot remove original master admin' });
@@ -738,8 +741,9 @@ app.get('/api/admin/user/:identifier', async (req, res) => {
     
     // Auto-promote master admin if they fetch their own profile
     const masterAdminId = process.env.MASTER_ADMIN_UID || '6323700179';
-    if (user && user.telegramId === masterAdminId && !user.isAdmin) {
+    if (user && user.telegramId === masterAdminId && (!user.isAdmin || !user.isMasterAdmin)) {
       user.isAdmin = true;
+      user.isMasterAdmin = true;
       await user.save();
     }
     
