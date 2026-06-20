@@ -664,19 +664,20 @@ app.get('/api/config', async (req, res) => {
     }
     res.json(conf);
   } catch (err) {
-    res.json({ marketIsVisible: true, adsEnabled: false, monetagDirectLink: '', monetagReward: 0.1 });
+    res.json({ marketIsVisible: true, adsEnabled: false, monetagDirectLink: '', monetagReward: 0.1, marqueeNotice: 'Assalamualaikum! Welcome to our App!' });
   }
 });
 
 app.post('/api/admin/config', async (req, res) => {
   try {
-    const { marketIsVisible, adsEnabled, monetagDirectLink, monetagReward } = req.body;
+    const { marketIsVisible, adsEnabled, monetagDirectLink, monetagReward, marqueeNotice } = req.body;
     let conf = await AppConfig.findOne();
     if (!conf) conf = new AppConfig();
     if (marketIsVisible !== undefined) conf.marketIsVisible = marketIsVisible;
     if (adsEnabled !== undefined) conf.adsEnabled = adsEnabled;
     if (monetagDirectLink !== undefined) conf.monetagDirectLink = monetagDirectLink;
     if (monetagReward !== undefined) conf.monetagReward = Number(monetagReward) || 0.1;
+    if (marqueeNotice !== undefined) conf.marqueeNotice = marqueeNotice;
     await conf.save();
     res.json(conf);
   } catch (err) {

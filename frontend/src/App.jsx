@@ -35,7 +35,7 @@ const tasks = [
   { id: 'work-cash', title: 'Video Watching', subtitle: 'ভিডিও দেখে ইনকাম', iconUrl: 'https://cdn.simpleicons.org/youtube/FF0000', type: 'template', dataKey: 'work-cash' },
   { id: 'ip-web', title: 'IP Work', subtitle: 'IP ব্যবহার করে অনলাইন কাজ', iconUrl: 'https://img.icons8.com/color/96/internet.png', type: 'template', dataKey: 'ip-web' },
   { id: 'e-task', title: 'E-Task Earn', subtitle: 'সাবস্ক্রাইব/লাইক কমেন্ট করে আয়', iconUrl: 'https://img.icons8.com/color/96/task.png', type: 'template', dataKey: 'e-task' },
-  { id: 'aviso', title: 'Aviso Task', subtitle: 'টাস্ক পূরণ করে ইনকাম', iconUrl: 'https://img.icons8.com/color/96/star--v1.png', type: 'template', dataKey: 'aviso' }
+  { id: 'trvs-coin', title: 'TRVS COIN', subtitle: 'গেম খেলে কয়েন ইনকাম', iconUrl: 'https://img.icons8.com/color/96/coins.png', type: 'template', dataKey: 'trvs-coin' }
 ];
 
 const jobData = {
@@ -97,8 +97,8 @@ const jobData = {
     walletType: '',
     walletAddress: ''
   },
-  aviso: {
-    title: 'Aviso Task',
+  'trvs-coin': {
+    title: 'TRVS COIN',
     accountVideo: '',
     regLink: '',
     withdrawVideo: '',
@@ -243,17 +243,70 @@ const Footer = () => {
 const Home = () => {
   const navigate = useNavigate();
   const [bots, setBots] = useState([]);
+  const [marqueeNotice, setMarqueeNotice] = useState('');
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/bots`)
       .then(res => res.json())
       .then(data => setBots(Array.isArray(data) ? data : []))
       .catch(err => console.error('Fetch bots error:', err));
+
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.marqueeNotice) {
+          setMarqueeNotice(data.marqueeNotice);
+        }
+      })
+      .catch(err => console.error('Fetch config notice error:', err));
   }, []);
 
   return (
     <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       
+      {/* Marquee Notice Bar */}
+      {marqueeNotice && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          background: 'linear-gradient(135deg, #1e1b4b, #311042)',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
+          marginBottom: '20px'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+            color: 'white',
+            padding: '8px 16px',
+            fontWeight: 'bold',
+            fontSize: '0.85rem',
+            whiteSpace: 'nowrap',
+            zIndex: 2,
+            boxShadow: '2px 0 8px rgba(0,0,0,0.15)'
+          }}>
+            নোটিশ
+          </div>
+          <div style={{ flex: 1, overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
+            <marquee 
+              behavior="scroll" 
+              direction="left" 
+              scrollamount="5"
+              style={{
+                color: 'white',
+                fontSize: '0.9rem',
+                fontWeight: '600',
+                padding: '5px 10px',
+                margin: 0
+              }}
+            >
+              {marqueeNotice}
+            </marquee>
+          </div>
+        </div>
+      )}
+
       {/* Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #d60093, #8b00ff)', 
@@ -3069,6 +3122,31 @@ const AdminPanel = () => {
                   }),
                 }).then(() => alert('Monetag settings saved successfully!'));
               }} style={{ background: 'var(--primary-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width: '100%', cursor: 'pointer', border: 'none', marginTop: '5px' }}>Save Monetag Settings</button>
+            </div>
+          </div>
+
+          {/* Marquee Notice Settings */}
+          <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Marquee Notice Settings</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Notice Message</label>
+                <textarea 
+                  rows="3"
+                  value={marketConfig.marqueeNotice || ''} 
+                  onChange={(e) => setMarketConfig({ ...marketConfig, marqueeNotice: e.target.value })} 
+                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', resize: 'vertical' }} 
+                />
+              </div>
+              <button onClick={() => {
+                fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/config`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    marqueeNotice: marketConfig.marqueeNotice
+                  }),
+                }).then(() => alert('Notice settings saved successfully!'));
+              }} style={{ background: 'var(--primary-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width: '100%', cursor: 'pointer', border: 'none', marginTop: '5px' }}>Save Notice Settings</button>
             </div>
           </div>
 
