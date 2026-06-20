@@ -220,7 +220,14 @@ app.post('/api/jobs/:id/delete', async (req, res) => {
 app.post('/api/jobs/submit', async (req, res) => {
   const { jobId, userTelegramId, submittedId } = req.body;
   try {
-    const sub = new JobSubmission({ jobId, userTelegramId, submittedId });
+    const job = await JobPost.findById(jobId);
+    const sub = new JobSubmission({ 
+      jobId, 
+      userTelegramId, 
+      submittedId,
+      jobTitle: job ? job.title : 'Microjob',
+      rewardAmount: job ? job.amount : 0
+    });
     await sub.save();
     res.json({ success: true });
   } catch (error) {
@@ -271,18 +278,21 @@ app.post('/api/admin/jobs/approve', async (req, res) => {
     await sub.save();
     
     const user = await User.findOne({ telegramId: sub.userTelegramId });
-    if (user && sub.jobId) {
-      user.balance += sub.jobId.amount;
+    if (user) {
+      const reward = sub.jobId ? sub.jobId.amount : (sub.rewardAmount || 0);
+      user.balance += reward;
       await user.save();
 
-      // Update job completed count and check limit
-      const job = await JobPost.findById(sub.jobId._id);
-      if (job) {
-        job.completedCount = (job.completedCount || 0) + 1;
-        if (job.workerLimit > 0 && job.completedCount >= job.workerLimit) {
-          job.isActive = false; // Turn off the job if it reaches the limit
+      // Update job completed count and check limit if jobId exists
+      if (sub.jobId) {
+        const job = await JobPost.findById(sub.jobId._id);
+        if (job) {
+          job.completedCount = (job.completedCount || 0) + 1;
+          if (job.workerLimit > 0 && job.completedCount >= job.workerLimit) {
+            job.isActive = false; // Turn off the job if it reaches the limit
+          }
+          await job.save();
         }
-        await job.save();
       }
     }
     res.json({ success: true });
@@ -516,6 +526,24 @@ app.get('/api/jobs/history/:userId', async (req, res) => {
   }
 });
 
+app.get('/api/withdraw/history/:userId', async (req, res) => {
+  try {
+    const history = await WithdrawRequest.find({ telegramId: req.params.userId }).sort({ createdAt: -1 });
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/fund/history/:userId', async (req, res) => {
+  try {
+    const history = await AddFundRequest.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/admin/coin-requests', async (req, res) => {
   try {
     const requests = await CoinRequest.find().sort({ createdAt: -1 });
@@ -530,6 +558,15 @@ app.post('/api/admin/coin-requests/:id/status', async (req, res) => {
     const { status } = req.body;
     await CoinRequest.findByIdAndUpdate(req.params.id, { status });
     res.json({ message: 'Coin request status updated' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/coin-requests/:id/delete', async (req, res) => {
+  try {
+    await CoinRequest.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Coin request deleted successfully' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -625,18 +662,36 @@ app.get('/api/config', async (req, res) => {
     }
     res.json(conf);
   } catch (err) {
-    res.json({ marketIsVisible: true });
+    res.json({ marketIsVisible: true, adsEnabled: false, monetagDirectLink: '', monetagReward: 0.1 });
   }
 });
 
 app.post('/api/admin/config', async (req, res) => {
   try {
-    const { marketIsVisible } = req.body;
+    const { marketIsVisible, adsEnabled, monetagDirectLink, monetagReward } = req.body;
     let conf = await AppConfig.findOne();
     if (!conf) conf = new AppConfig();
-    conf.marketIsVisible = marketIsVisible;
+    if (marketIsVisible !== undefined) conf.marketIsVisible = marketIsVisible;
+    if (adsEnabled !== undefined) conf.adsEnabled = adsEnabled;
+    if (monetagDirectLink !== undefined) conf.monetagDirectLink = monetagDirectLink;
+    if (monetagReward !== undefined) conf.monetagReward = Number(monetagReward) || 0.1;
     await conf.save();
     res.json(conf);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/ads/claim', async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const conf = await AppConfig.findOne();
+    const reward = conf ? conf.monetagReward : 0.1;
+    const user = await User.findOne({ telegramId: userId });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    user.balance += reward;
+    await user.save();
+    res.json({ success: true, reward, balance: user.balance });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

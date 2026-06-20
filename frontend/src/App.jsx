@@ -172,9 +172,17 @@ const Header = ({ theme, toggleTheme }) => {
                 <span style={{fontSize: '1.2rem'}}>💰</span>
                 <span style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.9rem'}}>Coin Sell History</span>
               </div>
-              <div onClick={() => { navigate('/history?tab=work'); setMenuOpen(false); }} style={{display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', transition: 'background 0.2s', background: 'var(--input-bg)'}}>
+              <div onClick={() => { navigate('/history?tab=work'); setMenuOpen(false); }} style={{display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', transition: 'background 0.2s', background: 'var(--input-bg)', marginBottom: '5px'}}>
                 <span style={{fontSize: '1.2rem'}}>💼</span>
                 <span style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.9rem'}}>Work History</span>
+              </div>
+              <div onClick={() => { navigate('/history?tab=fund'); setMenuOpen(false); }} style={{display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', transition: 'background 0.2s', background: 'var(--input-bg)', marginBottom: '5px'}}>
+                <span style={{fontSize: '1.2rem'}}>💳</span>
+                <span style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.9rem'}}>Add Fund History</span>
+              </div>
+              <div onClick={() => { navigate('/history?tab=withdraw'); setMenuOpen(false); }} style={{display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', transition: 'background 0.2s', background: 'var(--input-bg)'}}>
+                <span style={{fontSize: '1.2rem'}}>💸</span>
+                <span style={{fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.9rem'}}>Withdraw History</span>
               </div>
             </div>
           )}
@@ -187,6 +195,18 @@ const Header = ({ theme, toggleTheme }) => {
 const Footer = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [adsEnabled, setAdsEnabled] = useState(false);
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.adsEnabled !== undefined) {
+          setAdsEnabled(data.adsEnabled);
+        }
+      })
+      .catch(err => console.error('Footer config fetch error:', err));
+  }, []);
   
   return (
     <div className="footer-bar-new">
@@ -198,6 +218,12 @@ const Footer = () => {
         <Briefcase size={24} />
         <span>Jobs</span>
       </div>
+      {adsEnabled && (
+        <div className="nav-item" onClick={() => navigate('/watch-ads')} style={{ color: location.pathname === '/watch-ads' ? '#a855f7' : '#9ca3af' }}>
+          <PlayCircle size={24} />
+          <span>Ads</span>
+        </div>
+      )}
       <div className="nav-item" onClick={() => navigate('/invite')} style={{ color: location.pathname === '/invite' ? '#a855f7' : '#9ca3af' }}>
         <UsersIcon size={24} />
         <span>Invite</span>
@@ -971,6 +997,19 @@ const WithdrawPage = () => {
   const [withdrawMethod, setWithdrawMethod] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawNumber, setWithdrawNumber] = useState('');
+  const [userBalance, setUserBalance] = useState(0);
+  const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179";
+
+  useEffect(() => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${myTelegramId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.balance !== undefined) {
+          setUserBalance(data.balance);
+        }
+      })
+      .catch(console.error);
+  }, [myTelegramId]);
 
   return (
     <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
@@ -979,6 +1018,11 @@ const WithdrawPage = () => {
           <ChevronRight size={24} color="#374151" style={{transform: 'rotate(180deg)'}} />
         </button>
         <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: '#1f2937'}}>Withdraw Funds</h2>
+      </div>
+
+      <div style={{background: 'white', borderRadius: '16px', padding: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 10px rgba(0,0,0,0.02)', border: '1px solid #e5e7eb'}}>
+        <span style={{color: '#6b7280', fontWeight: '700', fontSize: '0.9rem'}}>Current Balance</span>
+        <span style={{color: '#10b981', fontWeight: '950', fontSize: '1.25rem'}}>{userBalance} ৳</span>
       </div>
 
       <div style={{background: 'white', borderRadius: '20px', padding: '20px', boxShadow: '0 4px 10px rgba(0,0,0,0.03)', marginBottom: '25px'}}>
@@ -1033,11 +1077,54 @@ const WithdrawPage = () => {
             />
             <button 
               onClick={() => {
-                if(withdrawAmount < 50) return alert("Minimum withdraw is 50 ৳");
-                if(!withdrawNumber) return alert("Please enter your account number");
-                alert("Withdraw request submitted successfully!");
-                setWithdrawAmount(''); setWithdrawNumber(''); setWithdrawMethod('');
-                navigate('/profile');
+                const amount = Number(withdrawAmount);
+                if(amount < 50) return Swal.fire({ title: 'Warning', text: 'Minimum withdraw is 50 ৳', icon: 'warning', confirmButtonColor: 'var(--positive-color)' });
+                if(amount > userBalance) return Swal.fire({ title: 'Warning', text: 'Insufficient balance!', icon: 'warning', confirmButtonColor: 'var(--negative-color)' });
+                if(!withdrawNumber) return Swal.fire({ title: 'Warning', text: 'Please enter your account number', icon: 'warning', confirmButtonColor: 'var(--positive-color)' });
+
+                fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/withdraw/submit`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    telegramId: myTelegramId,
+                    amount: amount,
+                    method: withdrawMethod,
+                    accountNumber: withdrawNumber
+                  })
+                })
+                .then(res => res.json())
+                .then(data => {
+                  if (data.success) {
+                    Swal.fire({
+                      title: 'Success!',
+                      text: 'Withdraw request submitted successfully!',
+                      icon: 'success',
+                      confirmButtonText: 'OK',
+                      confirmButtonColor: 'var(--positive-color)',
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        navigate('/history?tab=withdraw');
+                      }
+                    });
+                    setWithdrawAmount(''); setWithdrawNumber(''); setWithdrawMethod('');
+                  } else {
+                    Swal.fire({
+                      title: 'Error',
+                      text: data.error || 'Submission failed.',
+                      icon: 'error',
+                      confirmButtonColor: 'var(--negative-color)'
+                    });
+                  }
+                })
+                .catch(err => {
+                  console.error(err);
+                  Swal.fire({
+                    title: 'Error',
+                    text: 'Server error. Please try again.',
+                    icon: 'error',
+                    confirmButtonColor: 'var(--negative-color)'
+                  });
+                });
               }}
               style={{
                 background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', 
@@ -1074,8 +1161,17 @@ const AddFundPage = () => {
     })
     .then(res => res.json())
     .then(data => {
-      alert(data.message || 'Request submitted!');
-      navigate('/profile');
+      Swal.fire({
+        title: 'Success!',
+        text: data.message || 'Deposit request submitted successfully!',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: 'var(--positive-color)',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          navigate('/history?tab=fund');
+        }
+      });
     });
   };
 
@@ -1406,25 +1502,26 @@ const HistoryPage = () => {
   
   const [coinHistory, setCoinHistory] = useState([]);
   const [workHistory, setWorkHistory] = useState([]);
+  const [fundHistory, setFundHistory] = useState([]);
+  const [withdrawHistory, setWithdrawHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179";
 
   useEffect(() => {
     setLoading(true);
-    // Fetch coin selling history
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/coin/history/${myTelegramId}`)
-      .then(res => res.json())
-      .then(data => setCoinHistory(Array.isArray(data) ? data : []))
-      .catch(console.error);
-
-    // Fetch work history
-    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/history/${myTelegramId}`)
-      .then(res => res.json())
-      .then(data => {
-        setWorkHistory(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    const host = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    Promise.all([
+      fetch(`${host}/api/coin/history/${myTelegramId}`).then(res => res.json()).catch(() => []),
+      fetch(`${host}/api/jobs/history/${myTelegramId}`).then(res => res.json()).catch(() => []),
+      fetch(`${host}/api/fund/history/${myTelegramId}`).then(res => res.json()).catch(() => []),
+      fetch(`${host}/api/withdraw/history/${myTelegramId}`).then(res => res.json()).catch(() => [])
+    ]).then(([coinData, workData, fundData, withdrawData]) => {
+      setCoinHistory(Array.isArray(coinData) ? coinData : []);
+      setWorkHistory(Array.isArray(workData) ? workData : []);
+      setFundHistory(Array.isArray(fundData) ? fundData : []);
+      setWithdrawHistory(Array.isArray(withdrawData) ? withdrawData : []);
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, [myTelegramId]);
 
   return (
@@ -1436,9 +1533,11 @@ const HistoryPage = () => {
         <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: 'var(--text-primary)', margin: 0}}>History</h2>
       </div>
 
-      <div style={{display: 'flex', gap: '10px', marginBottom: '20px', background: 'var(--card-bg)', border: 'var(--card-border)', padding: '5px', borderRadius: '14px', boxShadow: 'var(--shadow)'}}>
-        <button onClick={() => setActiveTab('coin')} style={{flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: activeTab === 'coin' ? 'var(--input-bg)' : 'transparent', color: activeTab === 'coin' ? '#2563eb' : 'var(--text-secondary)', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'}}>💰 Coin Sell</button>
-        <button onClick={() => setActiveTab('work')} style={{flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: activeTab === 'work' ? 'var(--input-bg)' : 'transparent', color: activeTab === 'work' ? '#8b5cf6' : 'var(--text-secondary)', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s'}}>💼 Work History</button>
+      <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '20px', background: 'var(--card-bg)', border: 'var(--card-border)', padding: '5px', borderRadius: '14px', boxShadow: 'var(--shadow)'}}>
+        <button onClick={() => setActiveTab('coin')} style={{padding: '12px 6px', borderRadius: '10px', border: 'none', background: activeTab === 'coin' ? 'var(--input-bg)' : 'transparent', color: activeTab === 'coin' ? '#2563eb' : 'var(--text-secondary)', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem'}}>💰 Coin Sell</button>
+        <button onClick={() => setActiveTab('work')} style={{padding: '12px 6px', borderRadius: '10px', border: 'none', background: activeTab === 'work' ? 'var(--input-bg)' : 'transparent', color: activeTab === 'work' ? '#8b5cf6' : 'var(--text-secondary)', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem'}}>💼 Work History</button>
+        <button onClick={() => setActiveTab('fund')} style={{padding: '12px 6px', borderRadius: '10px', border: 'none', background: activeTab === 'fund' ? 'var(--input-bg)' : 'transparent', color: activeTab === 'fund' ? '#0d9488' : 'var(--text-secondary)', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem'}}>💳 Add Fund</button>
+        <button onClick={() => setActiveTab('withdraw')} style={{padding: '12px 6px', borderRadius: '10px', border: 'none', background: activeTab === 'withdraw' ? 'var(--input-bg)' : 'transparent', color: activeTab === 'withdraw' ? '#ea580c' : 'var(--text-secondary)', fontWeight: '800', cursor: 'pointer', transition: 'all 0.2s', fontSize: '0.85rem'}}>💸 Withdraw</button>
       </div>
 
       {loading ? (
@@ -1485,7 +1584,7 @@ const HistoryPage = () => {
                 workHistory.map((item, idx) => (
                   <div key={idx} style={{background: 'var(--card-bg)', padding: '15px', borderRadius: '16px', marginBottom: '10px', boxShadow: 'var(--shadow)', border: 'var(--card-border)'}}>
                     <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
-                      <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin: 0}}>{item.jobId?.title || 'Microjob'}</h4>
+                      <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin: 0}}>{item.jobTitle || item.jobId?.title || 'Microjob'}</h4>
                       <span style={{
                         background: item.status === 'pending' ? '#fef3c7' : item.status === 'approved' ? '#dcfce7' : '#fee2e2',
                         color: item.status === 'pending' ? '#d97706' : item.status === 'approved' ? 'var(--positive-color)' : 'var(--negative-color)',
@@ -1493,7 +1592,64 @@ const HistoryPage = () => {
                       }}>{item.status.toUpperCase()}</span>
                     </div>
                     <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Proof Submitted: <strong style={{color: 'var(--text-primary)'}}>{item.submittedId}</strong></p>
-                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Reward: <strong style={{color: 'var(--text-primary)'}}>{item.jobId?.amount || 0} ৳</strong></p>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Reward: <strong style={{color: 'var(--text-primary)'}}>{item.rewardAmount !== undefined ? item.rewardAmount : (item.jobId?.amount || 0)} ৳</strong></p>
+                    <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.8, margin: 0}}>{new Date(item.createdAt).toLocaleString()}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {activeTab === 'fund' && (
+            <div>
+              {fundHistory.length === 0 ? (
+                <div style={{textAlign: 'center', padding: '40px 20px', background: 'var(--card-bg)', border: 'var(--card-border)', borderRadius: '16px', boxShadow: 'var(--shadow)'}}>
+                  <div style={{fontSize: '3rem', marginBottom: '10px'}}>💳</div>
+                  <h3 style={{color: 'var(--text-primary)', fontWeight: '800'}}>No Add Fund History</h3>
+                  <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>You haven't requested to add funds yet.</p>
+                </div>
+              ) : (
+                fundHistory.map((item, idx) => (
+                  <div key={idx} style={{background: 'var(--card-bg)', padding: '15px', borderRadius: '16px', marginBottom: '10px', boxShadow: 'var(--shadow)', border: 'var(--card-border)'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                      <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin: 0, textTransform: 'capitalize'}}>{item.paymentMethod} Deposit</h4>
+                      <span style={{
+                        background: item.status === 'Pending' ? '#fef3c7' : item.status === 'Accepted' ? '#dcfce7' : '#fee2e2',
+                        color: item.status === 'Pending' ? '#d97706' : item.status === 'Accepted' ? 'var(--positive-color)' : 'var(--negative-color)',
+                        padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'
+                      }}>{item.status}</span>
+                    </div>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Amount: <strong style={{color: 'var(--text-primary)'}}>{item.amount} ৳</strong></p>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Sender: <strong style={{color: 'var(--text-primary)'}}>{item.senderNumber}</strong></p>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>TrxID: <strong style={{color: 'var(--text-primary)'}}>{item.transactionId}</strong></p>
+                    <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.8, margin: 0}}>{new Date(item.createdAt).toLocaleString()}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {activeTab === 'withdraw' && (
+            <div>
+              {withdrawHistory.length === 0 ? (
+                <div style={{textAlign: 'center', padding: '40px 20px', background: 'var(--card-bg)', border: 'var(--card-border)', borderRadius: '16px', boxShadow: 'var(--shadow)'}}>
+                  <div style={{fontSize: '3rem', marginBottom: '10px'}}>💸</div>
+                  <h3 style={{color: 'var(--text-primary)', fontWeight: '800'}}>No Withdraw History</h3>
+                  <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>You haven't made any withdrawals yet.</p>
+                </div>
+              ) : (
+                withdrawHistory.map((item, idx) => (
+                  <div key={idx} style={{background: 'var(--card-bg)', padding: '15px', borderRadius: '16px', marginBottom: '10px', boxShadow: 'var(--shadow)', border: 'var(--card-border)'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px'}}>
+                      <h4 style={{fontWeight: '800', color: 'var(--text-primary)', margin: 0, textTransform: 'capitalize'}}>{item.method} Withdraw</h4>
+                      <span style={{
+                        background: item.status === 'pending' ? '#fef3c7' : item.status === 'paid' ? '#dcfce7' : '#fee2e2',
+                        color: item.status === 'pending' ? '#d97706' : item.status === 'paid' ? 'var(--positive-color)' : 'var(--negative-color)',
+                        padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700'
+                      }}>{item.status.toUpperCase()}</span>
+                    </div>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Amount: <strong style={{color: 'var(--text-primary)'}}>{item.amount} ৳</strong></p>
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Account: <strong style={{color: 'var(--text-primary)'}}>{item.accountNumber}</strong></p>
                     <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.8, margin: 0}}>{new Date(item.createdAt).toLocaleString()}</p>
                   </div>
                 ))
@@ -2221,6 +2377,17 @@ const AdminPanel = () => {
     });
   };
 
+  const handleCoinRequestDelete = (id) => {
+    if (window.confirm('Are you sure you want to delete this request from history?')) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/coin-requests/${id}/delete`, {
+        method: 'POST',
+      }).then(() => {
+        alert('Request deleted successfully');
+        fetchCoinRequests();
+      }).catch(console.error);
+    }
+  };
+
   const saveCoinSettings = (index) => {
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/coins`, {
       method: 'POST',
@@ -2463,10 +2630,15 @@ const AdminPanel = () => {
                     )}
                     {y.couponCode && <p style={{ fontSize: '0.9rem', color: '#f59e0b', margin: '0 0 10px 0', fontWeight: '700' }}><strong>Coupon:</strong> {y.couponCode}</p>}
                     
-                    {y.status === 'Pending' && (
+                    {y.status === 'Pending' ? (
                       <div style={{ display: 'flex', gap: '10px' }}>
                         <button onClick={() => handleCoinRequestStatus(y._id, 'Accepted')} style={{ flex: 1, background: 'var(--positive-color)', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Accept</button>
                         <button onClick={() => handleCoinRequestStatus(y._id, 'Rejected')} style={{ flex: 1, background: 'var(--negative-color)', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Reject</button>
+                        <button onClick={() => handleCoinRequestDelete(y._id)} style={{ flex: 1, background: '#4b5563', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Delete</button>
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: '10px' }}>
+                        <button onClick={() => handleCoinRequestDelete(y._id)} style={{ width: '100%', background: '#4b5563', color: 'white', padding: '8px', borderRadius: '8px', border: 'none', fontWeight: '700', cursor: 'pointer' }}>Delete Request</button>
                       </div>
                     )}
                   </div>
@@ -2797,6 +2969,45 @@ const AdminPanel = () => {
               </div>
 
               <button onClick={saveContactSettings} style={{ background: 'var(--positive-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width: '100%', cursor: 'pointer', border: 'none', marginTop: '10px' }}>Save Settings</button>
+            </div>
+          </div>
+
+          {/* Monetag Ads Settings */}
+          <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Monetag Ads Settings</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--input-bg)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.9rem' }}>Enable Monetag Ads</span>
+                <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={marketConfig.adsEnabled || false} onChange={(e) => {
+                    const checked = e.target.checked;
+                    setMarketConfig({ ...marketConfig, adsEnabled: checked });
+                    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/config`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ adsEnabled: checked }),
+                    });
+                  }} style={{ transform: 'scale(1.2)' }} />
+                </label>
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Monetag Direct Link URL</label>
+                <input type="text" value={marketConfig.monetagDirectLink || ''} onChange={(e) => setMarketConfig({ ...marketConfig, monetagDirectLink: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Reward Amount per View (৳)</label>
+                <input type="number" step="0.01" value={marketConfig.monetagReward || ''} onChange={(e) => setMarketConfig({ ...marketConfig, monetagReward: Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <button onClick={() => {
+                fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/config`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    monetagDirectLink: marketConfig.monetagDirectLink,
+                    monetagReward: Number(marketConfig.monetagReward)
+                  }),
+                }).then(() => alert('Monetag settings saved successfully!'));
+              }} style={{ background: 'var(--primary-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width: '100%', cursor: 'pointer', border: 'none', marginTop: '5px' }}>Save Monetag Settings</button>
             </div>
           </div>
 
@@ -3227,6 +3438,252 @@ const JobsPage = () => {
   );
 };
 
+const WatchAdsPage = () => {
+  const navigate = useNavigate();
+  const [config, setConfig] = useState({ monetagDirectLink: '', monetagReward: 0.1 });
+  const [userBalance, setUserBalance] = useState(0);
+  const [isWatching, setIsWatching] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const myTelegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179";
+
+  useEffect(() => {
+    // Fetch config
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/config`)
+      .then(res => res.json())
+      .then(data => {
+        if (data) {
+          setConfig({
+            monetagDirectLink: data.monetagDirectLink || '',
+            monetagReward: data.monetagReward || 0.1
+          });
+        }
+      })
+      .catch(console.error);
+
+    // Fetch user balance
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${myTelegramId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.balance !== undefined) {
+          setUserBalance(data.balance);
+        }
+      })
+      .catch(console.error);
+  }, [myTelegramId]);
+
+  useEffect(() => {
+    let timer;
+    if (isWatching && countdown > 0) {
+      timer = setTimeout(() => {
+        setCountdown(prev => prev - 1);
+      }, 1000);
+    } else if (isWatching && countdown === 0) {
+      setIsWatching(false);
+      // Claim reward
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/ads/claim`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: myTelegramId })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setUserBalance(data.balance);
+            Swal.fire({
+              title: 'Success!',
+              text: `🎉 Reward Claimed! You have successfully earned ${data.reward} ৳.`,
+              icon: 'success',
+              confirmButtonText: 'Great!',
+              confirmButtonColor: 'var(--positive-color)',
+            });
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: data.error || 'Failed to claim reward.',
+              icon: 'error',
+              confirmButtonColor: 'var(--negative-color)'
+            });
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          Swal.fire({
+            title: 'Error',
+            text: 'Server error. Please try again.',
+            icon: 'error',
+            confirmButtonColor: 'var(--negative-color)'
+          });
+        });
+    }
+    return () => clearTimeout(timer);
+  }, [isWatching, countdown]);
+
+  const handleWatchAd = () => {
+    if (!config.monetagDirectLink) {
+      return Swal.fire({
+        title: 'Error',
+        text: 'Ad system is not fully set up by the admin yet.',
+        icon: 'warning',
+        confirmButtonColor: 'var(--negative-color)'
+      });
+    }
+    
+    window.open(config.monetagDirectLink, '_blank');
+    
+    setIsWatching(true);
+    setCountdown(5);
+  };
+
+  return (
+    <div className="home-container" style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
+      <div style={{display: 'flex', alignItems: 'center', marginBottom: '20px', gap: '10px'}}>
+        <button onClick={() => navigate(-1)} style={{background: 'white', border: 'none', padding: '8px', borderRadius: '12px', boxShadow: '0 2px 5px rgba(0,0,0,0.05)'}}>
+          <ChevronRight size={24} color="#374151" style={{transform: 'rotate(180deg)'}} />
+        </button>
+        <h2 style={{fontWeight: '900', fontSize: '1.5rem', color: '#1f2937'}}>Watch Ads & Earn</h2>
+      </div>
+
+      <div style={{
+        background: 'linear-gradient(135deg, #1e1b4b, #311042)', 
+        borderRadius: '20px', 
+        padding: '20px', 
+        color: 'white',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+        marginBottom: '25px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        border: '1px solid rgba(255,255,255,0.1)'
+      }}>
+        <div>
+          <p style={{color: 'rgba(255,255,255,0.7)', fontSize: '0.85rem', fontWeight: '700', margin: '0 0 5px 0'}}>Total Balance</p>
+          <h3 style={{fontSize: '1.8rem', fontWeight: '900', margin: 0}}>{userBalance.toFixed(2)} ৳</h3>
+        </div>
+        <div style={{background: 'rgba(255,255,255,0.1)', padding: '12px', borderRadius: '16px'}}>
+          <DollarSign size={28} color="#a855f7" />
+        </div>
+      </div>
+
+      <div style={{
+        background: 'white', 
+        borderRadius: '24px', 
+        padding: '30px 20px', 
+        boxShadow: '0 8px 30px rgba(0,0,0,0.05)', 
+        textAlign: 'center',
+        border: '1px solid rgba(0,0,0,0.02)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', borderRadius: '50%', background: 'rgba(168, 85, 247, 0.05)', filter: 'blur(30px)'}}></div>
+        <div style={{position: 'absolute', bottom: '-50px', left: '-50px', width: '150px', height: '150px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.05)', filter: 'blur(30px)'}}></div>
+
+        <div style={{
+          display: 'inline-flex',
+          background: 'linear-gradient(135deg, #f5f3ff, #ede9fe)',
+          padding: '20px',
+          borderRadius: '50%',
+          marginBottom: '20px',
+          boxShadow: '0 8px 20px rgba(139, 92, 246, 0.1)',
+          animation: isWatching ? 'pulse 1.5s infinite' : 'none'
+        }}>
+          <PlayCircle size={48} color="#8b5cf6" />
+        </div>
+
+        <h3 style={{fontSize: '1.4rem', fontWeight: '900', color: '#1f2937', marginBottom: '10px'}}>Premium Video Ads</h3>
+        <p style={{color: '#6b7280', fontSize: '0.9rem', lineHeight: '1.6', maxWidth: '300px', margin: '0 auto 25px auto'}}>
+          Watch ads to earn rewards directly in your wallet balance. Tap start, watch the ad content, and return to collect your reward.
+        </p>
+
+        <div style={{
+          background: '#f3f4f6', 
+          borderRadius: '16px', 
+          padding: '12px 20px', 
+          display: 'inline-flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          marginBottom: '30px',
+          border: '1px solid #e5e7eb'
+        }}>
+          <Gift size={20} color="#a855f7" />
+          <span style={{color: '#374151', fontWeight: '800', fontSize: '0.95rem'}}>Reward: <span style={{color: '#8b5cf6'}}>{config.monetagReward} ৳</span> per view</span>
+        </div>
+
+        {isWatching ? (
+          <div style={{
+            background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+            color: 'white',
+            padding: '16px 30px',
+            borderRadius: '16px',
+            fontWeight: '800',
+            fontSize: '1.1rem',
+            boxShadow: '0 8px 20px rgba(139, 92, 246, 0.3)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '10px',
+            border: 'none',
+            width: '100%',
+            justifyContent: 'center'
+          }}>
+            <span className="spinner" style={{
+              width: '18px',
+              height: '18px',
+              border: '3px solid rgba(255,255,255,0.3)',
+              borderTopColor: 'white',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              display: 'inline-block'
+            }}></span>
+            <span>Verifying Ad View... ({countdown}s)</span>
+          </div>
+        ) : (
+          <button 
+            onClick={handleWatchAd}
+            style={{
+              background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+              color: 'white',
+              padding: '16px 30px',
+              borderRadius: '16px',
+              fontWeight: '800',
+              fontSize: '1.1rem',
+              width: '100%',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)',
+              transition: 'transform 0.2s, box-shadow 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
+            }}
+            onMouseOver={e => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 12px 25px rgba(59, 130, 246, 0.4)';
+            }}
+            onMouseOut={e => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.3)';
+            }}
+          >
+            <PlayCircle size={22} />
+            <span>Start Watching Ad</span>
+          </button>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+          0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+          70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+          100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
 function App() {
   const [theme, setTheme] = useState(localStorage.getItem('app-theme') || 'gradient');
 
@@ -3255,6 +3712,7 @@ function App() {
           <Route path="/history" element={<HistoryPage />} />
           <Route path="/invite" element={<Invite />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/watch-ads" element={<WatchAdsPage />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/task/:id" element={<TaskRenderer />} />
         </Routes>
