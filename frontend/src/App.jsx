@@ -862,6 +862,68 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Earnings Dashboard */}
+      <div style={{ marginBottom: '25px' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '15px', color: 'var(--text-primary)' }}>Earnings Dashboard</h3>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '15px' }}>
+          {/* Daily Earning */}
+          <div style={{
+            background: 'linear-gradient(135deg, #FF9A9E 0%, #FECFEF 99%, #FECFEF 100%)',
+            padding: '20px', borderRadius: '20px', boxShadow: '0 8px 15px rgba(255, 154, 158, 0.3)',
+            color: '#333', display: 'flex', flexDirection: 'column', justifyContent: 'center'
+          }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700', opacity: 0.8 }}>Daily Earning</p>
+            <h2 style={{ margin: '5px 0 0 0', fontSize: '1.8rem', fontWeight: '900' }}>{earningsStats.daily.toFixed(2)} ৳</h2>
+          </div>
+
+          {/* Yesterday Earning */}
+          <div style={{
+            background: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
+            padding: '20px', borderRadius: '20px', boxShadow: '0 8px 15px rgba(161, 196, 253, 0.3)',
+            color: '#333', display: 'flex', flexDirection: 'column', justifyContent: 'center'
+          }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700', opacity: 0.8 }}>Yesterday</p>
+            <h2 style={{ margin: '5px 0 0 0', fontSize: '1.8rem', fontWeight: '900' }}>{earningsStats.yesterday.toFixed(2)} ৳</h2>
+          </div>
+        </div>
+
+        {/* 7 Days Earning */}
+        <div style={{
+          background: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
+          padding: '20px', borderRadius: '20px', boxShadow: '0 8px 15px rgba(132, 250, 176, 0.3)',
+          color: '#333', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px'
+        }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: '700', opacity: 0.8 }}>Last 7 Days</p>
+            <h2 style={{ margin: '5px 0 0 0', fontSize: '2rem', fontWeight: '900' }}>{earningsStats.sevenDays.toFixed(2)} ৳</h2>
+          </div>
+          <div style={{ fontSize: '2.5rem', opacity: 0.5 }}>📅</div>
+        </div>
+
+        {/* Custom Date Earning */}
+        <div style={{
+          background: 'var(--card-bg)', border: '1px solid var(--border-color)',
+          padding: '20px', borderRadius: '20px', boxShadow: 'var(--shadow)',
+          display: 'flex', flexDirection: 'column', gap: '15px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p style={{ margin: 0, fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)' }}>Custom Date Earning</p>
+            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '900', color: 'var(--text-primary)' }}>{earningsStats.customDateEarning.toFixed(2)} ৳</h2>
+          </div>
+          <input 
+            type="date" 
+            value={customDate}
+            onChange={(e) => setCustomDate(e.target.value)}
+            style={{
+              padding: '12px 15px', borderRadius: '12px', border: '1px solid var(--border-color)',
+              background: 'var(--bg-color)', color: 'var(--text-primary)', outline: 'none',
+              fontFamily: 'inherit', fontWeight: '600', width: '100%', boxSizing: 'border-box'
+            }}
+          />
+        </div>
+      </div>
+
       {/* Account Verification Section (Only if not verified) */}
       {!user.isVerified && (
         <div style={{
