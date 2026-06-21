@@ -873,7 +873,7 @@ const Profile = () => {
             padding: '20px', borderRadius: '20px', boxShadow: '0 8px 15px rgba(255, 154, 158, 0.3)',
             color: '#333', display: 'flex', flexDirection: 'column', justifyContent: 'center'
           }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700', opacity: 0.8 }}>Daily Earning</p>
+            <p style={{ margin: 0, fontSize: '0.9rem', fontWeight: '700', opacity: 0.8 }}>Today Earning</p>
             <h2 style={{ margin: '5px 0 0 0', fontSize: '1.8rem', fontWeight: '900' }}>{earningsStats.daily.toFixed(2)} ৳</h2>
           </div>
 
@@ -916,9 +916,10 @@ const Profile = () => {
             value={customDate}
             onChange={(e) => setCustomDate(e.target.value)}
             style={{
-              padding: '12px 15px', borderRadius: '12px', border: '1px solid var(--border-color)',
-              background: 'var(--bg-color)', color: 'var(--text-primary)', outline: 'none',
-              fontFamily: 'inherit', fontWeight: '600', width: '100%', boxSizing: 'border-box'
+              padding: '12px 15px', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.1)',
+              background: '#f8fafc', color: '#334155', outline: 'none',
+              fontFamily: 'inherit', fontWeight: '700', width: '100%', boxSizing: 'border-box',
+              cursor: 'pointer'
             }}
           />
         </div>
