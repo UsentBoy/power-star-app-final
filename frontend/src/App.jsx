@@ -465,7 +465,7 @@ const Home = () => {
                   showCancelButton: true,
                   confirmButtonColor: 'var(--positive-color)',
                   cancelButtonColor: 'var(--negative-color)',
-                  confirmButtonText: 'Profile এ যান',
+                  confirmButtonText: 'OK',
                   cancelButtonText: 'Cancel',
                   background: '#ffffff',
                   color: '#374151',
@@ -942,9 +942,9 @@ const Profile = () => {
           <div style={{background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid var(--border-color)'}}>
             <p style={{fontWeight: '700', marginBottom: '5px', color: 'var(--text-primary)'}}>Send {links.activationFee || 20} ৳ to any number:</p>
             <ul style={{listStyle: 'none', padding: 0, margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem'}}>
-              <li style={{marginBottom: '5px'}}><strong style={{color: '#ff4081'}}>bKash:</strong> {links.bkashNumber}</li>
-              <li style={{marginBottom: '5px'}}><strong style={{color: '#ff6d00'}}>Nagad:</strong> {links.nagadNumber}</li>
-              <li><strong style={{color: '#b388ff'}}>Rocket:</strong> {links.rocketNumber}</li>
+              <li style={{marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '8px'}}><strong style={{color: '#ff4081'}}>bKash:</strong> {links.bkashNumber} <Copy size={16} style={{cursor:'pointer', color:'#6b7280'}} onClick={() => {navigator.clipboard.writeText(links.bkashNumber); alert('Number copied!');}} /></li>
+              <li style={{marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '8px'}}><strong style={{color: '#ff6d00'}}>Nagad:</strong> {links.nagadNumber} <Copy size={16} style={{cursor:'pointer', color:'#6b7280'}} onClick={() => {navigator.clipboard.writeText(links.nagadNumber); alert('Number copied!');}} /></li>
+              <li style={{display: 'flex', alignItems: 'center', gap: '8px'}}><strong style={{color: '#b388ff'}}>Rocket:</strong> {links.rocketNumber} <Copy size={16} style={{cursor:'pointer', color:'#6b7280'}} onClick={() => {navigator.clipboard.writeText(links.rocketNumber); alert('Number copied!');}} /></li>
             </ul>
           </div>
 
@@ -1333,8 +1333,13 @@ const AddFundPage = () => {
           <div style={{animation: 'fadeIn 0.3s'}}>
             <div style={{background: '#eff6ff', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px dashed #3b82f6'}}>
               <p style={{fontSize: '0.9rem', color: '#1f2937', marginBottom: '5px'}}>Send money to this {method} number:</p>
-              <h3 style={{fontSize: '1.4rem', fontWeight: '900', color:  'var(--primary-color)', letterSpacing: '1px'}}>
+              <h3 style={{fontSize: '1.4rem', fontWeight: '900', color:  'var(--primary-color)', letterSpacing: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px'}}>
                 {method === 'bkash' ? links.bkashNumber : method === 'nagad' ? links.nagadNumber : links.rocketNumber}
+                <Copy size={20} style={{cursor: 'pointer', color: '#6b7280'}} onClick={() => {
+                  const num = method === 'bkash' ? links.bkashNumber : method === 'nagad' ? links.nagadNumber : links.rocketNumber;
+                  navigator.clipboard.writeText(num);
+                  alert('Number copied!');
+                }} />
               </h3>
             </div>
 
