@@ -633,6 +633,8 @@ const CoinMarketPage = () => {
 const Profile = () => {
   const navigate = useNavigate();
   const [links, setLinks] = useState({ bkashNumber: '...', nagadNumber: '...', rocketNumber: '...', activationFee: 20 });
+  const [earningsStats, setEarningsStats] = useState({ daily: 0, yesterday: 0, sevenDays: 0, customDateEarning: 0 });
+  const [customDate, setCustomDate] = useState('');
   const [user, setUser] = useState({ username: 'Md Mahmud', telegramId: window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179", balance: 0, isVerified: false });
   const [trxId, setTrxId] = useState('');
   
@@ -745,6 +747,16 @@ const Profile = () => {
       .catch(err => console.error(err));
     }
   };
+
+    useEffect(() => {
+    const uid = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '6323700179';
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/earnings/stats/${uid}?date=${customDate}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) setEarningsStats(data);
+      })
+      .catch(console.error);
+  }, [customDate]);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/contact`)

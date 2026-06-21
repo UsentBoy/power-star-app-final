@@ -23,6 +23,7 @@ const TaskConfig = require('./models/TaskConfig');
 const User = require('./models/User');
 const CoinRequest = require('./models/CoinRequest');
 const CoinConfig = require('./models/CoinConfig');
+const EarningHistory = require('./models/EarningHistory');
 const AddFundRequest = require('./models/AddFundRequest');
 const JobSubmission = require('./models/JobSubmission');
 const JobPost = require('./models/JobPost');
@@ -114,6 +115,7 @@ app.post('/api/admin/verify/approve', async (req, res) => {
       
       referrer.balance += levels[i];
       await referrer.save();
+      await EarningHistory.create({ userTelegramId: referrer.telegramId, amount: levels[i], source: 'referral' });
       
       currentReferrerId = referrer.referredBy; // move up the tree
     }
@@ -284,6 +286,7 @@ app.post('/api/admin/jobs/approve', async (req, res) => {
       const reward = sub.jobId ? sub.jobId.amount : (sub.rewardAmount || 0);
       user.balance += reward;
       await user.save();
+      await EarningHistory.create({ userTelegramId: user.telegramId, amount: reward, source: 'job' });
 
       // Update job completed count and check limit if jobId exists
       if (sub.jobId) {
@@ -491,6 +494,7 @@ app.post('/api/admin/user/:id/manual-verify', async (req, res) => {
       
       referrer.balance += levels[i];
       await referrer.save();
+      await EarningHistory.create({ userTelegramId: referrer.telegramId, amount: levels[i], source: 'referral' });
       
       currentReferrerId = referrer.referredBy; // move up the tree
     }
@@ -609,6 +613,7 @@ app.post('/api/admin/fund-requests/:id/status', async (req, res) => {
       if (user) {
         user.balance += request.amount;
         await user.save();
+        await EarningHistory.create({ userTelegramId: user.telegramId, amount: request.amount, source: 'fund' });
       }
     }
     
@@ -697,6 +702,7 @@ app.post('/api/ads/claim', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     user.balance += reward;
     await user.save();
+    await EarningHistory.create({ userTelegramId: user.telegramId, amount: reward, source: 'task' });
     res.json({ success: true, reward, balance: user.balance });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -760,7 +766,10 @@ app.post('/api/admin/user/:telegramId/balance', async (req, res) => {
     const user = await User.findOne({ telegramId: req.params.telegramId });
     if (!user) return res.status(404).json({ error: 'User not found' });
     
-    if (action === 'add') user.balance += Number(amount);
+    if (action === 'add') {
+      user.balance += Number(amount);
+      await EarningHistory.create({ userTelegramId: user.telegramId, amount: Number(amount), source: 'admin' });
+    }
     if (action === 'cut') user.balance -= Number(amount);
     await user.save();
     res.json({ success: true, balance: user.balance });
@@ -851,6 +860,76 @@ app.get('/', (req, res) => {
 });
 
 // Start Server
+
+// --- Earnings API ---
+app.get('/api/earnings/stats/:telegramId', async (req, res) => {
+  try {
+    const { telegramId } = req.params;
+    const { date } = req.query; // custom date YYYY-MM-DD
+    
+    // Calculate start and end of periods
+    const now = new Date();
+    
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const yesterdayStart = new Date(todayStart);
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+    
+    const sevenDaysAgoStart = new Date(todayStart);
+    sevenDaysAgoStart.setDate(sevenDaysAgoStart.getDate() - 6); // 7 days including today
+
+    // Fetch earnings
+    const earnings = await EarningHistory.find({ userTelegramId: telegramId });
+
+    let daily = 0;
+    let yesterday = 0;
+    let sevenDays = 0;
+    let customDateEarning = 0;
+
+    let customStart = null;
+    let customEnd = null;
+    if (date) {
+      customStart = new Date(date);
+      customStart.setHours(0, 0, 0, 0);
+      customEnd = new Date(customStart);
+      customEnd.setDate(customEnd.getDate() + 1);
+    }
+
+    earnings.forEach(e => {
+      const eDate = new Date(e.createdAt);
+      
+      // Today
+      if (eDate >= todayStart) {
+        daily += e.amount;
+      }
+      
+      // Yesterday
+      if (eDate >= yesterdayStart && eDate < todayStart) {
+        yesterday += e.amount;
+      }
+
+      // 7 Days
+      if (eDate >= sevenDaysAgoStart) {
+        sevenDays += e.amount;
+      }
+
+      // Custom Date
+      if (customStart && eDate >= customStart && eDate < customEnd) {
+        customDateEarning += e.amount;
+      }
+    });
+
+    res.json({
+      daily,
+      yesterday,
+      sevenDays,
+      customDateEarning
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
