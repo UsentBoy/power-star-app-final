@@ -1983,19 +1983,53 @@ const JobDetailTemplate = ({ job }) => {
           )}
         </div>
         {job.regLink && (
-          <a 
-            href={job.regLink} 
-            target="_blank" 
-            rel="noreferrer"
+          <button 
+            onClick={async (e) => {
+              e.preventDefault();
+              
+            try {
+              const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/user/${window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '6323700179'}`);
+              const data = await res.json();
+              if (data && data.isVerified === false) {
+                Swal.fire({
+                  title: 'Account Not Verified!',
+                  text: 'Please verify your account to proceed.',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: 'var(--positive-color)',
+                  cancelButtonColor: 'var(--negative-color)',
+                  confirmButtonText: 'OK',
+                  cancelButtonText: 'Cancel',
+                  background: '#ffffff',
+                  color: '#374151',
+                  customClass: {
+                    popup: 'swal2-custom-popup',
+                    title: 'swal2-custom-title',
+                    confirmButton: 'swal2-custom-button',
+                    cancelButton: 'swal2-custom-button'
+                  }
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate('/profile');
+                  }
+                });
+                return;
+              }
+            } catch (err) {
+              console.error(err);
+            }
+
+              window.open(job.regLink, '_blank');
+            }}
             style={{
               display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
               background: 'linear-gradient(135deg, #3b82f6, #2563eb)', color: 'white',
               padding: '14px', borderRadius: '14px', fontSize: '1.1rem', fontWeight: '700',
               marginTop: '15px', boxShadow: '0 6px 15px rgba(59, 130, 246, 0.3)', textDecoration: 'none'
-            }}
+            , border: 'none', cursor: 'pointer', width: '100%', fontFamily: 'inherit'}}
           >
             রেজিষ্ট্রেশন লিংক <ExternalLink size={20} />
-          </a>
+          </button>
         )}
       </div>
 
@@ -3324,19 +3358,53 @@ const TopFollowWork = () => {
         <div className="video-wrapper" style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
           <iframe src="https://www.youtube.com/embed/PjN0Xv7Bnp4" style={{ width: '100%', height: '100%', border: 'none' }} allowFullScreen />
         </div>
-        <a 
-          href="https://topfollow.app" 
-          target="_blank" 
-          rel="noreferrer"
-          style={{
+        <button 
+            onClick={async (e) => {
+              e.preventDefault();
+              
+            try {
+              const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/user/${window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '6323700179'}`);
+              const data = await res.json();
+              if (data && data.isVerified === false) {
+                Swal.fire({
+                  title: 'Account Not Verified!',
+                  text: 'Please verify your account to proceed.',
+                  icon: 'warning',
+                  showCancelButton: true,
+                  confirmButtonColor: 'var(--positive-color)',
+                  cancelButtonColor: 'var(--negative-color)',
+                  confirmButtonText: 'OK',
+                  cancelButtonText: 'Cancel',
+                  background: '#ffffff',
+                  color: '#374151',
+                  customClass: {
+                    popup: 'swal2-custom-popup',
+                    title: 'swal2-custom-title',
+                    confirmButton: 'swal2-custom-button',
+                    cancelButton: 'swal2-custom-button'
+                  }
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    navigate('/profile');
+                  }
+                });
+                return;
+              }
+            } catch (err) {
+              console.error(err);
+            }
+
+              window.open("https://topfollow.app", "_blank");
+            }}
+            style={{
             display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px',
             background: 'linear-gradient(135deg, #d60093, #8b00ff)', color: 'white',
             padding: '14px', borderRadius: '14px', fontSize: '1.1rem', fontWeight: '700',
             marginTop: '15px', boxShadow: '0 6px 15px rgba(214, 0, 147, 0.3)', textDecoration: 'none'
-          }}
-        >
+          , border: 'none', cursor: 'pointer', width: '100%', fontFamily: 'inherit'}}
+          >
           App Link <Download size={20} />
-        </a>
+        </button>
       </div>
 
     </div>
