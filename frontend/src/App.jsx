@@ -320,34 +320,55 @@ const Home = () => {
       )}
 
       {/* Verification Status Section */}
-      {isVerified !== null && (
+      {isVerified === false && (
         <div 
-          onClick={() => {
-            if (!isVerified) {
-              navigate('/profile');
-            }
-          }}
+          onClick={() => navigate('/profile')}
           style={{
-            background: 'var(--card-bg)',
-            borderRadius: '15px',
+            background: 'rgba(239, 68, 68, 0.1)',
+            borderRadius: '12px',
             padding: '12px 20px',
             marginBottom: '20px',
-            border: `2px solid ${isVerified ? '#10b981' : '#ef4444'}`,
+            border: '1px solid rgba(239, 68, 68, 0.3)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            cursor: !isVerified ? 'pointer' : 'default',
-            boxShadow: 'var(--shadow)',
-            gap: '8px',
-            transition: 'all 0.2s'
+            cursor: 'pointer',
+            boxShadow: '0 4px 10px rgba(239, 68, 68, 0.1)',
+            gap: '8px'
           }}
         >
           <span style={{ 
-            color: isVerified ? '#10b981' : '#ef4444', 
+            color: '#ef4444', 
             fontWeight: '800', 
-            fontSize: '1.1rem' 
+            fontSize: '1.1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
           }}>
-            {isVerified ? 'একাউন্ট ভেরিফাই সফল বা কমপ্লিট 🆗' : 'একাউন্ট ভেরিফাই করুন✅'}
+            <AlertCircle size={20} />
+            একাউন্ট ভেরিফাই করুন ⚠️
+          </span>
+        </div>
+      )}
+
+      {isVerified === true && (
+        <div style={{
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            opacity: 0.9
+        }}>
+          <span style={{ 
+            color: '#10b981', 
+            fontWeight: '700', 
+            fontSize: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px'
+          }}>
+            একাউন্ট ভেরিফাই সফল বা কমপ্লিট 🆗
           </span>
         </div>
       )}
@@ -3427,6 +3448,13 @@ const ContactPage = () => {
   const [links, setLinks] = useState({ supportLink: '', telegramChannel: '', youtubeChannel: '' });
   const [openFaq, setOpenFaq] = useState(null);
 
+  const formatLink = (link) => {
+    if (!link) return '#';
+    if (link.startsWith('http://') || link.startsWith('https://')) return link;
+    if (link.startsWith('@')) return `https://t.me/${link.substring(1)}`;
+    return `https://t.me/${link}`;
+  };
+
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/contact`)
       .then(res => res.json())
@@ -3473,14 +3501,14 @@ const ContactPage = () => {
       
       {/* Contact Links */}
       <div style={{display: 'flex', flexDirection: 'column', gap: '15px', marginBottom: '30px'}}>
-        <a href={links.supportLink || '#'} target="_blank" rel="noreferrer" style={{background: 'var(--card-bg)', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', color: 'var(--text-primary)', fontWeight: '700', textDecoration: 'none'}}>
+        <a href={formatLink(links.supportLink)} target="_blank" rel="noreferrer" style={{background: 'var(--card-bg)', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', color: 'var(--text-primary)', fontWeight: '700', textDecoration: 'none'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
             <div style={{background: 'var(--input-bg)', padding: '10px', borderRadius: '12px'}}><MessageSquare size={24} style={{color: 'var(--text-primary)'}} /></div>
             <span style={{fontSize: '1.1rem', color: 'var(--text-primary)'}}>Admin Support</span>
           </div>
           <ChevronRight size={20} color="var(--text-secondary)" />
         </a>
-        <a href={links.telegramChannel || '#'} target="_blank" rel="noreferrer" style={{background: 'var(--card-bg)', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', color: 'var(--text-primary)', fontWeight: '700', textDecoration: 'none'}}>
+        <a href={formatLink(links.telegramChannel)} target="_blank" rel="noreferrer" style={{background: 'var(--card-bg)', padding: '15px 20px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow)', border: 'var(--card-border)', backdropFilter: 'blur(10px)', color: 'var(--text-primary)', fontWeight: '700', textDecoration: 'none'}}>
           <div style={{display: 'flex', alignItems: 'center', gap: '15px'}}>
             <div style={{background: 'var(--input-bg)', padding: '10px', borderRadius: '12px'}}><UsersIcon size={24} style={{color: 'var(--text-primary)'}} /></div>
             <span style={{fontSize: '1.1rem', color: 'var(--text-primary)'}}>Join Telegram Channel</span>
