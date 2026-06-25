@@ -244,6 +244,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [bots, setBots] = useState([]);
   const [marqueeNotice, setMarqueeNotice] = useState('');
+  const [isVerified, setIsVerified] = useState(null);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/bots`)
@@ -259,6 +260,17 @@ const Home = () => {
         }
       })
       .catch(err => console.error('Fetch config notice error:', err));
+
+    // Fetch user verification status
+    const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179";
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${telegramId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && typeof data.isVerified !== 'undefined') {
+          setIsVerified(data.isVerified);
+        }
+      })
+      .catch(err => console.error('Fetch user verification status error:', err));
   }, []);
 
   return (
@@ -304,6 +316,39 @@ const Home = () => {
               {marqueeNotice}
             </marquee>
           </div>
+        </div>
+      )}
+
+      {/* Verification Status Section */}
+      {isVerified !== null && (
+        <div 
+          onClick={() => {
+            if (!isVerified) {
+              navigate('/profile');
+            }
+          }}
+          style={{
+            background: 'var(--card-bg)',
+            borderRadius: '15px',
+            padding: '12px 20px',
+            marginBottom: '20px',
+            border: `2px solid ${isVerified ? '#10b981' : '#ef4444'}`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: !isVerified ? 'pointer' : 'default',
+            boxShadow: 'var(--shadow)',
+            gap: '8px',
+            transition: 'all 0.2s'
+          }}
+        >
+          <span style={{ 
+            color: isVerified ? '#10b981' : '#ef4444', 
+            fontWeight: '800', 
+            fontSize: '1.1rem' 
+          }}>
+            {isVerified ? 'একাউন্ট ভেরিফাই সফল বা কমপ্লিট 🆗' : 'একাউন্ট ভেরিফাই করুন✅'}
+          </span>
         </div>
       )}
 
@@ -453,40 +498,7 @@ const Home = () => {
 
         {/* Task Cards */}
         {tasks.map((task) => (
-          <div key={task.id} onClick={async () => {
-            try {
-              const res = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/user/${window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '6323700179'}`);
-              const data = await res.json();
-              if (data && data.isVerified === false) {
-                Swal.fire({
-                  title: 'ভেরিফিকেশন প্রয়োজন',
-                  text: 'আপনার অ্যাকাউন্টটি Cambodia/ভেরিফাই করা নেই!',
-                  icon: 'warning',
-                  showCancelButton: true,
-                  confirmButtonColor: 'var(--positive-color)',
-                  cancelButtonColor: 'var(--negative-color)',
-                  confirmButtonText: 'OK',
-                  cancelButtonText: 'Cancel',
-                  background: '#ffffff',
-                  color: '#374151',
-                  customClass: {
-                    popup: 'swal2-custom-popup',
-                    title: 'swal2-custom-title',
-                    confirmButton: 'swal2-custom-button',
-                    cancelButton: 'swal2-custom-button'
-                  }
-                }).then((result) => {
-                  if (result.isConfirmed) {
-                    navigate('/profile');
-                  }
-                });
-              } else {
-                navigate(`/task/${task.id}`);
-              }
-            } catch (err) {
-              navigate(`/task/${task.id}`);
-            }
-          }} style={{
+          <div key={task.id} onClick={() => navigate(`/task/${task.id}`)} style={{
             background: 'var(--card-bg)', borderRadius: '16px', padding: '20px 15px', textAlign: 'center',
             boxShadow: 'var(--shadow)', display: 'flex', flexDirection: 'column',
             alignItems: 'center', gap: '10px', cursor: 'pointer', border: 'var(--card-border)',
