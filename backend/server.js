@@ -105,7 +105,10 @@ app.post('/api/admin/verify/approve', async (req, res) => {
     await user.save();
 
     // 4-Generation MLM Distribution
-    const levels = [5, 2, 1, 1];
+    const config = await AppConfig.findOne();
+    const levels = config ? 
+      [config.level1Commission, config.level2Commission, config.level3Commission, config.level4Commission] : 
+      [5, 2, 1, 1];
     let currentReferrerId = user.referredBy;
 
     for (let i = 0; i < levels.length; i++) {
@@ -174,13 +177,31 @@ app.get('/api/jobs', async (req, res) => {
 app.post('/api/jobs/create', async (req, res) => {
   const { title, description, link, amount, postedBy, workerLimit } = req.body;
   try {
+    const isRegularUser = postedBy && postedBy !== 'admin';
+    const limit = Number(workerLimit) || 0;
+    
+    if (isRegularUser && limit <= 0) {
+      return res.status(400).json({ error: 'Worker limit must be greater than 0 to calculate cost.' });
+    }
+
+    if (isRegularUser) {
+      const user = await User.findOne({ telegramId: postedBy });
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      const totalCost = amount * limit;
+      if (user.balance < totalCost) {
+        return res.status(400).json({ error: 'Insufficient balance to post this job.' });
+      }
+      user.balance -= totalCost;
+      await user.save();
+    }
+
     const job = new JobPost({ 
       title, 
       description, 
       link, 
       amount, 
       postedBy: postedBy || 'admin',
-      workerLimit: Number(workerLimit) || 0
+      workerLimit: limit
     });
     await job.save();
     res.json({ success: true, job });
@@ -213,6 +234,22 @@ app.post('/api/jobs/:id/toggle-active', async (req, res) => {
 app.post('/api/jobs/:id/delete', async (req, res) => {
   try {
     const jobId = req.params.id;
+    const job = await JobPost.findById(jobId);
+    if (!job) return res.status(404).json({ error: 'Job not found' });
+    
+    // Refund remaining balance to poster if applicable
+    if (job.postedBy && job.postedBy !== 'admin') {
+      const remainingTasks = Math.max(0, job.workerLimit - job.completedCount);
+      const refundAmount = remainingTasks * job.amount;
+      if (refundAmount > 0) {
+        const user = await User.findOne({ telegramId: job.postedBy });
+        if (user) {
+          user.balance += refundAmount;
+          await user.save();
+        }
+      }
+    }
+
     await JobPost.findByIdAndDelete(jobId);
     await JobSubmission.deleteMany({ jobId });
     res.json({ success: true });
@@ -314,6 +351,112 @@ app.post('/api/admin/jobs/reject', async (req, res) => {
       return res.status(400).json({ error: 'Invalid or processed submission' });
     }
     sub.status = 'rejected';
+    await sub.save();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// --- Job Poster Actions & Report System ---
+app.get('/api/jobs/poster-submissions/:userId', async (req, res) => {
+  try {
+    const jobs = await JobPost.find({ postedBy: req.params.userId }).select('_id');
+    const jobIds = jobs.map(j => j._id);
+    const submissions = await JobSubmission.find({ jobId: { $in: jobIds }, status: 'pending' }).populate('jobId').sort({ createdAt: -1 });
+    res.json(submissions);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/jobs/poster/approve', async (req, res) => {
+  const { submissionId, posterId } = req.body;
+  try {
+    const sub = await JobSubmission.findById(submissionId).populate('jobId');
+    if (!sub || sub.status !== 'pending') {
+      return res.status(400).json({ error: 'Invalid or processed submission' });
+    }
+    if (sub.jobId && sub.jobId.postedBy !== posterId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    sub.status = 'approved';
+    await sub.save();
+
+    const worker = await User.findOne({ telegramId: sub.userTelegramId });
+    if (worker) {
+      const reward = sub.jobId ? sub.jobId.amount : (sub.rewardAmount || 0);
+      worker.balance += reward;
+      await worker.save();
+      await EarningHistory.create({ userTelegramId: worker.telegramId, amount: reward, source: 'job' });
+
+      if (sub.jobId) {
+        const job = await JobPost.findById(sub.jobId._id);
+        if (job) {
+          job.completedCount = (job.completedCount || 0) + 1;
+          if (job.workerLimit > 0 && job.completedCount >= job.workerLimit) {
+            job.isActive = false;
+          }
+          await job.save();
+        }
+      }
+    }
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/jobs/poster/reject', async (req, res) => {
+  const { submissionId, posterId } = req.body;
+  try {
+    const sub = await JobSubmission.findById(submissionId).populate('jobId');
+    if (!sub || sub.status !== 'pending') {
+      return res.status(400).json({ error: 'Invalid or processed submission' });
+    }
+    if (sub.jobId && sub.jobId.postedBy !== posterId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    sub.status = 'rejected';
+    await sub.save();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/jobs/report', async (req, res) => {
+  const { submissionId, reportReason } = req.body;
+  try {
+    const sub = await JobSubmission.findById(submissionId);
+    if (!sub || sub.status !== 'rejected') {
+      return res.status(400).json({ error: 'Can only report rejected jobs' });
+    }
+    sub.isReported = true;
+    sub.reportReason = reportReason;
+    await sub.save();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/admin/job-reports', async (req, res) => {
+  try {
+    const submissions = await JobSubmission.find({ isReported: true }).populate('jobId').sort({ createdAt: -1 });
+    res.json(submissions);
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/admin/job-reports/:id/dismiss', async (req, res) => {
+  try {
+    const sub = await JobSubmission.findById(req.params.id);
+    if (!sub) return res.status(404).json({ error: 'Submission not found' });
+    sub.isReported = false;
+    sub.reportReason = '';
     await sub.save();
     res.json({ success: true });
   } catch (error) {
@@ -484,7 +627,10 @@ app.post('/api/admin/user/:id/manual-verify', async (req, res) => {
     await user.save();
 
     // 4-Generation MLM Distribution
-    const levels = [5, 2, 1, 1];
+    const config = await AppConfig.findOne();
+    const levels = config ? 
+      [config.level1Commission, config.level2Commission, config.level3Commission, config.level4Commission] : 
+      [5, 2, 1, 1];
     let currentReferrerId = user.referredBy;
 
     for (let i = 0; i < levels.length; i++) {
@@ -672,13 +818,13 @@ app.get('/api/config', async (req, res) => {
     }
     res.json(conf);
   } catch (err) {
-    res.json({ marketIsVisible: true, adsEnabled: false, monetagDirectLink: '', monetagReward: 0.1, marqueeNotice: 'Assalamualaikum! Welcome to our App!' });
+    res.json({ marketIsVisible: true, adsEnabled: false, monetagDirectLink: '', monetagReward: 0.1, marqueeNotice: 'Assalamualaikum! Welcome to our App!', verifyFee: 20, level1Commission: 5, level2Commission: 2, level3Commission: 1, level4Commission: 1 });
   }
 });
 
 app.post('/api/admin/config', async (req, res) => {
   try {
-    const { marketIsVisible, adsEnabled, monetagDirectLink, monetagReward, marqueeNotice } = req.body;
+    const { marketIsVisible, adsEnabled, monetagDirectLink, monetagReward, marqueeNotice, verifyFee, level1Commission, level2Commission, level3Commission, level4Commission } = req.body;
     let conf = await AppConfig.findOne();
     if (!conf) conf = new AppConfig();
     if (marketIsVisible !== undefined) conf.marketIsVisible = marketIsVisible;
@@ -686,6 +832,11 @@ app.post('/api/admin/config', async (req, res) => {
     if (monetagDirectLink !== undefined) conf.monetagDirectLink = monetagDirectLink;
     if (monetagReward !== undefined) conf.monetagReward = Number(monetagReward) || 0.1;
     if (marqueeNotice !== undefined) conf.marqueeNotice = marqueeNotice;
+    if (verifyFee !== undefined) conf.verifyFee = Number(verifyFee);
+    if (level1Commission !== undefined) conf.level1Commission = Number(level1Commission);
+    if (level2Commission !== undefined) conf.level2Commission = Number(level2Commission);
+    if (level3Commission !== undefined) conf.level3Commission = Number(level3Commission);
+    if (level4Commission !== undefined) conf.level4Commission = Number(level4Commission);
     await conf.save();
     res.json(conf);
   } catch (err) {
@@ -784,6 +935,9 @@ app.post('/api/admin/user/:telegramId/ban', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     
     user.isBanned = !user.isBanned; // Toggle ban status
+    if (user.isBanned) {
+      user.isVerified = false; // Remove verified status so they have to verify again
+    }
     await user.save();
     res.json({ success: true, isBanned: user.isBanned });
   } catch (error) {

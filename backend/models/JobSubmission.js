@@ -7,6 +7,8 @@ const JobSubmissionSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   jobTitle: { type: String }, // Cache job title at submission
   rewardAmount: { type: Number }, // Cache reward amount at submission
+  isReported: { type: Boolean, default: false },
+  reportReason: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now },
 });
 

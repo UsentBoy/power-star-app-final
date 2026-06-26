@@ -665,7 +665,8 @@ const CoinMarketPage = () => {
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [links, setLinks] = useState({ bkashNumber: '...', nagadNumber: '...', rocketNumber: '...', activationFee: 20 });
+  const [links, setLinks] = useState({ bkashNumber: '...', nagadNumber: '...', rocketNumber: '...' });
+  const [appConfig, setAppConfig] = useState({ verifyFee: 20 });
   const [earningsStats, setEarningsStats] = useState({ daily: 0, yesterday: 0, sevenDays: 0, customDateEarning: 0 });
   const [customDate, setCustomDate] = useState('');
   const [user, setUser] = useState({ username: 'Md Mahmud', telegramId: window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || "6323700179", balance: 0, isVerified: false });
@@ -682,6 +683,7 @@ const Profile = () => {
   // Microjob management states
   const [showManageJobs, setShowManageJobs] = useState(false);
   const [myJobs, setMyJobs] = useState([]);
+  const [myJobSubmissions, setMyJobSubmissions] = useState([]);
   const [loadingJobs, setLoadingJobs] = useState(false);
 
   const fetchMyJobs = () => {
@@ -697,6 +699,49 @@ const Profile = () => {
         console.error('Fetch my jobs error:', err);
         setLoadingJobs(false);
       });
+      
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/poster-submissions/${user.telegramId}`)
+      .then(res => res.json())
+      .then(data => {
+        setMyJobSubmissions(Array.isArray(data) ? data : []);
+      })
+      .catch(console.error);
+  };
+
+  const handleApproveSubmission = (submissionId) => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/poster/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId, posterId: user.telegramId })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert("Submission approved!");
+        fetchMyJobs();
+      } else {
+        alert("Failed: " + data.error);
+      }
+    })
+    .catch(err => alert("Error approving submission."));
+  };
+
+  const handleRejectSubmission = (submissionId) => {
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/jobs/poster/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId, posterId: user.telegramId })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert("Submission rejected!");
+        fetchMyJobs();
+      } else {
+        alert("Failed: " + data.error);
+      }
+    })
+    .catch(err => alert("Error rejecting submission."));
   };
 
   useEffect(() => {
@@ -711,7 +756,15 @@ const Profile = () => {
       return alert("সবগুলো তথ্য পূরণ করুন!");
     }
     if (Number(jobAmount) <= 0) {
-      return alert("কাজের মূল্য সঠিক দিন!");
+      return alert("Reward amount must be greater than 0!");
+    }
+    const limit = Number(jobLimit) || 0;
+    if (limit <= 0) {
+      return alert("Worker Limit must be greater than 0 to calculate the total cost.");
+    }
+    const totalCost = Number(jobAmount) * limit;
+    if (user.balance < totalCost) {
+      return alert(`Insufficient balance! You need ${totalCost} ৳ to post this job.`);
     }
     
     setIsPosting(true);
@@ -795,6 +848,11 @@ const Profile = () => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/contact`)
       .then(res => res.json())
       .then(data => setLinks(data))
+      .catch(console.error);
+
+    fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/config`)
+      .then(res => res.json())
+      .then(data => { if (data) setAppConfig(data); })
       .catch(console.error);
     
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/admin/user/${window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '6323700179'}`)
@@ -969,11 +1027,11 @@ const Profile = () => {
             <AlertCircle size={20} /> Account Not Verified
           </h3>
           <p style={{color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '15px', fontWeight: '600'}}>
-            একাউন্ট ভেরিফাই করার জন্য {links.activationFee || 20} টাকা ফি প্রদান করুন। ভেরিফাই করলে আপনি ৪ জেনারেশন (৫+২+১+১) পর্যন্ত রেফার কমিশন পাবেন!
+            একাউন্ট ভেরিফাই করার জন্য {appConfig.verifyFee || 20} টাকা ফি প্রদান করুন। ভেরিফাই করলে আপনি ৪ জেনারেশন ({appConfig.level1Commission || 5}+{appConfig.level2Commission || 2}+{appConfig.level3Commission || 1}+{appConfig.level4Commission || 1}) পর্যন্ত রেফার কমিশন পাবেন!
           </p>
           
           <div style={{background: 'var(--input-bg)', padding: '15px', borderRadius: '12px', marginBottom: '15px', border: '1px solid var(--border-color)'}}>
-            <p style={{fontWeight: '700', marginBottom: '5px', color: 'var(--text-primary)'}}>Send {links.activationFee || 20} ৳ to any number:</p>
+            <p style={{fontWeight: '700', marginBottom: '5px', color: 'var(--text-primary)'}}>Send {appConfig.verifyFee || 20} ৳ to any number:</p>
             <ul style={{listStyle: 'none', padding: 0, margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem'}}>
               <li style={{marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '8px'}}><strong style={{color: '#ff4081'}}>bKash:</strong> {links.bkashNumber} <Copy size={16} style={{cursor:'pointer', color:'#6b7280'}} onClick={() => {navigator.clipboard.writeText(links.bkashNumber); alert('Number copied!');}} /></li>
               <li style={{marginBottom: '5px', display: 'flex', alignItems: 'center', gap: '8px'}}><strong style={{color: '#ff6d00'}}>Nagad:</strong> {links.nagadNumber} <Copy size={16} style={{cursor:'pointer', color:'#6b7280'}} onClick={() => {navigator.clipboard.writeText(links.nagadNumber); alert('Number copied!');}} /></li>
@@ -1057,8 +1115,8 @@ const Profile = () => {
                 <input type="number" placeholder="e.g. 5" value={jobAmount} onChange={e => setJobAmount(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem'}} />
               </div>
               <div style={{marginBottom: '15px'}}>
-                <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '5px'}}>সর্বোচ্চ কতজন কাজ করতে পারবে (Worker Limit - ০ মানে আনলিমিটেড)</label>
-                <input type="number" placeholder="e.g. 10 (0 for unlimited)" value={jobLimit} onChange={e => setJobLimit(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem'}} />
+                <label style={{fontSize: '0.85rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '5px'}}>সর্বোচ্চ কতজন কাজ করতে পারবে (Worker Limit)</label>
+                <input type="number" placeholder="e.g. 10 (Must be > 0)" value={jobLimit} onChange={e => setJobLimit(e.target.value)} style={{width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: '0.9rem'}} />
               </div>
               
               <button type="submit" disabled={isPosting} style={{
@@ -1140,6 +1198,53 @@ const Profile = () => {
                       >
                         Delete
                       </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Submissions for Job Poster */}
+          <div style={{
+            background: 'var(--card-bg)', borderRadius: '20px', padding: '20px', marginTop: '20px',
+            boxShadow: 'var(--shadow)', border: 'var(--card-border)',
+            backdropFilter: 'blur(10px)', webkitBackdropFilter: 'blur(10px)', color: 'var(--text-primary)'
+          }}>
+            <h3 style={{fontSize: '1.2rem', fontWeight: '900', color: 'var(--text-primary)', marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '8px'}}>
+              <CheckCircle size={22} /> Submissions to Review
+            </h3>
+            {myJobSubmissions.length === 0 ? (
+              <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem'}}>No pending submissions to review.</p>
+            ) : (
+              <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                {myJobSubmissions.map((sub) => (
+                  <div key={sub._id} style={{
+                    padding: '15px', borderRadius: '12px', border: '1px solid var(--border-color)', 
+                    background: 'var(--input-bg)', display: 'flex', flexDirection: 'column', gap: '10px'
+                  }}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
+                      <div>
+                        <h4 style={{fontSize: '0.95rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '3px'}}>
+                          {sub.jobTitle || (sub.jobId && sub.jobId.title) || 'Unknown Job'}
+                        </h4>
+                        <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '3px'}}>
+                          Worker ID: <span style={{color: 'var(--text-primary)'}}>{sub.userTelegramId}</span>
+                        </p>
+                        <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)'}}>
+                          Proof: <span style={{fontWeight: '700', color: 'var(--accent-color)'}}>{sub.submittedId}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div style={{display: 'flex', gap: '8px'}}>
+                      <button onClick={() => handleApproveSubmission(sub._id)} style={{
+                        flex: 1, background: 'var(--positive-color)', color: 'white', border: 'none', 
+                        padding: '8px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer'
+                      }}>Approve</button>
+                      <button onClick={() => handleRejectSubmission(sub._id)} style={{
+                        flex: 1, background: 'var(--negative-color)', color: 'white', border: 'none', 
+                        padding: '8px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: '700', cursor: 'pointer'
+                      }}>Reject</button>
                     </div>
                   </div>
                 ))}
@@ -1690,6 +1795,30 @@ const HistoryPage = () => {
     }).catch(() => setLoading(false));
   }, [myTelegramId]);
 
+  const handleReportJob = (submissionId) => {
+    const reason = window.prompt("রিপোর্ট করার কারণ লিখুন (Enter reason for report):");
+    if (reason) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ submissionId, reportReason: reason })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if(data.success) {
+          alert("রিপোর্ট সফলভাবে জমা হয়েছে!");
+          // reload work history
+          fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/jobs/history/${myTelegramId}`)
+            .then(res => res.json())
+            .then(d => setWorkHistory(Array.isArray(d) ? d : []));
+        } else {
+          alert("রিপোর্ট করতে সমস্যা হয়েছে: " + data.error);
+        }
+      })
+      .catch(err => alert("Server error!"));
+    }
+  };
+
   return (
     <div style={{background: 'transparent', minHeight: '100vh', padding: '20px', paddingBottom: '100px'}}>
       <div style={{display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px'}}>
@@ -1759,7 +1888,18 @@ const HistoryPage = () => {
                     </div>
                     <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Proof Submitted: <strong style={{color: 'var(--text-primary)'}}>{item.submittedId}</strong></p>
                     <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0 0 4px 0'}}>Reward: <strong style={{color: 'var(--text-primary)'}}>{item.rewardAmount !== undefined ? item.rewardAmount : (item.jobId?.amount || 0)} ৳</strong></p>
-                    <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.8, margin: 0}}>{new Date(item.createdAt).toLocaleString()}</p>
+                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', opacity: 0.8, margin: 0}}>{new Date(item.createdAt).toLocaleString()}</p>
+                      {item.status === 'rejected' && !item.isReported && (
+                        <button onClick={() => handleReportJob(item._id)} style={{
+                          background: 'rgba(239, 68, 68, 0.15)', color: 'var(--negative-color)', border: '1px solid var(--negative-color)',
+                          padding: '4px 10px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer'
+                        }}>Report</button>
+                      )}
+                      {item.isReported && (
+                        <span style={{fontSize: '0.8rem', color: '#d97706', fontWeight: '700'}}>Reported ⚠️</span>
+                      )}
+                    </div>
                   </div>
                 ))
               )}
@@ -1834,6 +1974,7 @@ const Invite = () => {
   const referralLink = `https://t.me/PowerStartWork_Bot?start=ref_${myTelegramId}`;
   
   const [stats, setStats] = React.useState({ totalReferrals: 0, totalEarned: 0, referrals: [] });
+  const [appConfig, setAppConfig] = React.useState({ level1Commission: 5, level2Commission: 2, level3Commission: 1, level4Commission: 1 });
 
   React.useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/referrals/${myTelegramId}`)
@@ -1842,6 +1983,11 @@ const Invite = () => {
         if (!data.error) setStats(data);
       })
       .catch(err => console.error(err));
+      
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/config`)
+      .then(res => res.json())
+      .then(data => { if (data) setAppConfig(data); })
+      .catch(console.error);
   }, []);
 
   const copyToClipboard = () => {
@@ -1864,7 +2010,7 @@ const Invite = () => {
       }}>
         <Gift size={40} style={{margin: '0 auto 10px auto'}} />
         <h2 style={{fontSize: '1.6rem', fontWeight: '900', marginBottom: '5px'}}>Invite & Earn!</h2>
-        <p style={{fontSize: '1rem', opacity: '0.9', fontWeight: '600'}}>Earn up to 4 generations of commission (5৳, 2৳, 1৳, 1৳) when your friends verify their account!</p>
+        <p style={{fontSize: '1rem', opacity: '0.9', fontWeight: '600'}}>Earn up to 4 generations of commission ({appConfig.level1Commission || 5}৳, {appConfig.level2Commission || 2}৳, {appConfig.level3Commission || 1}৳, {appConfig.level4Commission || 1}৳) when your friends verify their account!</p>
         <div style={{background: 'rgba(0,0,0,0.2)', padding: '12px', borderRadius: '12px', marginTop: '15px', border: '1px solid rgba(255,255,255,0.3)'}}>
           <p style={{fontSize: '0.85rem', fontWeight: '700', margin: 0, display: 'flex', alignItems: 'flex-start', gap: '8px', textAlign: 'left'}}>
             <AlertCircle size={24} style={{flexShrink: 0, marginTop: '-2px'}}/>
@@ -2177,6 +2323,7 @@ const AdminPanel = () => {
   const [coins, setCoins] = useState([]);
   const [marketConfig, setMarketConfig] = useState({ marketIsVisible: true });
   const [jobSubmissions, setJobSubmissions] = useState([]);
+  const [jobReports, setJobReports] = useState([]);
   const [bots, setBots] = useState([]);
   const [allJobs, setAllJobs] = useState([]);
   const [editingBot, setEditingBot] = useState(null);
@@ -2323,6 +2470,56 @@ const AdminPanel = () => {
       .then(res => res.json())
       .then(data => setJobSubmissions(Array.isArray(data) ? data : []))
       .catch(console.error);
+
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/job-reports`)
+      .then(res => res.json())
+      .then(data => setJobReports(Array.isArray(data) ? data : []))
+      .catch(console.error);
+  };
+
+  const handleForceApprove = (submissionId) => {
+    // We can reuse the poster approve logic but bypassing posterId check by creating a new admin route, or reuse existing admin approve route
+    // The existing admin approve route is `/api/admin/jobs/approve` which just needs `submissionId`
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/jobs/approve`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ submissionId })
+    }).then(res => res.json()).then(data => {
+      if(data.success) {
+        alert('Reported job force approved and worker credited.');
+        fetchJobSubmissions();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    }).catch(console.error);
+  };
+
+  const handleDismissReport = (submissionId) => {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/job-reports/${submissionId}/dismiss`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }).then(res => res.json()).then(data => {
+      if(data.success) {
+        alert('Report dismissed.');
+        fetchJobSubmissions();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    }).catch(console.error);
+  };
+
+  const handleBanPosterFromReport = (telegramId) => {
+    if (window.confirm('Are you sure you want to ban this user?')) {
+      fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/user/${telegramId}/ban`, {
+        method: 'POST',
+      }).then(res => res.json()).then(data => {
+        if (data.success) {
+          alert(data.isBanned ? 'User banned successfully.' : 'User unbanned successfully.');
+        } else {
+          alert('Error: ' + data.error);
+        }
+      }).catch(console.error);
+    }
   };
 
   const approveJobSubmission = (id) => {
@@ -2657,6 +2854,10 @@ const AdminPanel = () => {
         <button onClick={() => setActiveTab('users')} style={{ background: activeTab === 'users' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'users' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>
           Users
         </button>
+        
+        <button onClick={() => setActiveTab('reports')} style={{ background: activeTab === 'reports' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'reports' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>
+          Reports
+        </button>
 
         <button onClick={() => setActiveTab('tasks')} style={{ background: activeTab === 'tasks' ? 'var(--primary-color)' : 'var(--card-bg)', color: activeTab === 'tasks' ? '#ffffff' : 'var(--text-primary)', border: 'var(--card-border)', padding: '8px 15px', borderRadius: '20px', fontWeight: '700', whiteSpace: 'nowrap', cursor: 'pointer' }}>Tasks</button>
         
@@ -2818,6 +3019,33 @@ const AdminPanel = () => {
                 {searchedUser.isBanned ? 'Unban User' : 'Ban User'}
               </button>
             </div>
+          )}
+        </div>
+      )}
+
+      {/* REPORTS TAB */}
+      {activeTab === 'reports' && (
+        <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px' }}>
+          <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>User Reports</h3>
+          {jobReports.length === 0 ? (
+            <p style={{ color: 'var(--text-secondary)' }}>No active reports.</p>
+          ) : (
+            jobReports.map(report => (
+              <div key={report._id} style={{ padding: '15px', border: '1px solid var(--negative-color)', borderRadius: '12px', marginBottom: '15px', background: 'var(--input-bg)' }}>
+                <p style={{ color: 'var(--negative-color)', fontWeight: '800', marginBottom: '10px' }}>⚠️ Reported by Worker: {report.userTelegramId}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '5px' }}><strong>Job Poster:</strong> {report.jobId?.postedBy || 'Unknown'}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '5px' }}><strong>Job Title:</strong> {report.jobId?.title || report.jobTitle}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '5px' }}><strong>Proof:</strong> {report.submittedId}</p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '15px' }}><strong>Reason:</strong> {report.reportReason}</p>
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <button onClick={() => handleForceApprove(report._id)} style={{ background: 'var(--positive-color)', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>Force Approve (Pay Worker)</button>
+                  <button onClick={() => handleDismissReport(report._id)} style={{ background: 'var(--card-border)', color: 'var(--text-primary)', border: 'none', padding: '8px 15px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>Dismiss Report</button>
+                  {report.jobId?.postedBy && report.jobId.postedBy !== 'admin' && (
+                    <button onClick={() => handleBanPosterFromReport(report.jobId.postedBy)} style={{ background: 'var(--negative-color)', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer' }}>Ban Poster</button>
+                  )}
+                </div>
+              </div>
+            ))
           )}
         </div>
       )}
@@ -3273,13 +3501,55 @@ const AdminPanel = () => {
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     monetagDirectLink: marketConfig.monetagDirectLink,
-                    monetagReward: Number(marketConfig.monetagReward)
+                    monetagReward: Number(marketConfig.monetagReward),
+                    verifyFee: Number(marketConfig.verifyFee),
+                    level1Commission: Number(marketConfig.level1Commission),
+                    level2Commission: Number(marketConfig.level2Commission),
+                    level3Commission: Number(marketConfig.level3Commission),
+                    level4Commission: Number(marketConfig.level4Commission)
                   }),
                 }).then(() => alert('Monetag settings saved successfully!'));
               }} style={{ background: 'var(--primary-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width: '100%', cursor: 'pointer', border: 'none', marginTop: '5px' }}>Save Monetag Settings</button>
             </div>
           </div>
-
+          <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Fee & Commission Settings</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Verification Fee (৳)</label>
+                <input type="number" value={marketConfig.verifyFee || ''} onChange={(e) => setMarketConfig({ ...marketConfig, verifyFee: Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Level 1 Commission (৳)</label>
+                <input type="number" value={marketConfig.level1Commission || ''} onChange={(e) => setMarketConfig({ ...marketConfig, level1Commission: Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Level 2 Commission (৳)</label>
+                <input type="number" value={marketConfig.level2Commission || ''} onChange={(e) => setMarketConfig({ ...marketConfig, level2Commission: Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Level 3 Commission (৳)</label>
+                <input type="number" value={marketConfig.level3Commission || ''} onChange={(e) => setMarketConfig({ ...marketConfig, level3Commission: Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Level 4 Commission (৳)</label>
+                <input type="number" value={marketConfig.level4Commission || ''} onChange={(e) => setMarketConfig({ ...marketConfig, level4Commission: Number(e.target.value) })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--input-border)', background: 'var(--input-bg)', color: 'var(--text-primary)' }} />
+              </div>
+              <button onClick={() => {
+                fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/admin/config`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    verifyFee: Number(marketConfig.verifyFee),
+                    level1Commission: Number(marketConfig.level1Commission),
+                    level2Commission: Number(marketConfig.level2Commission),
+                    level3Commission: Number(marketConfig.level3Commission),
+                    level4Commission: Number(marketConfig.level4Commission)
+                  }),
+                }).then(() => alert('Fee and Commission settings saved successfully!'));
+              }} style={{ background: 'var(--primary-color)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '700', width: '100%', cursor: 'pointer', border: 'none', marginTop: '5px' }}>Save Fee & Commission Settings</button>
+            </div>
+          </div>
           {/* Marquee Notice Settings */}
           <div style={{ background: 'var(--card-bg)', border: 'var(--card-border)', padding: '20px', borderRadius: '16px', marginBottom: '20px' }}>
             <h3 style={{ marginBottom: '15px', fontSize: '1.2rem', color: 'var(--text-primary)' }}>Marquee Notice Settings</h3>
